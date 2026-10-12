@@ -1,4 +1,5 @@
 import type { CardApproval } from '~/types/card'
+import type { HelpEntry } from '~/types/help'
 
 export type RiskTag = 'LATE_NIGHT' | 'WEEKEND' | 'HOLIDAY' | 'PRIVATE_MERCHANT' | 'SPLIT_PAYMENT' | 'ROUND_AMOUNT'
 export type Severity = 'HIGH' | 'MEDIUM' | 'LOW'
@@ -27,7 +28,7 @@ export type RiskContext = {
 export type RiskRule = {
   tag: RiskTag
   name: string
-  description: string
+  help: HelpEntry // 정보 아이콘에 보여줄 설명 (하는 일 / 필요한 이유)
   severity: Severity
   defaultEnabled: boolean
   evaluate: (row: CardApproval, context: RiskContext) => RiskHit | null
