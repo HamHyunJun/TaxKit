@@ -292,7 +292,7 @@ export type RiskFinding = {
 export type RiskRule = {
   tag: RiskTag
   name: string
-  description: string
+  help: HelpEntry // 정보 아이콘 설명 { title, what(하는 일), why(왜 필요한가요?) }
   severity: Severity
   defaultEnabled: boolean // 켜고 끄는 상태는 호출하는 쪽의 enabledTags로 관리
   evaluate: (row: CardApproval, context: RiskContext) => RiskHit | null
@@ -424,11 +424,15 @@ useState('taxkit:handoff') ─┐
 | `--tk-card` | `#ffffff` + Slate-200 테두리 | 카드 |
 | `--tk-text` | Slate-800 `#1e293b` | 본문 텍스트 |
 | `--tk-muted` | Slate-500 `#64748b` | 보조 텍스트 |
-| `--tk-accent` | Emerald-500 `#10b981` / hover Emerald-600 `#059669` | 포인트, 활성 탭, 주요 버튼, 보안 뱃지 |
+| `--tk-accent` | Emerald-500 `#10b981` / hover Emerald-600 `#059669` | 포인트, 활성 탭 표시, 보안 뱃지, 아이콘·장식 |
+| `--tk-accent-text` | Emerald-700 `#047857` | 흰색·연한 틴트 위 초록 글자(4.6:1 이상), **주요 버튼 배경**(흰 글자 5.5:1) |
+| `--tk-danger-text` | Rose-700 `#be123c` | 흰색·연한 틴트 위 빨강 글자 |
+| `--tk-muted-strong` | Slate-600 `#475569` | 연한 회색 면(`--tk-surface-strong`) 위 보조 글자·표 헤더 |
+| `--tk-shadow-sm/md/pop` | 옅은 그림자 3단 | 카드 / 호버 카드 / 팝오버·모달 |
 | `--tk-danger` | Rose-600 `#e11d48` | 누락 의심, 고위험 |
 | `--tk-warn` | Amber-500 `#f59e0b` | 검토 필요, 중위험 |
 | 폰트 | Pretendard (npm 패키지로 **셀프 호스팅**), 숫자는 `font-variant-numeric: tabular-nums` | |
-| 반경 | 카드 12px, 버튼 8px, 뱃지 999px | |
+| 반경 | 카드 12px, 모달·드롭존 16px, 버튼·입력 8px, 뱃지·칩 999px | |
 
 ### 6.6 인터랙션 (Emil Kowalski 스타일)
 - **탭 인디케이터**: 활성 탭의 `offsetLeft/offsetWidth`를 읽어 하나의 인디케이터 요소를 `transform: translateX() scaleX()`로 이동. `cubic-bezier(0.32, 0.72, 0, 1)`, 280ms.
@@ -444,6 +448,13 @@ useState('taxkit:handoff') ─┐
 - 테이블: `<table>` + `<caption>` + `<th scope="col">`, 정렬 버튼은 `aria-sort`.
 - 상태 색상에는 항상 텍스트 라벨·아이콘을 함께 표시(색맹 대응). 대비 4.5:1 이상.
 - 포커스 링: Emerald 2px `:focus-visible`.
+
+### 6.8 화면 설명과 공통 컨트롤
+- **정보 아이콘(InfoTip):** 제목·설정 항목·표 헤더·주요 버튼 옆의 작은 `i` 아이콘을 누르면(Enter·Space 포함) 말풍선이 열려 **하는 일 / 왜 필요한가요?** 를 알려준다. 바깥 클릭·Esc로 닫고, 화면 아래가 모자라면 위로 뜨며, 스크롤하면 아이콘을 따라간다(아이콘이 화면 밖으로 나가면 닫음). 표의 스크롤 영역에 잘리지 않도록 `body`로 옮겨 `fixed`로 배치한다. 문구는 `utils/helpTexts.ts`(공용)와 `RISK_RULES[].help`(규칙별)에서 관리한다.
+- **페이지 헤더(PageHeader):** 각 탭 상단에 `STEP n` · 제목(+정보 아이콘) · 한 줄 설명.
+- **폼 컨트롤:** 입력·셀렉트·체크박스·라디오·슬라이더·날짜는 `base/_forms.scss`의 전역 스타일(포커스 링, 호버, 오류 상태 통일). 택1은 `.segmented`(채널·입력 소스), 다중 선택은 `.chip-toggle`(검사 규칙·위험도 필터).
+- **버튼:** `.tk-btn` 계열(기본·`--primary`·`--ghost`·`--sm`). 눌림 시 `scale(0.97)`.
+- **표:** 열을 늘리지 않고 합쳐 6열 안팎으로 유지한다. Tab 1은 상태 · 거래일(+입출금) · 금액 · 적요와 판정 근거 · 매칭 계산서 · 점수이며, 짝지어진 계산서가 하나도 없는 필터(누락 의심)에서는 계산서·점수 열을 숨긴다. Tab 2는 위험도(+점수) · 승인일시(날짜/시각 두 줄) · 가맹점·카드 · 금액 · 걸린 규칙과 사유 · 소명 내용이다. 표 안에서 스크롤하며 헤더를 고정하고(키보드 포커스 가능), 200건씩 더 보여준다.
 
 ## 7. 보안·개인정보 요구사항
 - 정적 빌드(`nuxi generate`, `ssr: false`) 후 Vercel에 배포한다. 서버 런타임, API 라우트, Edge Function을 두지 않는다.
@@ -534,6 +545,12 @@ TaxKit/
 - [x] 운영 CSP 적용 후 네트워크 탭에서 외부 요청 0건 확인 (정적 빌드 기준, 세 탭 업로드·대사·전달·복사·다운로드 흐름 전체에서 외부 요청 0건·콘솔 오류 0건)
 - [x] Lighthouse 접근성·성능 90점 이상 (프로덕션 URL, Lighthouse 13.5: 모바일 성능 96·접근성 100, 데스크톱 성능 100·접근성 100, 권장사항 100, SEO 91 — robots.txt 없음으로 감점)
 - [ ] `nuxi generate` → Vercel 정적 배포 (`pnpm generate`는 통과, 배포는 남음)
+
+### Phase 6 — UX 개선 (브랜치 `ux`)
+- [x] 정보 아이콘(InfoTip)과 도움말 문구: 대사·스캐너·메시지 전반의 제목·옵션·표 헤더·주요 버튼
+- [x] 표 가독성: 열 통합(10열→6열), 헤더 고정, 빈 열 숨김, 판정 근거·사유 줄 정리
+- [x] 디자인 시스템 정리: 토큰·그림자·타이포, 폼 컨트롤(체크박스·라디오·셀렉트·슬라이더·날짜), 세그먼트·칩 토글, 버튼, 모달, 툴팁, 토스트, 드롭존, 페이지 헤더
+- [x] axe-core로 11개 사용 상태 위반 0건 확인(표 헤더 대비 `--tk-muted-strong`으로 보완)
 
 ## 10. 열린 질문
 - 은행별 엑셀 양식 샘플(국민·신한·우리·하나·기업·농협) 확보 필요 — 별칭 사전 보강용.
