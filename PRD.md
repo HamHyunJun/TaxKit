@@ -471,13 +471,13 @@ TaxKit/
 
 ### Phase 0 — 초기 세팅 (브랜치 `init`)
 - [x] PRD.md, CLAUDE.md, package.json, nuxt.config.ts 작성
-- [ ] `corepack enable` 후 `pnpm install` (postinstall로 `nuxt prepare` 자동 실행)
-- [ ] SCSS 구조(`abstracts/`, `base/`, `main.scss`) + 디자인 토큰 + Pretendard 셀프 호스팅 연결 (Tailwind 미사용)
-- [ ] ESLint(`@nuxt/eslint`) 설정, `no-explicit-any`·`func-style` 규칙 활성화
+- [x] `corepack enable` 후 `pnpm install` (postinstall로 `nuxt prepare` 자동 실행)
+- [x] SCSS 구조(`abstracts/`, `base/`, `main.scss`) + 디자인 토큰 + Pretendard 셀프 호스팅 연결 (Tailwind 미사용)
+- [x] ESLint(`@nuxt/eslint`) 설정, `no-explicit-any`·`func-style` 규칙 활성화
 - [ ] `git init`, 첫 커밋 `chore: 프로젝트 초기 설정`
 
 ### Phase 1 — 공통 기반 (브랜치 `init` 계속)
-- [ ] 레이아웃: `AppHeader`(보안 뱃지 고정), `TabNav`(인디케이터 애니메이션, 키보드 탐색), `AppFooter`
+- [x] 레이아웃: `AppHeader`(보안 뱃지 고정), `TabNav`(인디케이터 애니메이션, 키보드 탐색), `AppFooter`
 - [ ] `DropZone` 컴포넌트(드래그 피드백, 키보드 접근, 파일 형식/크기 검증)
 - [ ] `useExcelReader`: xlsx 파싱 → 헤더 자동 탐지 → 별칭 매핑 → 정규화 → `ParsedSheet<T>`
 - [ ] `ColumnMapModal`: 필수 컬럼 누락 시 수동 매핑, 매핑 기억(`localStorage`)

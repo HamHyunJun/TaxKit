@@ -1,0 +1,15 @@
+@use '../abstracts' as *;
+
+// 런타임 테마 값 (컴포넌트는 HEX 대신 var(--tk-*)를 쓴다)
+:root {
+  --tk-bg: #{$color-slate-900};
+  --tk-surface: #{$color-slate-50};
+  --tk-card: #{$color-white};
+  --tk-border: #{$color-slate-200};
+  --tk-text: #{$color-slate-800};
+  --tk-muted: #{$color-slate-500};
+  --tk-accent: #{$color-emerald-500};
+  --tk-accent-hover: #{$color-emerald-600};
+  --tk-danger: #{$color-rose-600};
+  --tk-warn: #{$color-amber-500};
+}
