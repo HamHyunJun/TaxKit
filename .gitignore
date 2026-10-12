@@ -37,3 +37,6 @@ yarn.lock
 
 # Vercel CLI가 만드는 프로젝트 연결 정보
 .vercel
+
+# OMC 에이전트 작업 상태(세션·훅 기록)는 커밋하지 않는다
+.omc/
