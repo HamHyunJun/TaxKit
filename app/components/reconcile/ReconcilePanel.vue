@@ -3,41 +3,55 @@
     class="reconcile"
     aria-labelledby="reconcile-title"
   >
-    <header class="reconcile__head">
-      <h1
-        id="reconcile-title"
-        class="reconcile__title"
-      >
-        계좌·세금계산서 대사
-      </h1>
-      <p class="reconcile__desc">
-        통장 거래내역과 세금계산서를 올리면 금액·날짜·상호로 짝을 찾아 누락 의심 건을 알려줘요.
-      </p>
-    </header>
+    <PageHeader
+      eyebrow="STEP 1"
+      title="계좌·세금계산서 대사"
+      description="통장 거래내역과 세금계산서를 올리면 금액·날짜·상호로 짝을 찾아 세금계산서가 누락된 것으로 의심되는 건을 알려줘요."
+      topic="reconcilePage"
+      title-id="reconcile-title"
+    />
 
-    <div class="reconcile__files">
-      <DropZone
-        title="통장 거래내역 엑셀을 놓으세요"
-        :file-name="bank.fileName"
-        :detail="sourceDetail(bank)"
-        :error="bank.error"
-        @select="(file) => loadFile('bank', file)"
-      />
-      <DropZone
-        title="홈택스 세금계산서 엑셀을 놓으세요"
-        :file-name="invoice.fileName"
-        :detail="sourceDetail(invoice)"
-        :error="invoice.error"
-        @select="(file) => loadFile('invoice', file)"
-      />
+    <div class="reconcile__block">
+      <h2 class="tk-section-title">
+        파일 올리기
+      </h2>
+      <div class="reconcile__files">
+        <DropZone
+          title="통장 거래내역 엑셀"
+          :file-name="bank.fileName"
+          :detail="sourceDetail(bank)"
+          :error="bank.error"
+          @select="(file) => loadFile('bank', file)"
+        >
+          <template #info>
+            <InfoTip topic="bankFile" />
+          </template>
+        </DropZone>
+        <DropZone
+          title="홈택스 세금계산서 엑셀"
+          :file-name="invoice.fileName"
+          :detail="sourceDetail(invoice)"
+          :error="invoice.error"
+          @select="(file) => loadFile('invoice', file)"
+        >
+          <template #info>
+            <InfoTip topic="invoiceFile" />
+          </template>
+        </DropZone>
+      </div>
     </div>
 
-    <ReconcileOptions
-      v-model="options"
-      :can-run="canRun"
-      :is-running="isRunning"
-      @run="handleRun"
-    />
+    <div class="reconcile__block">
+      <h2 class="tk-section-title">
+        대사 옵션
+      </h2>
+      <ReconcileOptions
+        v-model="options"
+        :can-run="canRun"
+        :is-running="isRunning"
+        @run="handleRun"
+      />
+    </div>
 
     <p
       class="reconcile__status"
@@ -48,53 +62,73 @@
     </p>
 
     <template v-if="output">
-      <p
-        v-if="output.isOurBizNoEstimated && output.ourBizNo"
-        class="reconcile__note"
-      >
-        우리 회사 사업자번호를 {{ formatBizNo(output.ourBizNo) }}(으)로 추정했어요. 다르면 위에서 직접 입력한 뒤 다시 실행해 주세요. (추정)
-      </p>
-      <p
-        v-else-if="!output.ourBizNo"
-        class="reconcile__note"
-      >
-        우리 회사 사업자번호를 판별하지 못해 입금·출금 방향 구분 없이 대사했어요.
-      </p>
-
-      <ReconcileSummary
-        v-model:filter="filter"
-        :summary="output.summary"
-      />
-      <ReconcileTable
-        :rows="shownRows"
-        :caption="filterCaption"
-        :empty-text="emptyText"
-      />
-
-      <div class="reconcile__actions">
-        <button
-          type="button"
-          class="reconcile__button"
-          @click="handleDownload"
+      <div class="reconcile__block">
+        <h2 class="tk-section-title">
+          대사 결과
+          <InfoTip topic="resultFilters" />
+        </h2>
+        <p
+          v-if="output.isOurBizNoEstimated && output.ourBizNo"
+          class="reconcile__note"
         >
-          <Download
-            class="reconcile__button-icon"
+          <Info
+            class="reconcile__note-icon"
             aria-hidden="true"
           />
-          <span>결과 엑셀 다운로드</span>
-        </button>
-        <button
-          type="button"
-          class="reconcile__button reconcile__button--primary"
-          :disabled="output.summary.MISSING.count === 0"
-          @click="handleHandoff"
+          우리 회사 사업자번호를 {{ formatBizNo(output.ourBizNo) }}(으)로 추정했어요. 다르면 위 옵션에서 직접 입력한 뒤 다시 실행해 주세요. (추정)
+        </p>
+        <p
+          v-else-if="!output.ourBizNo"
+          class="reconcile__note"
         >
-          <span>누락 건 독촉 메시지로 전달 ({{ output.summary.MISSING.count.toLocaleString('ko-KR') }}건)</span>
-          <ArrowRight
-            class="reconcile__button-icon"
+          <Info
+            class="reconcile__note-icon"
             aria-hidden="true"
           />
-        </button>
+          우리 회사 사업자번호를 판별하지 못해 입금·출금 방향 구분 없이 대사했어요.
+        </p>
+
+        <ReconcileSummary
+          v-model:filter="filter"
+          :summary="output.summary"
+        />
+        <ReconcileTable
+          :rows="shownRows"
+          :caption="filterCaption"
+          :empty-text="emptyText"
+        />
+
+        <div class="reconcile__actions">
+          <span class="reconcile__action">
+            <button
+              type="button"
+              class="tk-btn reconcile__button"
+              @click="handleDownload"
+            >
+              <Download
+                class="tk-btn__icon"
+                aria-hidden="true"
+              />
+              <span>결과 엑셀 다운로드</span>
+            </button>
+            <InfoTip topic="downloadResult" />
+          </span>
+          <span class="reconcile__action">
+            <button
+              type="button"
+              class="tk-btn tk-btn--primary reconcile__button reconcile__button--primary"
+              :disabled="output.summary.MISSING.count === 0"
+              @click="handleHandoff"
+            >
+              <span>누락 건 독촉 메시지로 전달 ({{ output.summary.MISSING.count.toLocaleString('ko-KR') }}건)</span>
+              <ArrowRight
+                class="tk-btn__icon"
+                aria-hidden="true"
+              />
+            </button>
+            <InfoTip topic="handoff" />
+          </span>
+        </div>
       </div>
     </template>
 
@@ -111,7 +145,7 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowRight, Download } from 'lucide-vue-next'
+import { ArrowRight, Download, Info } from 'lucide-vue-next'
 import type { ReconcileFilter, ReconcileResult } from '~/types/reconcile'
 import type { SourceState } from '~/composables/useReconcile'
 
@@ -174,20 +208,11 @@ const handleHandoff = async (): Promise<void> => {
 <style scoped lang="scss">
 .reconcile {
   display: grid;
-  gap: $space-5;
+  gap: $space-8;
 
-  &__head {
+  &__block {
     display: grid;
-    gap: $space-1;
-  }
-
-  &__title {
-    font-size: $font-xl;
-  }
-
-  &__desc {
-    color: var(--tk-muted);
-    font-size: $font-sm;
+    gap: $space-4;
   }
 
   &__files {
@@ -200,67 +225,47 @@ const handleHandoff = async (): Promise<void> => {
   }
 
   &__status {
-    min-height: 1.5em;
+    min-height: 0;
     color: var(--tk-muted);
     font-size: $font-sm;
+
+    &:empty {
+      display: none;
+    }
   }
 
   &__note {
-    padding: $space-2 $space-3;
-    border-radius: $radius-md;
-    background: tint($color-amber-500, 0.14);
+    display: flex;
+    align-items: flex-start;
+    gap: $space-2;
+    padding: $space-3 $space-4;
+    border: 1px solid #{tint($color-amber-500, 0.35)};
+    border-radius: $radius-lg;
+    background: var(--tk-warn-soft);
+    color: var(--tk-warn-text);
     font-size: $font-sm;
+    line-height: 1.6;
+    word-break: keep-all;
+  }
+
+  &__note-icon {
+    flex: none;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-top: 0.125rem;
   }
 
   &__actions {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: $space-3;
+    gap: $space-4;
   }
 
-  &__button {
+  &__action {
     display: inline-flex;
     align-items: center;
-    gap: $space-2;
-    padding: $space-2 $space-4;
-    border: 1px solid var(--tk-border);
-    border-radius: $radius-md;
-    background: var(--tk-card);
-    font-weight: 600;
-    transition:
-      transform $duration-fast $ease-out-quint,
-      background-color $duration-fast $ease-out-quint;
-
-    @include focus-ring;
-
-    &:active:not(:disabled) {
-      transform: scale(0.96);
-    }
-
-    &:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-
-    &--primary {
-      border-color: var(--tk-accent);
-      background: var(--tk-accent);
-      color: var(--tk-bg);
-
-      &:hover:not(:disabled) {
-        background: var(--tk-accent-hover);
-      }
-    }
-
-    @include reduced-motion {
-      transition: none;
-    }
-  }
-
-  &__button-icon {
-    width: 1rem;
-    height: 1rem;
+    gap: $space-1;
   }
 }
 </style>
