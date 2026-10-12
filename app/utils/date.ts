@@ -46,3 +46,15 @@ export const parseDate = (raw: unknown): Date | null => {
 // 로컬 달력 날짜를 1970-01-01 기준 일수로 바꾼다 (시각·DST와 무관하게 날짜 차이를 정수로 계산하기 위함)
 export const toDayNumber = (date: Date): number =>
   Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / MS_PER_DAY)
+
+// 시각 → 하루 중 초. "23:42", "23:42:10", "234210", 엑셀 시간(0.9875)을 지원한다
+export const parseTimeOfDay = (raw: unknown): number | null => {
+  const text = typeof raw === 'number' ? String(raw) : typeof raw === 'string' ? raw.normalize('NFKC').trim() : ''
+  const clock = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(text) ?? /^(\d{2})(\d{2})(\d{2})?$/.exec(text)
+  if (clock) {
+    const [h, m, sec] = [Number(clock[1]), Number(clock[2]), Number(clock[3] ?? 0)]
+    return h < 24 && m < 60 && sec < 60 ? h * 3600 + m * 60 + sec : null
+  }
+  if (/^\d*\.\d+$/.test(text)) return Math.round(Number(text) * 86_400) % 86_400
+  return null
+}
