@@ -1,5 +1,11 @@
+@use 'sass:color';
 @use 'sass:map';
 @use 'tokens';
+
+// 색상에 투명도를 입히는 함수 (컴포넌트에서는 sass:color를 직접 쓰지 않는다)
+@function tint($color, $alpha) {
+  @return color.change($color, $alpha: $alpha);
+}
 
 @mixin respond-to($bp) {
   @media (min-width: map.get(tokens.$breakpoints, $bp)) {

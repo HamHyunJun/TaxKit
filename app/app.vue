@@ -7,6 +7,7 @@
     <AppHeader />
     <NuxtPage />
     <AppFooter />
+    <ToastHost />
   </div>
 </template>
 

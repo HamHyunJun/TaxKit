@@ -1,0 +1,12 @@
+// 복사 완료 아이콘 등에 쓰는 스프링 팝 (이징은 사용처에서 $spring을 지정한다)
+@keyframes spring-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
