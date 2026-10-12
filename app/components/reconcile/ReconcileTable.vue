@@ -206,7 +206,7 @@ const statusIcon = (status: MatchStatus): Component => STATUS_ICONS[status]
 
     &--matched {
       background: tint($color-emerald-500, 0.14);
-      color: $color-emerald-600;
+      color: $color-emerald-700;
     }
 
     &--review,
@@ -217,7 +217,7 @@ const statusIcon = (status: MatchStatus): Component => STATUS_ICONS[status]
 
     &--missing {
       background: tint($color-rose-600, 0.12);
-      color: $color-rose-600;
+      color: $color-rose-700;
     }
 
     &--invoice_only,

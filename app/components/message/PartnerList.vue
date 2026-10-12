@@ -161,7 +161,7 @@ const emit = defineEmits<{
     padding: 0 $space-2;
     border-radius: $radius-full;
     background: tint($color-emerald-500, 0.14);
-    color: $color-emerald-600;
+    color: $color-emerald-700;
     font-size: $font-xs;
     font-weight: 600;
     white-space: nowrap;

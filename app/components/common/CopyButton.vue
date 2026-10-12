@@ -3,7 +3,7 @@
     type="button"
     class="copy-button"
     :class="{ 'is-copied': isCopied }"
-    :aria-label="`${label} 복사`"
+    :aria-label="`${label} ${isCopied ? '복사됨' : '복사'}`"
     @click="handleClick"
   >
     <component

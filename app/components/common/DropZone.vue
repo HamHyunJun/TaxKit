@@ -177,7 +177,7 @@ const handleChange = (event: Event): void => {
     min-height: 1.5em;
     font-size: $font-sm;
     font-weight: 500;
-    color: var(--tk-accent-hover);
+    color: var(--tk-accent-text);
     word-break: break-all;
   }
 

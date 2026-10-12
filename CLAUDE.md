@@ -185,6 +185,7 @@ app/assets/scss/
 - `@import`는 쓰지 않는다(Dart Sass에서 폐기 예정). `@use`/`@forward`만 사용하고, 색상 계산은 `sass:color` 모듈(`color.adjust`, `color.mix`)을 쓴다.
 - 색상: 컴포넌트에 HEX 값을 직접 쓰지 않는다. 런타임 테마 값은 CSS 변수(`var(--tk-accent)`), 컴파일 타임 계산이 필요한 값은 SCSS 변수(`$color-emerald-500`)를 쓴다.
   - 기본 팔레트: Slate-900 `#0f172a`(헤더/다크 표면), Slate-50 `#f8fafc`(배경), Emerald-500 `#10b981`/600 `#059669`(포인트), Rose-600 `#e11d48`(위험), Amber-500 `#f59e0b`(주의)
+  - 글자색은 배경(흰색·연한 틴트)과 4.5:1 이상이어야 한다. 초록·빨강 글자는 `$color-emerald-700`(`--tk-accent-text`)·`$color-rose-700`을 쓰고, 500·600은 아이콘·버튼 배경에만 쓴다.
 - 간격은 4px 기반 스케일 변수(`$space-1` = 4px, `$space-2` = 8px …)만 쓴다. 매직 넘버 금지.
 - 중첩은 3단계까지만 허용한다. `!important`는 쓰지 않는다. 자식 컴포넌트 스타일 덮어쓰기는 `:deep()`으로 최소화한다.
 - 상단 헤더의 `🔒 100% 로컬 연산 (데이터 외부 전송 0 byte)` 보안 뱃지는 모든 화면에서 고정 노출한다(`position: sticky`).
