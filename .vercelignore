@@ -1,0 +1,17 @@
+# 빌드는 Vercel에서 하므로 로컬 산출물·의존성·작업 상태는 올리지 않는다
+node_modules
+.output
+.nuxt
+.nitro
+.cache
+dist
+.omc
+.claude
+.env
+.env.*
+*.log
+.DS_Store
+# 고객 데이터 유출 방지 (.gitignore와 같은 규칙)
+*.xlsx
+*.xls
+*.csv
