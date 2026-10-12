@@ -239,7 +239,7 @@ const handleInput = (id: string, event: Event): void => {
 
     &--high {
       background: tint($color-rose-600, 0.12);
-      color: $color-rose-600;
+      color: $color-rose-700;
     }
 
     &--medium {

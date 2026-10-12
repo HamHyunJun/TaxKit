@@ -32,6 +32,7 @@
         <div
           class="preview__bubble"
           :class="`preview__bubble--${channel}`"
+          role="region"
           tabindex="0"
           :aria-label="`${group.name} 안내 문구 미리보기`"
         >
