@@ -1,38 +1,51 @@
 <template>
-  <label
-    class="drop-zone"
-    :class="{
-      'is-dragging': isDragging,
-      'is-dropped': isDropped,
-      'is-done': isDone,
-      'has-error': Boolean(shownError),
-    }"
-    @dragenter.prevent="isDragging = true"
-    @dragover.prevent
-    @dragleave.prevent="handleDragLeave"
-    @drop.prevent="handleDrop"
-  >
-    <input
-      class="drop-zone__input"
-      type="file"
-      :accept="ACCEPTED_EXTENSIONS.join(',')"
-      @change="handleChange"
+  <div class="drop-zone-wrap">
+    <label
+      class="drop-zone"
+      :class="{
+        'is-dragging': isDragging,
+        'is-dropped': isDropped,
+        'is-done': isDone,
+        'has-error': Boolean(shownError),
+      }"
+      @dragenter.prevent="isDragging = true"
+      @dragover.prevent
+      @dragleave.prevent="handleDragLeave"
+      @drop.prevent="handleDrop"
     >
-    <component
-      :is="isDone ? Check : Upload"
-      class="drop-zone__icon"
-      aria-hidden="true"
-    />
-    <span class="drop-zone__title">{{ title }}</span>
-    <span class="drop-zone__hint">또는 클릭해서 파일 선택 ({{ ACCEPTED_EXTENSIONS.join(' ') }}, 최대 20MB)</span>
-    <span
-      class="drop-zone__status"
-      aria-live="polite"
+      <input
+        class="drop-zone__input"
+        type="file"
+        :accept="ACCEPTED_EXTENSIONS.join(',')"
+        @change="handleChange"
+      >
+      <span class="drop-zone__badge">
+        <component
+          :is="isDone ? Check : Upload"
+          class="drop-zone__icon"
+          aria-hidden="true"
+        />
+      </span>
+      <span class="drop-zone__title">{{ title }}</span>
+      <span class="drop-zone__hint">
+        여기에 끌어다 놓거나 <span class="drop-zone__link">파일 선택</span>
+      </span>
+      <span class="drop-zone__formats">{{ ACCEPTED_EXTENSIONS.join(' · ') }} · 최대 20MB</span>
+      <span
+        class="drop-zone__status"
+        aria-live="polite"
+      >
+        <template v-if="shownError">{{ shownError }}</template>
+        <template v-else-if="isDone">{{ fileName }}<template v-if="detail"> · {{ detail }}</template></template>
+      </span>
+    </label>
+    <div
+      v-if="$slots.info"
+      class="drop-zone-wrap__info"
     >
-      <template v-if="shownError">{{ shownError }}</template>
-      <template v-else-if="isDone">{{ fileName }}<template v-if="detail"> · {{ detail }}</template></template>
-    </span>
-  </label>
+      <slot name="info" />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -105,22 +118,34 @@ const handleChange = (event: Event): void => {
 </script>
 
 <style scoped lang="scss">
-.drop-zone {
+.drop-zone-wrap {
   position: relative;
+
+  &__info {
+    position: absolute;
+    top: $space-3;
+    right: $space-3;
+  }
+}
+
+.drop-zone {
   display: grid;
   justify-items: center;
-  gap: $space-1-5;
-  padding: $space-8 $space-4;
-  border: 2px dashed var(--tk-border);
-  border-radius: $radius-lg;
+  align-content: center;
+  gap: $space-1;
+  min-height: 11.5rem;
+  padding: $space-6 $space-4;
+  border: 1.5px dashed var(--tk-border-strong);
+  border-radius: $radius-xl;
   background: var(--tk-card);
   color: var(--tk-muted);
   text-align: center;
   cursor: pointer;
   transition:
-    transform $duration-base $ease-out-quint,
-    background-color $duration-base $ease-out-quint,
-    border-color $duration-base $ease-out-quint;
+    transform 200ms $ease-out-quint,
+    background-color 200ms $ease-out-quint,
+    border-color 200ms $ease-out-quint,
+    box-shadow 200ms $ease-out-quint;
 
   &:focus-within {
     outline: 2px solid var(--tk-accent);
@@ -129,11 +154,13 @@ const handleChange = (event: Event): void => {
 
   &:hover {
     border-color: var(--tk-accent);
+    background: var(--tk-accent-soft);
   }
 
   &.is-dragging {
     border-color: var(--tk-accent);
-    background: tint($color-emerald-500, 0.08);
+    background: #{tint($color-emerald-500, 0.1)};
+    box-shadow: 0 0 0 4px #{tint($color-emerald-500, 0.14)};
     transform: scale(1.02);
   }
 
@@ -144,51 +171,92 @@ const handleChange = (event: Event): void => {
   &.is-done {
     border-style: solid;
     border-color: var(--tk-accent);
+    background: var(--tk-accent-soft);
   }
 
   &.has-error {
     border-color: var(--tk-danger);
+    background: var(--tk-danger-soft);
   }
 
   &__input {
     @include visually-hidden;
   }
 
-  &__icon {
-    width: 1.5rem;
-    height: 1.5rem;
+  &__badge {
+    display: inline-grid;
+    place-content: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: $space-2;
+    border-radius: $radius-lg;
+    background: var(--tk-surface-strong);
+    color: $color-slate-600;
+    transition:
+      background-color 200ms $ease-out-quint,
+      color 200ms $ease-out-quint;
   }
 
-  &.is-done &__icon {
-    color: var(--tk-accent-hover);
+  &:hover &__badge,
+  &.is-dragging &__badge {
+    background: var(--tk-card);
+    color: var(--tk-accent-text);
+    box-shadow: var(--tk-shadow-sm);
+  }
+
+  &.is-done &__badge {
+    background: var(--tk-accent-text);
+    color: $color-white;
     animation: spring-pop $duration-slow $spring;
   }
 
+  &__icon {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+
   &__title {
-    color: var(--tk-text);
-    font-weight: 600;
+    color: var(--tk-text-strong);
+    font-size: $font-base;
+    font-weight: 700;
+    letter-spacing: $tracking-tight;
+    word-break: keep-all;
   }
 
   &__hint {
+    font-size: $font-sm;
+  }
+
+  &__link {
+    color: var(--tk-accent-text);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  &__formats {
     font-size: $font-xs;
   }
 
   &__status {
-    min-height: 1.5em;
-    font-size: $font-sm;
-    font-weight: 500;
+    min-height: 1.75rem;
+    margin-top: $space-2;
     color: var(--tk-accent-text);
+    font-size: $font-sm;
+    font-weight: 600;
     word-break: break-all;
   }
 
   &.has-error &__status {
-    color: var(--tk-danger);
+    color: var(--tk-danger-text);
   }
 
   @include reduced-motion {
     transition: none;
 
-    &.is-done &__icon {
+    &__badge,
+    &.is-done &__badge {
+      transition: none;
       animation: none;
     }
   }

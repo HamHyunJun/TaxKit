@@ -4,20 +4,22 @@
       검사 규칙
     </legend>
     <div class="rules__list">
-      <label
+      <span
         v-for="rule in RISK_RULES"
         :key="rule.tag"
         class="rules__item"
-        :title="rule.description"
       >
-        <input
-          type="checkbox"
-          :value="rule.tag"
-          :checked="enabled.includes(rule.tag)"
-          @change="handleChange(rule.tag, $event)"
-        >
-        <span>{{ rule.name }}</span>
-      </label>
+        <label class="chip-toggle">
+          <input
+            type="checkbox"
+            :value="rule.tag"
+            :checked="enabled.includes(rule.tag)"
+            @change="handleChange(rule.tag, $event)"
+          >
+          <span>{{ rule.name }}</span>
+        </label>
+        <InfoTip :entry="rule.help" />
+      </span>
     </div>
   </fieldset>
 </template>
@@ -38,30 +40,22 @@ const handleChange = (tag: RiskTag, event: Event): void => {
 .rules {
   @include card-surface;
 
-  padding: $space-3 $space-4 $space-4;
+  padding: $space-5;
 
   &__legend {
-    padding: 0 $space-1;
-    font-size: $font-sm;
-    font-weight: 600;
+    @include visually-hidden;
   }
 
   &__list {
     display: flex;
     flex-wrap: wrap;
-    gap: $space-2 $space-5;
+    gap: $space-3 $space-5;
   }
 
   &__item {
     display: inline-flex;
     align-items: center;
-    gap: $space-2;
-    font-size: $font-sm;
-    cursor: pointer;
-
-    input {
-      accent-color: var(--tk-accent);
-    }
+    gap: $space-1;
   }
 }
 </style>

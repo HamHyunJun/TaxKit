@@ -1,14 +1,23 @@
 <template>
   <div class="table">
-    <p
+    <div
       v-if="rows.length === 0"
       class="table__empty"
     >
-      {{ emptyText }}
-    </p>
+      <span class="table__empty-icon">
+        <Inbox
+          class="table__empty-svg"
+          aria-hidden="true"
+        />
+      </span>
+      <p>{{ emptyText }}</p>
+    </div>
     <div
       v-else
       class="table__scroll"
+      role="region"
+      :aria-label="caption"
+      tabindex="0"
     >
       <table class="table__grid">
         <caption class="table__caption">
@@ -16,35 +25,40 @@
         </caption>
         <thead>
           <tr>
-            <th scope="col">
+            <th
+              scope="col"
+              class="table__col-status"
+            >
               상태
-            </th>
-            <th scope="col">
-              거래일
-            </th>
-            <th scope="col">
-              구분
             </th>
             <th
               scope="col"
-              class="num"
+              class="table__col-date"
+            >
+              거래일
+            </th>
+            <th
+              scope="col"
+              class="num table__col-amount"
             >
               금액
             </th>
             <th scope="col">
-              적요
+              적요 · 판정 근거
             </th>
-            <th scope="col">
+            <th
+              v-if="showMatch"
+              scope="col"
+              class="table__col-invoice"
+            >
               매칭 계산서
             </th>
             <th
+              v-if="showMatch"
               scope="col"
-              class="num"
+              class="table__col-score"
             >
-              점수
-            </th>
-            <th scope="col">
-              근거
+              <span class="table__th">점수 <InfoTip topic="matchScore" /></span>
             </th>
           </tr>
         </thead>
@@ -66,26 +80,73 @@
                 {{ statusLabel(row.status) }}
               </span>
             </td>
-            <td>{{ row.bank ? formatDate(row.bank.date) : '—' }}</td>
-            <td>{{ row.bank ? directionLabel(row.bank.direction) : '—' }}</td>
-            <td class="num">
-              {{ row.bank ? formatWon(row.bank.amount) : '—' }}
-            </td>
-            <td>{{ row.bank?.description ?? '—' }}</td>
             <td>
-              <template v-if="row.invoice">
-                {{ formatDate(row.invoice.issueDate) }} {{ invoicePartner(row) }}
-                <span class="num table__sub">{{ formatWon(row.invoice.totalAmount) }}원</span>
+              <template v-if="row.bank">
+                <span class="table__date">{{ formatDate(row.bank.date) }}</span>
+                <span
+                  class="table__dir"
+                  :class="`is-${row.bank.direction.toLowerCase()}`"
+                >{{ directionLabel(row.bank.direction) }}</span>
               </template>
-              <template v-else>
-                —
-              </template>
+              <span
+                v-else
+                class="table__none"
+              >—</span>
             </td>
             <td class="num">
-              {{ row.score ? row.score.total.toFixed(2) : '—' }}
+              <template v-if="row.bank">
+                <span class="table__amount">{{ formatWon(row.bank.amount) }}</span><span class="table__won">원</span>
+              </template>
+              <span
+                v-else
+                class="table__none"
+              >—</span>
             </td>
-            <td class="table__reason">
-              {{ row.reason }}
+            <td>
+              <p class="table__name">
+                {{ row.bank?.description ?? invoicePartner(row) }}
+              </p>
+              <p
+                class="table__reason"
+                :title="row.reason"
+              >
+                {{ row.reason }}
+              </p>
+            </td>
+            <td v-if="showMatch">
+              <template v-if="row.invoice">
+                <p class="table__name">
+                  {{ invoicePartner(row) }}
+                </p>
+                <p class="table__reason">
+                  {{ formatDate(row.invoice.issueDate) }} · {{ formatWon(row.invoice.totalAmount) }}원
+                </p>
+              </template>
+              <span
+                v-else
+                class="table__none"
+              >—</span>
+            </td>
+            <td v-if="showMatch">
+              <span
+                v-if="row.score"
+                class="table__score"
+              >
+                <span
+                  class="table__meter"
+                  aria-hidden="true"
+                >
+                  <span
+                    class="table__meter-fill"
+                    :style="{ width: `${Math.round(row.score.total * 100)}%` }"
+                  />
+                </span>
+                {{ row.score.total.toFixed(2) }}
+              </span>
+              <span
+                v-else
+                class="table__none"
+              >—</span>
             </td>
           </tr>
         </tbody>
@@ -97,7 +158,7 @@
     >
       <button
         type="button"
-        class="table__more-button"
+        class="tk-btn tk-btn--sm table__more-button"
         @click="visibleCount += PAGE_SIZE"
       >
         {{ Math.min(PAGE_SIZE, hiddenCount).toLocaleString('ko-KR') }}건 더 보기 (남은 {{ hiddenCount.toLocaleString('ko-KR') }}건)
@@ -108,7 +169,7 @@
 
 <script setup lang="ts">
 import type { Component } from 'vue'
-import { ArrowLeftRight, CircleAlert, CircleCheck, CircleMinus, TriangleAlert } from 'lucide-vue-next'
+import { ArrowLeftRight, CircleAlert, CircleCheck, CircleMinus, Inbox, TriangleAlert } from 'lucide-vue-next'
 import type { MatchStatus, ReconcileResult } from '~/types/reconcile'
 
 type Props = {
@@ -123,6 +184,8 @@ const { rows } = defineProps<Props>()
 
 const visibleCount = ref<number>(PAGE_SIZE)
 const visibleRows = computed<readonly ReconcileResult[]>(() => rows.slice(0, visibleCount.value))
+// 짝지어진 계산서가 있는 행이 하나도 없으면(예: 누락 의심) 계산서·점수 열을 숨겨 본문을 넓게 쓴다
+const showMatch = computed<boolean>(() => rows.some(row => row.invoice !== null))
 const hiddenCount = computed<number>(() => Math.max(0, rows.length - visibleCount.value))
 
 // 필터나 결과가 바뀌면 처음 200건부터 다시 보여준다
@@ -149,13 +212,34 @@ const statusIcon = (status: MatchStatus): Component => STATUS_ICONS[status]
   overflow: hidden;
 
   &__empty {
-    padding: $space-8 $space-4;
+    display: grid;
+    justify-items: center;
+    gap: $space-3;
+    padding: $space-12 $space-4;
     color: var(--tk-muted);
-    text-align: center;
+    font-size: $font-sm;
   }
 
+  &__empty-icon {
+    display: inline-grid;
+    place-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: $radius-lg;
+    background: var(--tk-surface-strong);
+  }
+
+  &__empty-svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  // 행이 많아도 헤더가 보이도록 표 안에서 스크롤한다 (키보드로도 스크롤할 수 있게 포커스 가능)
   &__scroll {
-    overflow-x: auto;
+    max-height: 36rem;
+    overflow: auto;
+
+    @include focus-ring;
   }
 
   &__caption {
@@ -163,67 +247,131 @@ const statusIcon = (status: MatchStatus): Component => STATUS_ICONS[status]
   }
 
   &__grid {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: $font-sm;
+    @include data-table;
 
-    th,
-    td {
-      padding: $space-2 $space-3;
-      border-bottom: 1px solid var(--tk-border);
-      text-align: left;
-      vertical-align: top;
+    min-width: 52rem;
+  }
+
+  &__col-status {
+    width: 7.5rem;
+  }
+
+  &__col-date {
+    width: 7.75rem;
+  }
+
+  &__col-amount {
+    width: 8.5rem;
+  }
+
+  &__col-invoice {
+    width: 15rem;
+  }
+
+  &__col-score {
+    width: 7rem;
+  }
+
+  &__th {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-1;
+  }
+
+  &__date {
+    display: block;
+    color: var(--tk-text-strong);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  &__dir {
+    display: inline-block;
+    margin-top: 0.125rem;
+    padding: 0 $space-2;
+    border-radius: $radius-full;
+    font-size: $font-xs;
+    font-weight: 600;
+
+    &.is-out {
+      background: var(--tk-surface-strong);
+      color: $color-slate-600;
     }
 
-    th {
-      position: sticky;
-      top: 0;
-      background: var(--tk-surface);
-      color: var(--tk-muted);
-      font-weight: 600;
-      white-space: nowrap;
+    &.is-in {
+      background: $color-sky-50;
+      color: $color-sky-700;
     }
+  }
 
-    td.num,
-    th.num {
-      text-align: right;
-    }
+  &__amount {
+    color: var(--tk-text-strong);
+    font-size: $font-base;
+    font-weight: 700;
+    letter-spacing: $tracking-tight;
+    white-space: nowrap;
+  }
 
-    tbody tr:hover {
-      background: var(--tk-surface);
-    }
+  &__won {
+    margin-left: 0.125rem;
+    color: var(--tk-muted);
+    font-size: $font-xs;
+  }
+
+  &__name {
+    color: var(--tk-text-strong);
+    font-weight: 600;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  &__reason {
+    display: -webkit-box;
+    margin-top: 0.125rem;
+    overflow: hidden;
+    color: var(--tk-muted);
+    font-size: $font-xs;
+    line-height: 1.5;
+    word-break: keep-all;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  &__none {
+    color: var(--tk-subtle);
   }
 
   &__badge {
     display: inline-flex;
     align-items: center;
     gap: $space-1;
-    padding: 0 $space-2;
+    padding: 0.1875rem 0.625rem;
     border-radius: $radius-full;
     font-size: $font-xs;
-    font-weight: 600;
+    font-weight: 700;
     white-space: nowrap;
 
     &--matched {
-      background: tint($color-emerald-500, 0.14);
-      color: $color-emerald-700;
+      background: var(--tk-accent-soft);
+      color: var(--tk-accent-text);
     }
 
     &--review,
     &--amount_mismatch {
-      background: tint($color-amber-500, 0.18);
-      color: $color-slate-800;
+      background: var(--tk-warn-soft);
+      color: var(--tk-warn-text);
     }
 
     &--missing {
-      background: tint($color-rose-600, 0.12);
-      color: $color-rose-700;
+      background: var(--tk-danger-soft);
+      color: var(--tk-danger-text);
     }
 
     &--invoice_only,
     &--excluded {
-      background: tint($color-slate-500, 0.14);
-      color: $color-slate-800;
+      background: var(--tk-surface-strong);
+      color: $color-slate-600;
     }
   }
 
@@ -232,40 +380,35 @@ const statusIcon = (status: MatchStatus): Component => STATUS_ICONS[status]
     height: 0.875rem;
   }
 
-  &__sub {
-    display: block;
-    color: var(--tk-muted);
-    font-size: $font-xs;
-    text-align: left;
+  &__score {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    color: var(--tk-text-strong);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
   }
 
-  &__reason {
-    min-width: 14rem;
-    color: var(--tk-muted);
+  &__meter {
+    display: inline-block;
+    width: 2.25rem;
+    height: 0.375rem;
+    overflow: hidden;
+    border-radius: $radius-full;
+    background: var(--tk-border);
+  }
+
+  &__meter-fill {
+    display: block;
+    height: 100%;
+    border-radius: $radius-full;
+    background: var(--tk-accent-hover);
   }
 
   &__more {
     padding: $space-3;
+    border-top: 1px solid var(--tk-border);
     text-align: center;
-  }
-
-  &__more-button {
-    padding: $space-2 $space-4;
-    border: 1px solid var(--tk-border);
-    border-radius: $radius-md;
-    font-size: $font-sm;
-    font-weight: 600;
-    transition: transform $duration-fast $ease-out-quint;
-
-    @include focus-ring;
-
-    &:active {
-      transform: scale(0.96);
-    }
-
-    @include reduced-motion {
-      transition: none;
-    }
   }
 }
 </style>

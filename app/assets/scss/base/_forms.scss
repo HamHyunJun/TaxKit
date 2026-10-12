@@ -1,0 +1,375 @@
+@use '../abstracts' as *;
+
+// ── 텍스트 입력 · 셀렉트 · 텍스트영역 ─────────────────────────────
+input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='hidden']),
+select,
+textarea {
+  width: 100%;
+  min-height: 2.625rem;
+  padding: 0.625rem $space-3;
+  border: 1px solid var(--tk-border-strong);
+  border-radius: $radius-md;
+  background-color: var(--tk-card);
+  color: var(--tk-text-strong);
+  font: inherit;
+  font-size: $font-sm;
+  line-height: 1.4;
+  letter-spacing: $tracking-snug;
+  box-shadow: var(--tk-shadow-sm);
+  transition:
+    border-color 120ms $ease-out-quint,
+    box-shadow 120ms $ease-out-quint;
+
+  &::placeholder {
+    color: var(--tk-subtle);
+  }
+
+  &:hover {
+    border-color: var(--tk-subtle);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--tk-accent);
+    box-shadow: var(--tk-focus-ring);
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--tk-danger);
+  }
+
+  &:disabled {
+    background-color: var(--tk-surface-strong);
+    cursor: not-allowed;
+  }
+
+  @include reduced-motion {
+    transition: none;
+  }
+}
+
+select {
+  appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2364748b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 8 5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.125rem;
+  cursor: pointer;
+}
+
+input[type='date'] {
+  color-scheme: light;
+
+  &::-webkit-calendar-picker-indicator {
+    opacity: 0.55;
+    cursor: pointer;
+  }
+}
+
+input[type='number'] {
+  font-variant-numeric: tabular-nums;
+}
+
+textarea {
+  line-height: 1.65;
+  resize: vertical;
+}
+
+// ── 체크박스 · 라디오 ────────────────────────────────────────────
+:where(input[type='checkbox'], input[type='radio']) {
+  appearance: none;
+  display: inline-grid;
+  flex: none;
+  place-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0;
+  border: 1.5px solid var(--tk-subtle);
+  background-color: var(--tk-card);
+  cursor: pointer;
+  transition:
+    background-color 120ms $ease-out-quint,
+    border-color 120ms $ease-out-quint,
+    transform 120ms $ease-out-quint;
+
+  &:hover:not(:disabled) {
+    border-color: var(--tk-accent-text);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.9);
+  }
+
+  &:checked {
+    border-color: var(--tk-accent-text);
+    background-color: var(--tk-accent-text);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--tk-focus-ring);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  @include reduced-motion {
+    transition: none;
+  }
+}
+
+:where(input[type='checkbox']) {
+  border-radius: $radius-sm;
+
+  &:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.5 8.5 3 3 6-7'/%3E%3C/svg%3E");
+    background-size: 100%;
+  }
+}
+
+:where(input[type='radio']) {
+  border-radius: 50%;
+
+  &::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: $color-white;
+    transform: scale(0);
+    transition: transform 160ms $spring;
+  }
+
+  &:checked::before {
+    transform: scale(1);
+  }
+
+  @include reduced-motion {
+    &::before {
+      transition: none;
+    }
+  }
+}
+
+// ── 슬라이더: --fill(0~100%)로 채움 구간을 칠한다 ────────────────
+input[type='range'] {
+  --fill: 0%;
+
+  appearance: none;
+  width: 100%;
+  height: 1.5rem;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+
+  &::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: $radius-full;
+    background: linear-gradient(to right, var(--tk-accent) var(--fill), var(--tk-border-strong) var(--fill));
+  }
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: -7px;
+    border: 2px solid var(--tk-accent-text);
+    border-radius: 50%;
+    background: $color-white;
+    box-shadow: var(--tk-shadow-md);
+    transition: transform 120ms $ease-out-quint;
+  }
+
+  &:active::-webkit-slider-thumb {
+    transform: scale(1.15);
+  }
+
+  &::-moz-range-track {
+    height: 6px;
+    border-radius: $radius-full;
+    background: var(--tk-border-strong);
+  }
+
+  &::-moz-range-progress {
+    height: 6px;
+    border-radius: $radius-full;
+    background: var(--tk-accent);
+  }
+
+  &::-moz-range-thumb {
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 2px solid var(--tk-accent-text);
+    border-radius: 50%;
+    background: $color-white;
+    box-shadow: var(--tk-shadow-md);
+  }
+
+  &:focus-visible {
+    outline: none;
+
+    &::-webkit-slider-thumb {
+      box-shadow: var(--tk-focus-ring);
+    }
+
+    &::-moz-range-thumb {
+      box-shadow: var(--tk-focus-ring);
+    }
+  }
+
+  @include reduced-motion {
+    &::-webkit-slider-thumb {
+      transition: none;
+    }
+  }
+}
+
+// ── 폼 보조 요소 ─────────────────────────────────────────────────
+fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.tk-label {
+  color: var(--tk-text-strong);
+  font-size: $font-sm;
+  font-weight: 600;
+  letter-spacing: $tracking-snug;
+}
+
+.tk-hint {
+  color: var(--tk-muted);
+  font-size: $font-xs;
+  line-height: 1.5;
+}
+
+// ── 세그먼트 컨트롤: 2~3개 중 하나를 고르는 라디오 ───────────────
+.segmented {
+  display: inline-flex;
+  gap: $space-1;
+  padding: $space-1;
+  border-radius: $radius-md;
+  background: var(--tk-surface-strong);
+
+  label {
+    position: relative;
+    cursor: pointer;
+  }
+
+  input {
+    @include visually-hidden;
+  }
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-1-5;
+    padding: $space-1-5 $space-4;
+    border-radius: $radius-sm;
+    color: $color-slate-600;
+    font-size: $font-sm;
+    font-weight: 600;
+    white-space: nowrap;
+    transition:
+      background-color 160ms $ease-out-quint,
+      color 160ms $ease-out-quint,
+      box-shadow 160ms $ease-out-quint;
+  }
+
+  label:hover input:not(:checked, :disabled) + span {
+    color: var(--tk-text-strong);
+  }
+
+  input:checked + span {
+    background: var(--tk-card);
+    color: var(--tk-text-strong);
+    box-shadow: var(--tk-shadow-sm), 0 0 0 1px var(--tk-border);
+  }
+
+  input:focus-visible + span {
+    box-shadow: var(--tk-focus-ring);
+  }
+
+  input:disabled + span {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  @include reduced-motion {
+    span {
+      transition: none;
+    }
+  }
+}
+
+// ── 칩 토글: 여러 개를 켜고 끄는 체크박스 ────────────────────────
+.chip-toggle {
+  position: relative;
+  display: inline-flex;
+  cursor: pointer;
+
+  input {
+    @include visually-hidden;
+  }
+
+  > span {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-1-5;
+    padding: $space-1-5 $space-3;
+    border: 1px solid var(--tk-border-strong);
+    border-radius: $radius-full;
+    background: var(--tk-card);
+    color: $color-slate-600;
+    font-size: $font-sm;
+    font-weight: 600;
+    transition:
+      background-color 160ms $ease-out-quint,
+      border-color 160ms $ease-out-quint,
+      color 160ms $ease-out-quint,
+      transform 120ms $ease-out-quint;
+
+    &::before {
+      content: '';
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: var(--tk-border-strong);
+      transition: background-color 160ms $ease-out-quint;
+    }
+  }
+
+  &:hover input:not(:checked, :disabled) + span {
+    border-color: var(--tk-subtle);
+  }
+
+  &:active > span {
+    transform: scale(0.97);
+  }
+
+  input:checked + span {
+    border-color: var(--tk-accent);
+    background: var(--tk-accent-soft);
+    color: var(--tk-accent-strong);
+
+    &::before {
+      background: var(--tk-accent-hover);
+    }
+  }
+
+  input:focus-visible + span {
+    box-shadow: var(--tk-focus-ring);
+  }
+
+  @include reduced-motion {
+    > span,
+    > span::before {
+      transition: none;
+    }
+  }
+}

@@ -1,0 +1,84 @@
+@use '../abstracts' as *;
+
+// 공용 버튼: 기본(secondary) · 주요(primary) · 투명(ghost), 크기 sm
+.tk-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  min-height: 2.5rem;
+  padding: 0 $space-4;
+  border: 1px solid var(--tk-border-strong);
+  border-radius: $radius-md;
+  background: var(--tk-card);
+  color: var(--tk-text-strong);
+  font-size: $font-sm;
+  font-weight: 600;
+  letter-spacing: $tracking-snug;
+  white-space: nowrap;
+  box-shadow: var(--tk-shadow-sm);
+  transition:
+    transform 120ms $ease-out-quint,
+    background-color 160ms $ease-out-quint,
+    border-color 160ms $ease-out-quint,
+    box-shadow 160ms $ease-out-quint;
+
+  @include focus-ring;
+
+  &:hover:not(:disabled) {
+    border-color: var(--tk-subtle);
+    background: var(--tk-surface);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    border-color: var(--tk-accent-text);
+    background: var(--tk-accent-text);
+    color: $color-white;
+    box-shadow:
+      var(--tk-shadow-sm),
+      inset 0 1px 0 #{tint($color-white, 0.16)};
+
+    &:hover:not(:disabled) {
+      border-color: var(--tk-accent-strong);
+      background: var(--tk-accent-strong);
+    }
+  }
+
+  &--ghost {
+    border-color: transparent;
+    background: transparent;
+    color: $color-slate-600;
+    box-shadow: none;
+
+    &:hover:not(:disabled) {
+      border-color: transparent;
+      background: var(--tk-surface-strong);
+      color: var(--tk-text-strong);
+    }
+  }
+
+  &--sm {
+    min-height: 2rem;
+    padding: 0 $space-3;
+    font-size: $font-xs;
+  }
+
+  &__icon {
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+  }
+
+  @include reduced-motion {
+    transition: none;
+  }
+}

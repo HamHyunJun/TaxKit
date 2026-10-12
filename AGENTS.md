@@ -20,14 +20,14 @@
 |-----------|---------|
 | `app/pages/` | `index.vue` 탭 컨테이너. `?tab=` 쿼리로 현재 탭을 유지하고 패널을 `KeepAlive`로 보존한다 |
 | `app/components/layout/` | 헤더(sticky)·보안 뱃지 팝오버·탭 내비게이션·푸터 |
-| `app/components/common/` | `DropZone`·`ColumnMapModal`·`CopyButton`·`ToastHost` (탭 공용) |
+| `app/components/common/` | `DropZone`·`ColumnMapModal`·`CopyButton`·`ToastHost`·`InfoTip`(정보 아이콘 말풍선)·`PageHeader`(탭 상단 헤더) — 탭 공용 |
 | `app/components/reconcile/` | Tab 1 대사기 화면 |
 | `app/components/scanner/` | Tab 2 법인카드 스캐너 화면 |
 | `app/components/message/` | Tab 3 독촉 메시지 화면 |
 | `app/composables/` | 상태·입출력: `useExcelReader/Writer`, `useColumnMapping`, `useReconcile`, `useRiskScanner`, `useMessageBuilder`, `useHandoff`(Tab 1→3 전달), `useToast`, `useClipboard` |
-| `app/utils/` | 순수 함수: 값 정규화(`amount`·`date`·`bizNo`·`companyName`), 대사 엔진(`reconcile`·`similarity`), 위험 규칙(`riskRules`·`holidays`), 메시지(`messageGroups`·`messageTemplate`), 탭별 별칭 사전(`*Specs`), 엑셀 내보내기(`*Export`) |
+| `app/utils/` | 순수 함수: 값 정규화(`amount`·`date`·`bizNo`·`companyName`), 대사 엔진(`reconcile`·`similarity`), 위험 규칙(`riskRules`·`holidays`), 메시지(`messageGroups`·`messageTemplate`), 탭별 별칭 사전(`*Specs`), 엑셀 내보내기(`*Export`), 정보 아이콘 문구(`helpTexts`) |
 | `app/types/` | 도메인 타입 (`excel`·`bank`·`invoice`·`reconcile`·`card`·`risk`·`message`·`tab`·`toast`) |
-| `app/assets/scss/` | `abstracts/`(변수·믹스인·함수, 모든 SFC에 자동 주입) + `base/`(전역 CSS) |
+| `app/assets/scss/` | `abstracts/`(토큰·모션·믹스인·함수, 모든 SFC에 자동 주입) + `base/`(리셋·루트 변수·타이포·`_forms`(전역 폼 컨트롤, `.segmented`·`.chip-toggle`)·`_buttons`(`.tk-btn`)) |
 
 ## For AI Agents
 

@@ -1,14 +1,23 @@
 <template>
   <div class="risk-table">
-    <p
+    <div
       v-if="findings.length === 0"
       class="risk-table__empty"
     >
-      {{ emptyText }}
-    </p>
+      <span class="risk-table__empty-icon">
+        <ShieldCheck
+          class="risk-table__empty-svg"
+          aria-hidden="true"
+        />
+      </span>
+      <p>{{ emptyText }}</p>
+    </div>
     <div
       v-else
       class="risk-table__scroll"
+      role="region"
+      aria-label="소명이 필요한 법인카드 승인 내역"
+      tabindex="0"
     >
       <table class="risk-table__grid">
         <caption class="risk-table__caption">
@@ -16,41 +25,38 @@
         </caption>
         <thead>
           <tr>
-            <th scope="col">
-              위험도
+            <th
+              scope="col"
+              class="risk-table__col-level"
+            >
+              <span class="risk-table__th">위험도 <InfoTip topic="riskLevel" /></span>
             </th>
             <th
               scope="col"
-              class="num"
+              class="risk-table__col-date"
             >
-              점수
-            </th>
-            <th scope="col">
               승인일시
             </th>
             <th scope="col">
-              카드
-            </th>
-            <th scope="col">
-              사용자
-            </th>
-            <th scope="col">
-              가맹점
+              가맹점 · 카드
             </th>
             <th
               scope="col"
-              class="num"
+              class="num risk-table__col-amount"
             >
               금액
             </th>
-            <th scope="col">
-              리스크 태그
+            <th
+              scope="col"
+              class="risk-table__col-hits"
+            >
+              걸린 규칙 · 사유
             </th>
-            <th scope="col">
-              사유
-            </th>
-            <th scope="col">
-              소명 내용
+            <th
+              scope="col"
+              class="risk-table__col-input"
+            >
+              <span class="risk-table__th">소명 내용 <InfoTip topic="explanation" /></span>
             </th>
           </tr>
         </thead>
@@ -71,45 +77,42 @@
                 />
                 {{ levelLabel(finding.level) }}
               </span>
+              <span class="risk-table__score">{{ finding.riskScore }}점</span>
             </td>
-            <td class="num">
-              {{ finding.riskScore }}
-            </td>
-            <td class="risk-table__nowrap">
-              {{ formatDateTime(finding.approval.approvedAt, finding.approval.hasTime) }}
-            </td>
-            <td class="risk-table__nowrap">
-              {{ finding.approval.cardNo }}
-            </td>
-            <td>{{ finding.approval.cardHolder ?? '—' }}</td>
             <td>
-              {{ finding.approval.merchantName }}
+              <span class="risk-table__date">{{ formatDateTime(finding.approval.approvedAt, false) }}</span>
               <span
-                v-if="finding.approval.merchantCategory"
-                class="risk-table__sub"
-              >{{ finding.approval.merchantCategory }}</span>
-            </td>
-            <td class="num">
-              {{ formatWon(finding.approval.amount) }}
+                v-if="finding.approval.hasTime"
+                class="risk-table__time"
+              >{{ formatTime(finding.approval.approvedAt) }}</span>
             </td>
             <td>
-              <ul class="risk-table__chips">
-                <li
-                  v-for="item in finding.hits"
-                  :key="item.tag"
-                  class="risk-table__chip"
-                >
-                  {{ tagName(item.tag) }}
-                </li>
-              </ul>
+              <p class="risk-table__name">
+                {{ finding.approval.merchantName }}
+              </p>
+              <p class="risk-table__sub">
+                <template v-if="finding.approval.merchantCategory">
+                  {{ finding.approval.merchantCategory }} ·
+                </template>{{ finding.approval.cardNo }}<template v-if="finding.approval.cardHolder">
+                  · {{ finding.approval.cardHolder }}
+                </template>
+              </p>
             </td>
-            <td class="risk-table__reason">
-              <ul class="risk-table__reasons">
+            <td class="num">
+              <span class="risk-table__amount">{{ formatWon(finding.approval.amount) }}</span><span class="risk-table__won">원</span>
+            </td>
+            <td>
+              <ul class="risk-table__hits">
                 <li
                   v-for="item in finding.hits"
                   :key="item.tag"
+                  class="risk-table__hit"
                 >
-                  {{ item.reason }}
+                  <span
+                    class="risk-table__chip"
+                    :class="`risk-table__chip--${item.severity.toLowerCase()}`"
+                  >{{ tagName(item.tag) }}</span>
+                  <span class="risk-table__reason">{{ item.reason }}</span>
                 </li>
               </ul>
             </td>
@@ -119,7 +122,7 @@
                 type="text"
                 :value="explanations[finding.approval.id] ?? ''"
                 :aria-label="`${finding.approval.merchantName} 소명 내용`"
-                placeholder="소명 내용 입력"
+                placeholder="사용 사유를 입력하세요"
                 @input="handleInput(finding.approval.id, $event)"
               >
             </td>
@@ -133,7 +136,7 @@
     >
       <button
         type="button"
-        class="risk-table__more-button"
+        class="tk-btn tk-btn--sm risk-table__more-button"
         @click="visibleCount += PAGE_SIZE"
       >
         {{ Math.min(PAGE_SIZE, hiddenCount).toLocaleString('ko-KR') }}건 더 보기 (남은 {{ hiddenCount.toLocaleString('ko-KR') }}건)
@@ -143,7 +146,7 @@
 </template>
 
 <script setup lang="ts">
-import { CircleAlert, TriangleAlert } from 'lucide-vue-next'
+import { CircleAlert, ShieldCheck, TriangleAlert } from 'lucide-vue-next'
 import type { RiskFinding } from '~/types/risk'
 
 type Props = {
@@ -180,13 +183,34 @@ const handleInput = (id: string, event: Event): void => {
   overflow: hidden;
 
   &__empty {
-    padding: $space-8 $space-4;
+    display: grid;
+    justify-items: center;
+    gap: $space-3;
+    padding: $space-12 $space-4;
     color: var(--tk-muted);
-    text-align: center;
+    font-size: $font-sm;
   }
 
+  &__empty-icon {
+    display: inline-grid;
+    place-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: $radius-lg;
+    background: var(--tk-surface-strong);
+  }
+
+  &__empty-svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  // 행이 많아도 헤더가 보이도록 표 안에서 스크롤한다 (키보드로도 스크롤할 수 있게 포커스 가능)
   &__scroll {
-    overflow-x: auto;
+    max-height: 40rem;
+    overflow: auto;
+
+    @include focus-ring;
   }
 
   &__caption {
@@ -194,57 +218,59 @@ const handleInput = (id: string, event: Event): void => {
   }
 
   &__grid {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: $font-sm;
+    @include data-table;
 
-    th,
+    min-width: 64rem;
+
     td {
-      padding: $space-2 $space-3;
-      border-bottom: 1px solid var(--tk-border);
-      text-align: left;
       vertical-align: top;
-    }
-
-    th {
-      background: var(--tk-surface);
-      color: var(--tk-muted);
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    td.num,
-    th.num {
-      text-align: right;
-    }
-
-    tbody tr:hover {
-      background: var(--tk-surface);
     }
   }
 
-  &__nowrap {
-    white-space: nowrap;
+  &__col-level {
+    width: 7rem;
+  }
+
+  &__col-date {
+    width: 9.5rem;
+  }
+
+  &__col-amount {
+    width: 8rem;
+  }
+
+  &__col-hits {
+    width: 22rem;
+  }
+
+  &__col-input {
+    width: 15rem;
+  }
+
+  &__th {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-1;
   }
 
   &__badge {
     display: inline-flex;
     align-items: center;
     gap: $space-1;
-    padding: 0 $space-2;
+    padding: 0.1875rem 0.625rem;
     border-radius: $radius-full;
     font-size: $font-xs;
     font-weight: 700;
     white-space: nowrap;
 
     &--high {
-      background: tint($color-rose-600, 0.12);
-      color: $color-rose-700;
+      background: var(--tk-danger-soft);
+      color: var(--tk-danger-text);
     }
 
     &--medium {
-      background: tint($color-amber-500, 0.18);
-      color: $color-slate-800;
+      background: var(--tk-warn-soft);
+      color: var(--tk-warn-text);
     }
   }
 
@@ -253,69 +279,110 @@ const handleInput = (id: string, event: Event): void => {
     height: 0.875rem;
   }
 
-  &__sub {
+  &__score {
     display: block;
+    margin-top: $space-1;
+    color: var(--tk-muted);
+    font-size: $font-xs;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__date {
+    display: block;
+    color: var(--tk-text-strong);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  &__time {
+    display: block;
+    color: var(--tk-muted);
+    font-size: $font-xs;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__name {
+    color: var(--tk-text-strong);
+    font-weight: 600;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  &__sub {
+    margin-top: 0.125rem;
+    color: var(--tk-muted);
+    font-size: $font-xs;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  &__amount {
+    color: var(--tk-text-strong);
+    font-size: $font-base;
+    font-weight: 700;
+    letter-spacing: $tracking-tight;
+    white-space: nowrap;
+  }
+
+  &__won {
+    margin-left: 0.125rem;
     color: var(--tk-muted);
     font-size: $font-xs;
   }
 
-  &__chips,
-  &__reasons {
+  &__hits {
     display: grid;
-    gap: $space-1;
+    gap: $space-2;
+    margin: 0;
     padding: 0;
     list-style: none;
   }
 
+  &__hit {
+    display: flex;
+    align-items: flex-start;
+    gap: $space-2;
+  }
+
   &__chip {
-    width: fit-content;
-    padding: 0 $space-2;
-    border-radius: $radius-full;
-    background: tint($color-slate-500, 0.14);
+    flex: none;
+    padding: 0.125rem $space-2;
+    border-radius: $radius-sm;
+    background: var(--tk-surface-strong);
+    color: $color-slate-700;
     font-size: $font-xs;
-    font-weight: 600;
+    font-weight: 700;
     white-space: nowrap;
+
+    &--high {
+      background: var(--tk-danger-soft);
+      color: var(--tk-danger-text);
+    }
+
+    &--medium {
+      background: var(--tk-warn-soft);
+      color: var(--tk-warn-text);
+    }
   }
 
   &__reason {
-    min-width: 14rem;
     color: var(--tk-muted);
+    font-size: $font-xs;
+    line-height: 1.6;
+    word-break: keep-all;
   }
 
   &__input {
-    width: 100%;
-    min-width: 10rem;
-    padding: $space-1-5 $space-2;
-    border: 1px solid var(--tk-border);
-    border-radius: $radius-md;
-    background: var(--tk-card);
-    font: inherit;
-
-    @include focus-ring;
+    min-height: 2.25rem;
+    padding-block: $space-1-5;
   }
 
   &__more {
     padding: $space-3;
+    border-top: 1px solid var(--tk-border);
     text-align: center;
-  }
-
-  &__more-button {
-    padding: $space-2 $space-4;
-    border: 1px solid var(--tk-border);
-    border-radius: $radius-md;
-    font-size: $font-sm;
-    font-weight: 600;
-    transition: transform $duration-fast $ease-out-quint;
-
-    @include focus-ring;
-
-    &:active {
-      transform: scale(0.96);
-    }
-
-    @include reduced-motion {
-      transition: none;
-    }
   }
 }
 </style>

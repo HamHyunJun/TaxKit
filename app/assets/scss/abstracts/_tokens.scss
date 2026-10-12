@@ -1,19 +1,32 @@
 // 디자인 토큰 (SCSS 변수만 선언한다. CSS를 출력하지 않는다)
 
 // 색상 (PRD 6.5)
+$color-white: #fff;
 $color-slate-50: #f8fafc;
+$color-slate-100: #f1f5f9;
 $color-slate-200: #e2e8f0;
+$color-slate-300: #cbd5e1;
+$color-slate-400: #94a3b8;
 $color-slate-500: #64748b;
+$color-slate-600: #475569;
+$color-slate-700: #334155;
 $color-slate-800: #1e293b;
 $color-slate-900: #0f172a;
-$color-white: #fff;
+$color-emerald-50: #ecfdf5;
+$color-emerald-100: #d1fae5;
 $color-emerald-500: #10b981;
 $color-emerald-600: #059669;
-// 텍스트용: 흰색·연한 틴트 배경 위에서도 4.5:1 이상 (500·600은 아이콘·버튼 배경에만 쓴다)
+// 텍스트·버튼 배경용: 흰색·연한 틴트 배경 위에서도 4.5:1 이상 (500·600은 아이콘·장식에만 쓴다)
 $color-emerald-700: #047857;
+$color-emerald-800: #065f46;
+$color-rose-50: #fff1f2;
 $color-rose-600: #e11d48;
 $color-rose-700: #be123c;
+$color-amber-50: #fffbeb;
 $color-amber-500: #f59e0b;
+$color-amber-800: #92400e;
+$color-sky-50: #f0f9ff;
+$color-sky-700: #0369a1;
 // 카카오톡 말풍선 미리보기용 브랜드 고정색
 $color-kakao-bubble: #fee500;
 $color-kakao-text: #191919;
@@ -29,10 +42,13 @@ $space-6: 1.5rem;
 $space-8: 2rem;
 $space-10: 2.5rem;
 $space-12: 3rem;
+$space-16: 4rem;
 
 // 반경
+$radius-sm: 0.375rem;
 $radius-md: 0.5rem;
 $radius-lg: 0.75rem;
+$radius-xl: 1rem;
 $radius-full: 999px;
 
 // 폰트 크기
@@ -41,6 +57,13 @@ $font-sm: 0.875rem;
 $font-base: 1rem;
 $font-lg: 1.125rem;
 $font-xl: 1.25rem;
+$font-2xl: 1.5rem;
+$font-3xl: 1.75rem;
+
+// 자간
+$tracking-tight: -0.02em;
+$tracking-snug: -0.01em;
+$tracking-wide: 0.02em;
 
 // 레이아웃
 $container-max: 80rem;

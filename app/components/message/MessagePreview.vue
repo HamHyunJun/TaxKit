@@ -11,7 +11,7 @@
         aria-labelledby="preview-title"
       >
         <header class="preview__head">
-          <div>
+          <div class="preview__heading">
             <h2
               id="preview-title"
               class="preview__title"
@@ -25,18 +25,24 @@
           <CopyButton
             :label="`${group.name} 안내 문구`"
             :text="text"
+            prominent
             @copied="emit('copied', group)"
           />
         </header>
 
         <div
-          class="preview__bubble"
-          :class="`preview__bubble--${channel}`"
-          role="region"
-          tabindex="0"
-          :aria-label="`${group.name} 안내 문구 미리보기`"
+          class="preview__stage"
+          :class="`preview__stage--${channel}`"
         >
-          {{ text }}
+          <div
+            class="preview__bubble"
+            :class="`preview__bubble--${channel}`"
+            role="region"
+            tabindex="0"
+            :aria-label="`${group.name} 안내 문구 미리보기`"
+          >
+            {{ text }}
+          </div>
         </div>
 
         <p
@@ -51,13 +57,13 @@
           </template>
         </p>
       </article>
-      <p
+      <div
         v-else
         key="empty"
         class="preview__empty"
       >
-        왼쪽에서 거래처를 선택하면 안내 문구가 여기에 나타나요.
-      </p>
+        <p>왼쪽에서 거래처를 선택하면 안내 문구가 여기에 나타나요.</p>
+      </div>
     </Transition>
   </div>
 </template>
@@ -88,6 +94,10 @@ const kind = computed<'SMS' | 'LMS' | 'OVER'>(() => smsKind(bytes.value))
     display: grid;
     gap: $space-4;
     padding: $space-5;
+
+    @include respond-to(md) {
+      padding: $space-6;
+    }
   }
 
   &__head {
@@ -98,30 +108,59 @@ const kind = computed<'SMS' | 'LMS' | 'OVER'>(() => smsKind(bytes.value))
     gap: $space-3;
   }
 
+  &__heading {
+    display: grid;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
   &__title {
-    font-size: $font-lg;
-    word-break: break-all;
+    font-size: $font-xl;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
   }
 
   &__sub {
     color: var(--tk-muted);
     font-size: $font-sm;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // 채팅 화면처럼 보이도록 말풍선을 옅은 배경 위에 놓는다
+  &__stage {
+    padding: $space-5;
+    border-radius: $radius-lg;
+    background: var(--tk-surface-strong);
+
+    &--kakao {
+      background: #{tint($color-sky-700, 0.08)};
+    }
   }
 
   &__bubble {
-    padding: $space-4;
-    border-radius: $radius-lg;
-    background: tint($color-slate-500, 0.1);
+    position: relative;
+    max-width: 34rem;
+    padding: $space-4 $space-5;
+    border-radius: 0.25rem $radius-xl $radius-xl $radius-xl;
+    background: $color-white;
+    color: var(--tk-text-strong);
     font-size: $font-sm;
-    line-height: 1.7;
+    line-height: 1.75;
+    box-shadow: var(--tk-shadow-sm);
     white-space: pre-wrap;
-    word-break: break-word;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
 
     @include focus-ring;
 
     &--kakao {
       background: $color-kakao-bubble;
       color: $color-kakao-text;
+    }
+
+    &--sms {
+      background: $color-slate-200;
     }
   }
 
@@ -131,14 +170,17 @@ const kind = computed<'SMS' | 'LMS' | 'OVER'>(() => smsKind(bytes.value))
     font-variant-numeric: tabular-nums;
 
     &.is-over {
-      color: var(--tk-danger);
-      font-weight: 600;
+      color: var(--tk-danger-text);
+      font-weight: 700;
     }
   }
 
   &__empty {
-    padding: $space-10 $space-4;
+    @include card-surface;
+
+    padding: $space-12 $space-4;
     color: var(--tk-muted);
+    font-size: $font-sm;
     text-align: center;
   }
 }
@@ -146,8 +188,8 @@ const kind = computed<'SMS' | 'LMS' | 'OVER'>(() => smsKind(bytes.value))
 .preview-enter-active,
 .preview-leave-active {
   transition:
-    opacity $duration-fast $ease-out-quint,
-    transform $duration-fast $ease-out-quint;
+    opacity 140ms $ease-out-quint,
+    transform 140ms $ease-out-quint;
 
   @include reduced-motion {
     transition: none;
@@ -157,6 +199,6 @@ const kind = computed<'SMS' | 'LMS' | 'OVER'>(() => smsKind(bytes.value))
 .preview-enter-from,
 .preview-leave-to {
   opacity: 0;
-  transform: translateY(4px);
+  transform: translateY(6px);
 }
 </style>

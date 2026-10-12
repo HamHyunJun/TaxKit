@@ -14,14 +14,18 @@
         :aria-pressed="filter === item.filter"
         @click="filter = item.filter"
       >
-        <component
-          :is="item.icon"
-          class="summary__icon"
-          aria-hidden="true"
-        />
-        <span class="summary__label">{{ item.label }}</span>
-        <span class="summary__count num">{{ item.count.toLocaleString('ko-KR') }}건</span>
-        <span class="summary__amount num">{{ formatWon(item.amount) }}원</span>
+        <span class="summary__icon-wrap">
+          <component
+            :is="item.icon"
+            class="summary__icon"
+            aria-hidden="true"
+          />
+        </span>
+        <span class="summary__body">
+          <span class="summary__label">{{ item.label }}</span>
+          <span class="summary__count">{{ item.count.toLocaleString('ko-KR') }}건</span>
+          <span class="summary__amount">{{ formatWon(item.amount) }}원</span>
+        </span>
       </button>
     </div>
     <p class="summary__extra">
@@ -67,7 +71,7 @@ const items = computed<FilterItem[]>(() => [
 <style scoped lang="scss">
 .summary {
   display: grid;
-  gap: $space-2;
+  gap: $space-3;
 
   &__filters {
     display: grid;
@@ -81,42 +85,32 @@ const items = computed<FilterItem[]>(() => [
   &__filter {
     @include card-surface;
 
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: $space-1 $space-2;
-    padding: $space-3 $space-4;
+    display: flex;
+    align-items: flex-start;
+    gap: $space-4;
+    padding: $space-4 $space-5;
     text-align: left;
     transition:
-      transform $duration-fast $ease-out-quint,
-      border-color $duration-fast $ease-out-quint,
-      box-shadow $duration-fast $ease-out-quint;
+      transform 120ms $ease-out-quint,
+      border-color 160ms $ease-out-quint,
+      background-color 160ms $ease-out-quint,
+      box-shadow 160ms $ease-out-quint;
 
     @include focus-ring;
 
     &:hover {
-      border-color: var(--tk-muted);
+      border-color: var(--tk-subtle);
+      box-shadow: var(--tk-shadow-md);
     }
 
     &:active {
-      transform: scale(0.98);
+      transform: scale(0.985);
     }
 
     &.is-active {
-      border-color: var(--tk-accent);
-      box-shadow: 0 0 0 1px var(--tk-accent);
-    }
-
-    &--missing .summary__icon {
-      color: var(--tk-danger);
-    }
-
-    &--mismatch .summary__icon {
-      color: var(--tk-warn);
-    }
-
-    &--matched .summary__icon {
-      color: var(--tk-accent-hover);
+      border-color: var(--tk-accent-text);
+      background: var(--tk-accent-soft);
+      box-shadow: 0 0 0 1px var(--tk-accent-text), var(--tk-shadow-md);
     }
 
     @include reduced-motion {
@@ -124,26 +118,63 @@ const items = computed<FilterItem[]>(() => [
     }
   }
 
+  &__icon-wrap {
+    display: inline-grid;
+    flex: none;
+    place-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: $radius-lg;
+    background: var(--tk-surface-strong);
+    color: $color-slate-600;
+  }
+
+  &__filter--matched &__icon-wrap {
+    background: var(--tk-accent-soft);
+    color: var(--tk-accent-text);
+  }
+
+  &__filter--missing &__icon-wrap {
+    background: var(--tk-danger-soft);
+    color: var(--tk-danger-text);
+  }
+
+  &__filter--mismatch &__icon-wrap {
+    background: var(--tk-warn-soft);
+    color: var(--tk-warn-text);
+  }
+
   &__icon {
     width: 1.25rem;
     height: 1.25rem;
   }
 
+  &__body {
+    display: grid;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
   &__label {
+    color: var(--tk-muted);
     font-size: $font-sm;
     font-weight: 600;
+    word-break: keep-all;
   }
 
   &__count {
-    font-size: $font-lg;
+    color: var(--tk-text-strong);
+    font-size: $font-2xl;
     font-weight: 700;
+    letter-spacing: $tracking-tight;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.25;
   }
 
   &__amount {
-    grid-column: 2 / -1;
     color: var(--tk-muted);
     font-size: $font-sm;
-    text-align: left;
+    font-variant-numeric: tabular-nums;
   }
 
   &__extra {

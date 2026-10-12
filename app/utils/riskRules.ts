@@ -86,7 +86,11 @@ export const RISK_RULES: readonly RiskRule[] = [
   {
     tag: 'LATE_NIGHT',
     name: '심야 사용',
-    description: '23:00 ~ 06:00 승인',
+    help: {
+      title: '심야 사용',
+      what: '밤 11시부터 새벽 6시 전까지 승인된 건을 찾아요.',
+      why: '심야 결제는 업무와 무관한 사용(유흥·개인 지출)일 가능성이 높아 소명이 필요한 경우가 많아요. 승인 시각이 없는 파일에서는 적용되지 않아요.',
+    },
     severity: 'MEDIUM',
     defaultEnabled: true,
     evaluate: (row) => {
@@ -100,7 +104,11 @@ export const RISK_RULES: readonly RiskRule[] = [
   {
     tag: 'WEEKEND',
     name: '주말 사용',
-    description: '토·일요일 승인',
+    help: {
+      title: '주말 사용',
+      what: '토요일·일요일에 승인된 건을 찾아요.',
+      why: '휴일 사용은 업무 목적을 설명하기 어려운 경우가 많아요. 단독으로는 점수가 낮아(1점) 다른 규칙과 겹칠 때 High로 올라가요.',
+    },
     severity: 'LOW',
     defaultEnabled: true,
     evaluate: (row) => {
@@ -111,7 +119,11 @@ export const RISK_RULES: readonly RiskRule[] = [
   {
     tag: 'HOLIDAY',
     name: '공휴일 사용',
-    description: '법정·대체공휴일 승인 (2025~2027)',
+    help: {
+      title: '공휴일 사용',
+      what: '법정공휴일·대체공휴일(2025~2027)에 승인된 건을 찾아요.',
+      why: '명절·공휴일 사용은 소명 요청이 잦아요. 임시공휴일은 포함하지 않으니 지정되면 직접 추가해야 해요.',
+    },
     severity: 'MEDIUM',
     defaultEnabled: true,
     evaluate: (row) => {
@@ -122,7 +134,11 @@ export const RISK_RULES: readonly RiskRule[] = [
   {
     tag: 'PRIVATE_MERCHANT',
     name: '사적 의심 업종',
-    description: '골프·백화점·병원·뷰티 등 키워드',
+    help: {
+      title: '사적 의심 업종',
+      what: '가맹점명이나 업종에 골프·백화점·병원·뷰티·상품권 등 개인 지출이 많은 키워드가 들어간 건을 찾아요.',
+      why: '법인카드로 쓰면 비용으로 인정받기 어렵거나 상여로 처리될 수 있어 가장 먼저 확인해야 해요(3점, 단독으로도 High).',
+    },
     severity: 'HIGH',
     defaultEnabled: true,
     evaluate: (row) => {
@@ -135,7 +151,11 @@ export const RISK_RULES: readonly RiskRule[] = [
   {
     tag: 'SPLIT_PAYMENT',
     name: '연속 분할 결제',
-    description: '같은 가맹점 60분 이내 연속 승인 등',
+    help: {
+      title: '연속 분할 결제',
+      what: '같은 카드로 같은 가맹점에서 60분 안에 두 번 이상 승인됐거나, 같은 날 건별로는 50만 원 미만인데 합계가 50만 원을 넘는 건을 찾아요.',
+      why: '결제 한도나 승인 기준을 피하려고 금액을 쪼갠 사용일 수 있어 소명이 필요해요(3점, 단독으로도 High).',
+    },
     severity: 'HIGH',
     defaultEnabled: true,
     evaluate: (row, context) => {
@@ -146,7 +166,11 @@ export const RISK_RULES: readonly RiskRule[] = [
   {
     tag: 'ROUND_AMOUNT',
     name: '딱 떨어지는 고액',
-    description: '10만 원 이상, 1만 원 단위',
+    help: {
+      title: '딱 떨어지는 고액',
+      what: '10만 원 이상이면서 1만 원 단위로 딱 떨어지는 금액을 찾아요. 기본은 꺼져 있어요.',
+      why: '상품권·현금성 결제는 금액이 딱 떨어지는 경우가 많아요. 다만 정상 거래에서도 흔해서 기본은 꺼 두었어요.',
+    },
     severity: 'LOW',
     defaultEnabled: false,
     evaluate: row =>

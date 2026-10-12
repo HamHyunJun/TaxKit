@@ -3,34 +3,40 @@
     class="tab-nav"
     aria-label="주요 기능"
   >
-    <div
-      ref="listRef"
-      class="tab-nav__list"
-      role="tablist"
-      aria-orientation="horizontal"
-      @keydown="handleKeydown"
-    >
-      <button
-        v-for="tab in TABS"
-        :id="`tab-${tab.id}`"
-        :key="tab.id"
-        type="button"
-        role="tab"
-        class="tab-nav__tab"
-        :class="{ 'is-active': tab.id === model }"
-        :aria-selected="tab.id === model"
-        :aria-controls="`panel-${tab.id}`"
-        :tabindex="tab.id === model ? 0 : -1"
-        @click="model = tab.id"
+    <div class="tab-nav__inner">
+      <div
+        ref="listRef"
+        class="tab-nav__list"
+        role="tablist"
+        aria-orientation="horizontal"
+        @keydown="handleKeydown"
       >
-        {{ tab.label }}
-      </button>
-      <span
-        class="tab-nav__indicator"
-        :class="{ 'is-ready': isReady }"
-        :style="indicatorStyle"
-        aria-hidden="true"
-      />
+        <button
+          v-for="(tab, index) in TABS"
+          :id="`tab-${tab.id}`"
+          :key="tab.id"
+          type="button"
+          role="tab"
+          class="tab-nav__tab"
+          :class="{ 'is-active': tab.id === model }"
+          :aria-selected="tab.id === model"
+          :aria-controls="`panel-${tab.id}`"
+          :tabindex="tab.id === model ? 0 : -1"
+          @click="model = tab.id"
+        >
+          <span
+            class="tab-nav__step"
+            aria-hidden="true"
+          >{{ index + 1 }}</span>
+          <span class="tab-nav__label">{{ tab.label }}</span>
+        </button>
+        <span
+          class="tab-nav__indicator"
+          :class="{ 'is-ready': isReady }"
+          :style="indicatorStyle"
+          aria-hidden="true"
+        />
+      </div>
     </div>
   </nav>
 </template>
@@ -97,36 +103,48 @@ watch(model, updateIndicator, { flush: 'post' })
 .tab-nav {
   background: var(--tk-card);
   border-bottom: 1px solid var(--tk-border);
+  box-shadow: var(--tk-shadow-sm);
 
-  &__list {
-    position: relative;
-    display: flex;
+  &__inner {
     max-width: $container-max;
     margin: 0 auto;
     padding-inline: $space-2;
-    overflow-x: auto;
 
     @include respond-to(md) {
       padding-inline: $space-4;
     }
   }
 
+  &__list {
+    position: relative;
+    display: flex;
+    gap: $space-1;
+    overflow-x: auto;
+  }
+
   &__tab {
+    display: inline-flex;
     flex: none;
-    padding: $space-3 $space-4;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-4 $space-4;
     color: var(--tk-muted);
     font-size: $font-sm;
     font-weight: 600;
+    letter-spacing: $tracking-snug;
     white-space: nowrap;
     transition:
-      color $duration-fast $ease-out-quint,
-      transform $duration-fast $ease-out-quint;
+      color 160ms $ease-out-quint,
+      transform 120ms $ease-out-quint;
 
     @include focus-ring;
 
-    &:hover,
+    &:hover {
+      color: var(--tk-text-strong);
+    }
+
     &.is-active {
-      color: var(--tk-text);
+      color: var(--tk-text-strong);
     }
 
     &:active {
@@ -138,13 +156,39 @@ watch(model, updateIndicator, { flush: 'post' })
     }
   }
 
+  &__step {
+    display: inline-grid;
+    place-content: center;
+    width: 1.375rem;
+    height: 1.375rem;
+    border-radius: 50%;
+    background: var(--tk-surface-strong);
+    color: $color-slate-600;
+    font-size: $font-xs;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    transition:
+      background-color 200ms $ease-out-quint,
+      color 200ms $ease-out-quint;
+
+    @include reduced-motion {
+      transition: none;
+    }
+  }
+
+  &__tab.is-active &__step {
+    background: var(--tk-accent-text);
+    color: $color-white;
+  }
+
   &__indicator {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 1px;
     height: 3px;
-    background: var(--tk-accent);
+    border-radius: 3px 3px 0 0;
+    background: var(--tk-accent-text);
     transform-origin: left;
 
     &.is-ready {
