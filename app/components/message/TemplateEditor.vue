@@ -274,7 +274,7 @@ const insertVariable = async (name: string): Promise<void> => {
     @include focus-ring;
 
     &:hover {
-      background: $color-emerald-100;
+      background: $color-ledger-100;
     }
 
     &:active {

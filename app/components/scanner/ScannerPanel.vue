@@ -4,7 +4,6 @@
     aria-labelledby="scanner-title"
   >
     <PageHeader
-      eyebrow="STEP 2"
       title="법인카드 스캐너"
       description="카드사 승인내역을 올리면 심야·주말·공휴일 사용, 사적 의심 업종, 연속 분할 결제를 찾아 소명이 필요한 건을 모아줘요."
       topic="scannerPage"
@@ -129,14 +128,14 @@ import { Download, Info } from 'lucide-vue-next'
 const { source, pending, enabledTags, levels, sort, explanations, counts, shown, holidayOutOfRange, canReopen, loadFile, confirmMapping, cancelMapping, reopenMapping } = useRiskScanner()
 const { downloadWorkbook } = useExcelWriter()
 
-// "취소 2건 상계 · 짝 없는 취소 1건 · 확인 필요 3건"
+// "취소 2건 상계, 짝 없는 취소 1건, 확인 필요 3건"
 const sourceDetail = computed<string | null>(() => {
   if (source.value.fileName === null) return null
   const parts = [`승인 ${counts.value.total.toLocaleString('ko-KR')}건`]
   if (source.value.offsetCount > 0) parts.push(`취소 ${source.value.offsetCount.toLocaleString('ko-KR')}건 상계`)
   if (source.value.unmatchedCancels > 0) parts.push(`원 승인 없는 취소 ${source.value.unmatchedCancels.toLocaleString('ko-KR')}건 제외`)
   if (source.value.needsCheck > 0) parts.push(`확인 필요 ${source.value.needsCheck.toLocaleString('ko-KR')}건`)
-  return parts.join(' · ')
+  return parts.join(', ')
 })
 
 const statusMessage = computed<string>(() =>
@@ -189,7 +188,7 @@ const handleDownload = (): void => {
     align-items: flex-start;
     gap: $space-2;
     padding: $space-3 $space-4;
-    border: 1px solid #{tint($color-amber-500, 0.35)};
+    border: 1px solid #{tint($color-marker-500, 0.35)};
     border-radius: $radius-lg;
     background: var(--tk-warn-soft);
     color: var(--tk-warn-text);

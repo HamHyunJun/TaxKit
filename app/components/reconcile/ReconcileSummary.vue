@@ -29,7 +29,7 @@
       </button>
     </div>
     <p class="summary__extra">
-      계산서만 존재 {{ summary.INVOICE_ONLY.count.toLocaleString('ko-KR') }}건 · 자동 제외 {{ summary.EXCLUDED.count.toLocaleString('ko-KR') }}건
+      계산서만 존재 {{ summary.INVOICE_ONLY.count.toLocaleString('ko-KR') }}건, 자동 제외 {{ summary.EXCLUDED.count.toLocaleString('ko-KR') }}건
       (결과 엑셀에서 확인할 수 있어요)
     </p>
   </div>
@@ -75,7 +75,10 @@ const items = computed<FilterItem[]>(() => [
 
   &__filters {
     display: grid;
-    gap: $space-3;
+
+    @include card-surface;
+
+    overflow: hidden;
 
     @include respond-to(md) {
       grid-template-columns: repeat(3, 1fr);
@@ -83,8 +86,6 @@ const items = computed<FilterItem[]>(() => [
   }
 
   &__filter {
-    @include card-surface;
-
     display: flex;
     align-items: flex-start;
     gap: $space-4;
@@ -92,25 +93,37 @@ const items = computed<FilterItem[]>(() => [
     text-align: left;
     transition:
       transform $duration-fast $ease-out-quint,
-      border-color $duration-medium $ease-out-quint,
       background-color $duration-medium $ease-out-quint,
       box-shadow $duration-medium $ease-out-quint;
 
     @include focus-ring;
 
+    // 바깥으로 그려지는 링은 띠의 overflow에 잘리므로 안쪽에 그린다
+    &:focus-visible {
+      outline-offset: -3px;
+    }
+
+    & + & {
+      border-top: 1px solid var(--tk-border);
+
+      @include respond-to(md) {
+        border-top: 0;
+        border-left: 1px solid var(--tk-border);
+      }
+    }
+
     &:hover {
-      border-color: var(--tk-subtle);
-      box-shadow: var(--tk-shadow-md);
+      background: var(--tk-surface-strong);
     }
 
     &:active {
       transform: scale(0.985);
     }
 
+    // 선택된 칸은 아래에 굵은 잉크선을 그어 "펼친 장부 페이지"처럼 표시한다
     &.is-active {
-      border-color: var(--tk-accent-text);
       background: var(--tk-accent-soft);
-      box-shadow: 0 0 0 1px var(--tk-accent-text), var(--tk-shadow-md);
+      box-shadow: inset 0 -3px 0 var(--tk-accent-text);
     }
 
     @include reduced-motion {

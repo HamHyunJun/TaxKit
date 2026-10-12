@@ -11,32 +11,18 @@
             class="app-header__mark-bg"
             width="32"
             height="32"
-            rx="9"
+            rx="7"
           />
           <path
-            class="app-header__mark-outer"
-            d="M16 7.5 24.5 16 16 24.5 7.5 16z"
+            class="app-header__mark-lines"
+            d="M8 10.5h16M8 16h16M8 21.5h8"
           />
-          <path
-            class="app-header__mark-inner"
-            d="M16 12.2 19.8 16 16 19.8 12.2 16z"
+          <circle
+            class="app-header__mark-stamp"
+            cx="23"
+            cy="22"
+            r="4.5"
           />
-          <defs>
-            <linearGradient
-              id="brand-gradient"
-              x1="4"
-              y1="2"
-              x2="28"
-              y2="30"
-              gradientUnits="userSpaceOnUse"
-            >
-              <stop class="app-header__stop-from" />
-              <stop
-                class="app-header__stop-to"
-                offset="1"
-              />
-            </linearGradient>
-          </defs>
         </svg>
         <span class="app-header__name">TaxKit</span>
         <span
@@ -83,31 +69,27 @@
   }
 
   &__mark-bg {
-    fill: url('#brand-gradient');
+    fill: $color-ledger-700;
   }
 
-  &__mark-outer {
-    fill: $color-white;
-    fill-opacity: 0.95;
+  &__mark-lines {
+    fill: none;
+    stroke: $color-white;
+    stroke-width: 2;
+    stroke-linecap: round;
+    opacity: 0.92;
   }
 
-  &__mark-inner {
-    fill: $color-emerald-700;
-  }
-
-  &__stop-from {
-    stop-color: $color-emerald-500;
-  }
-
-  &__stop-to {
-    stop-color: $color-emerald-700;
+  &__mark-stamp {
+    fill: $color-stamp-600;
+    stroke: $color-ledger-700;
+    stroke-width: 1.5;
   }
 
   &__mark {
     width: 1.875rem;
     height: 1.875rem;
     flex: none;
-    filter: drop-shadow(0 2px 6px #{tint($color-emerald-500, 0.35)});
   }
 
   &__name {

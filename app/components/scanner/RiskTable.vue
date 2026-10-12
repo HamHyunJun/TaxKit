@@ -38,7 +38,7 @@
               승인일시
             </th>
             <th scope="col">
-              가맹점 · 카드
+              가맹점과 카드
             </th>
             <th
               scope="col"
@@ -50,7 +50,7 @@
               scope="col"
               class="risk-table__col-hits"
             >
-              걸린 규칙 · 사유
+              걸린 규칙과 사유
             </th>
             <th
               scope="col"
@@ -67,11 +67,15 @@
           >
             <td>
               <span
-                class="risk-table__badge"
-                :class="`risk-table__badge--${finding.level.toLowerCase()}`"
+                v-if="finding.level === 'HIGH'"
+                class="stamp"
+              >{{ levelLabel(finding.level) }}</span>
+              <span
+                v-else
+                class="risk-table__badge risk-table__badge--medium"
               >
                 <component
-                  :is="finding.level === 'HIGH' ? TriangleAlert : CircleAlert"
+                  :is="CircleAlert"
                   class="risk-table__badge-icon"
                   aria-hidden="true"
                 />
@@ -91,11 +95,7 @@
                 {{ finding.approval.merchantName }}
               </p>
               <p class="risk-table__sub">
-                <template v-if="finding.approval.merchantCategory">
-                  {{ finding.approval.merchantCategory }} ·
-                </template>{{ finding.approval.cardNo }}<template v-if="finding.approval.cardHolder">
-                  · {{ finding.approval.cardHolder }}
-                </template>
+                {{ subLine(finding.approval) }}
               </p>
             </td>
             <td class="num">
@@ -128,6 +128,17 @@
             </td>
           </tr>
         </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3">
+              합계 ({{ findings.length.toLocaleString('ko-KR') }}건)
+            </td>
+            <td class="num">
+              {{ formatWon(totalAmount) }}원
+            </td>
+            <td colspan="2" />
+          </tr>
+        </tfoot>
       </table>
     </div>
     <ShowMore
@@ -139,7 +150,8 @@
 </template>
 
 <script setup lang="ts">
-import { CircleAlert, ShieldCheck, TriangleAlert } from 'lucide-vue-next'
+import { CircleAlert, ShieldCheck } from 'lucide-vue-next'
+import type { CardApproval } from '~/types/card'
 import type { RiskFinding } from '~/types/risk'
 
 type Props = {
@@ -153,6 +165,12 @@ const explanations = defineModel<Record<string, string>>('explanations', { requi
 
 // 긴 결과는 200건씩 보여주고, 필터나 정렬이 바뀌면 처음부터 다시 보여준다
 const { visible: visibleFindings, hiddenCount, nextCount, showMore } = usePagedList(() => findings)
+
+const totalAmount = computed<number>(() => findings.reduce((sum, finding) => sum + finding.approval.amount, 0))
+
+// "업종, 카드번호, 카드 소지자" 중 값이 있는 것만 쉼표로 잇는다
+const subLine = (approval: CardApproval): string =>
+  [approval.merchantCategory, approval.cardNo, approval.cardHolder].filter(Boolean).join(', ')
 
 const handleInput = (id: string, event: Event): void => {
   const input = event.target
@@ -194,6 +212,7 @@ const handleInput = (id: string, event: Event): void => {
   &__scroll {
     max-height: 40rem;
     overflow: auto;
+    scroll-padding-block: 3rem;
 
     @include focus-ring;
   }

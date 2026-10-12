@@ -37,7 +37,7 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: '엑셀 데이터를 외부로 보내지 않고 브라우저에서만 처리하는 세무 마감 자동화 도구' },
-        { name: 'theme-color', content: '#0f172a' },
+        { name: 'theme-color', content: '#1b2a41' },
         // 리퍼러로 어떤 정보도 외부에 흘리지 않는다
         { name: 'referrer', content: 'no-referrer' },
         ...(isProduction ? [{ 'http-equiv': 'Content-Security-Policy', 'content': contentSecurityPolicy }] : []),

@@ -30,13 +30,13 @@
       <span class="drop-zone__hint">
         여기에 끌어다 놓거나 <span class="drop-zone__link">파일 선택</span>
       </span>
-      <span class="drop-zone__formats">{{ ACCEPTED_EXTENSIONS.join(' ') }} · 20MB 넘으면 확인</span>
+      <span class="drop-zone__formats">{{ ACCEPTED_EXTENSIONS.join(' ') }}, 20MB 넘으면 확인</span>
       <span
         class="drop-zone__status"
         aria-live="polite"
       >
         <template v-if="shownError">{{ shownError }}</template>
-        <template v-else-if="isDone">{{ fileName }}<template v-if="detail"> · {{ detail }}</template></template>
+        <template v-else-if="isDone">{{ fileName }}<template v-if="detail">, {{ detail }}</template></template>
       </span>
     </label>
     <div
@@ -174,8 +174,8 @@ const handleChange = (event: Event): void => {
 
   &.is-dragging {
     border-color: var(--tk-accent);
-    background: #{tint($color-emerald-500, 0.1)};
-    box-shadow: 0 0 0 4px #{tint($color-emerald-500, 0.14)};
+    background: #{tint($color-ledger-500, 0.1)};
+    box-shadow: 0 0 0 4px #{tint($color-ledger-500, 0.14)};
     transform: scale(1.02);
   }
 

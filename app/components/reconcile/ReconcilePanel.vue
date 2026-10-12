@@ -4,7 +4,6 @@
     aria-labelledby="reconcile-title"
   >
     <PageHeader
-      eyebrow="STEP 1"
       title="계좌·세금계산서 대사"
       description="통장 거래내역과 세금계산서를 올리면 금액·날짜·상호로 짝을 찾아 세금계산서가 누락된 것으로 의심되는 건을 알려줘요."
       topic="reconcilePage"
@@ -215,11 +214,11 @@ const isStale = computed<boolean>(() => {
 })
 const emptyText = computed<string>(() => EMPTY_TEXTS[filter.value])
 
-// "1,204행 · 확인 필요 3건"
+// "1,204행, 확인 필요 3건"
 const sourceDetail = (source: SheetSourceState<unknown>): string | null => {
   if (source.fileName === null) return null
   const base = `${source.rows.length.toLocaleString('ko-KR')}행`
-  return source.needsCheck > 0 ? `${base} · 확인 필요 ${source.needsCheck.toLocaleString('ko-KR')}건` : base
+  return source.needsCheck > 0 ? `${base}, 확인 필요 ${source.needsCheck.toLocaleString('ko-KR')}건` : base
 }
 
 const handleRun = async (): Promise<void> => {
@@ -283,7 +282,7 @@ const handleHandoff = async (): Promise<void> => {
     align-items: flex-start;
     gap: $space-2;
     padding: $space-3 $space-4;
-    border: 1px solid #{tint($color-amber-500, 0.35)};
+    border: 1px solid #{tint($color-marker-500, 0.35)};
     border-radius: $radius-lg;
     background: var(--tk-warn-soft);
     color: var(--tk-warn-text);

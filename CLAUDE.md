@@ -183,9 +183,9 @@ app/assets/scss/
 ```
 - `abstracts`는 `nuxt.config.ts`의 `additionalData`로 **모든 SFC에 자동 주입**된다. 그래서 컴포넌트에서 `@use 'abstracts'`를 다시 쓰지 않으며, `abstracts/` 안에는 실제 CSS 규칙을 출력하는 코드를 넣지 않는다(넣으면 모든 컴포넌트에 중복 출력된다).
 - `@import`는 쓰지 않는다(Dart Sass에서 폐기 예정). `@use`/`@forward`만 사용하고, 색상 계산은 `sass:color` 모듈(`color.adjust`, `color.mix`)을 쓴다.
-- 색상: 컴포넌트에 HEX 값을 직접 쓰지 않는다. 런타임 테마 값은 CSS 변수(`var(--tk-accent)`), 컴파일 타임 계산이 필요한 값은 SCSS 변수(`$color-emerald-500`)를 쓴다.
-  - 기본 팔레트: Slate-900 `#0f172a`(헤더/다크 표면), Slate-50 `#f8fafc`(배경), Emerald-500 `#10b981`/600 `#059669`(포인트), Rose-600 `#e11d48`(위험), Amber-500 `#f59e0b`(주의)
-  - 글자색은 배경(흰색·연한 틴트)과 4.5:1 이상이어야 한다. 초록·빨강 글자는 `$color-emerald-700`(`--tk-accent-text`)·`$color-rose-700`(`--tk-danger-text`)을 쓰고, 연한 회색 면 위 보조 글자는 `--tk-muted-strong`을 쓴다. 500·600은 아이콘·장식에만 쓰고 주요 버튼 배경은 Emerald-700이다.
+- 색상: 컴포넌트에 HEX 값을 직접 쓰지 않는다. 런타임 테마 값은 CSS 변수(`var(--tk-accent)`), 컴파일 타임 계산이 필요한 값은 SCSS 변수(`$color-ledger-500`)를 쓴다.
+  - 기본 팔레트(장부·도장 콘셉트): 잉크 `#1b2a41`(헤더/다크 표면), 종이 `#fbfbf9`(배경), 장부 초록 `#4a9a74`/600 `#3a7d5c`(포인트), 도장 빨강 `#c23b2e`(위험), 형광펜 노랑 `#e0b72e`(주의). 위험 표시는 `.stamp` 클래스(이중 테두리 도장)를 쓴다
+  - 글자색은 배경(흰색·연한 틴트)과 4.5:1 이상이어야 한다. 초록·빨강 글자는 `$color-ledger-700`(`--tk-accent-text`)·`$color-stamp-700`(`--tk-danger-text`)을 쓰고, 연한 회색 면 위 보조 글자는 `--tk-muted-strong`을 쓴다. 500·600은 아이콘·장식에만 쓰고 주요 버튼 배경은 장부 초록 700이다.
 - 공용 UI는 새로 스타일링하지 않고 재사용한다: 버튼은 `.tk-btn`(+`--primary`·`--ghost`·`--sm`), 입력·셀렉트·체크박스·라디오·슬라이더는 `base/_forms.scss` 전역 스타일, 택1은 `.segmented`, 다중 선택은 `.chip-toggle`, 카드는 `@include card-surface`, 표는 `@include data-table`.
 - 사용자가 처음 보는 설정·표 헤더·주요 버튼을 추가하면 `InfoTip`으로 "하는 일 / 왜 필요한가요?"를 붙인다(문구는 `utils/helpTexts.ts`, 규칙별 설명은 `RISK_RULES[].help`). 표는 열을 늘리지 말고 합쳐서 6열 안팎으로 유지한다.
 - 간격은 4px 기반 스케일 변수(`$space-1` = 4px, `$space-2` = 8px …)만 쓴다. 매직 넘버 금지.

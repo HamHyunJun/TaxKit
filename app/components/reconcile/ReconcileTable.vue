@@ -44,7 +44,7 @@
               금액
             </th>
             <th scope="col">
-              적요 · 판정 근거
+              적요와 판정 근거
             </th>
             <th
               v-if="showMatch"
@@ -69,6 +69,11 @@
           >
             <td>
               <span
+                v-if="row.status === 'MISSING'"
+                class="stamp"
+              >{{ statusLabel(row.status) }}</span>
+              <span
+                v-else
                 class="table__badge"
                 :class="`table__badge--${row.status.toLowerCase()}`"
               >
@@ -119,7 +124,7 @@
                   {{ invoicePartner(row) }}
                 </p>
                 <p class="table__reason">
-                  {{ formatDate(row.invoice.issueDate) }} · {{ formatWon(row.invoice.totalAmount) }}원
+                  {{ formatDate(row.invoice.issueDate) }}, {{ formatWon(row.invoice.totalAmount) }}원
                 </p>
               </template>
               <span
@@ -150,6 +155,24 @@
             </td>
           </tr>
         </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">
+              합계 ({{ rows.length.toLocaleString('ko-KR') }}건)
+            </td>
+            <td class="num">
+              <span
+                v-if="totals.out > 0"
+                class="table__total-line"
+              >출금 {{ formatWon(totals.out) }}원</span>
+              <span
+                v-if="totals.in > 0"
+                class="table__total-line"
+              >입금 {{ formatWon(totals.in) }}원</span>
+            </td>
+            <td :colspan="showMatch ? 3 : 1" />
+          </tr>
+        </tfoot>
       </table>
     </div>
     <ShowMore
@@ -177,6 +200,15 @@ const { rows } = defineProps<Props>()
 const { visible: visibleRows, hiddenCount, nextCount, showMore } = usePagedList(() => rows)
 // 짝지어진 계산서가 있는 행이 하나도 없으면(예: 누락 의심) 계산서·점수 열을 숨겨 본문을 넓게 쓴다
 const showMatch = computed<boolean>(() => rows.some(row => row.invoice !== null))
+
+// 금액은 항상 양수이고 방향은 따로 있어서, 출금과 입금을 섞어 더하지 않고 나눠서 합친다 (계산서만 있는 행은 제외)
+const totals = computed<{ out: number, in: number }>(() => {
+  const sum = { out: 0, in: 0 }
+  for (const row of rows) {
+    if (row.bank) sum[row.bank.direction === 'IN' ? 'in' : 'out'] += row.bank.amount
+  }
+  return sum
+})
 
 const STATUS_ICONS: Record<MatchStatus, Component> = {
   MATCHED: CircleCheck,
@@ -223,6 +255,7 @@ const statusIcon = (status: MatchStatus): Component => STATUS_ICONS[status]
   &__scroll {
     max-height: 36rem;
     overflow: auto;
+    scroll-padding-block: 3rem;
 
     @include focus-ring;
   }
@@ -321,6 +354,10 @@ const statusIcon = (status: MatchStatus): Component => STATUS_ICONS[status]
     word-break: keep-all;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+  }
+
+  &__total-line {
+    display: block;
   }
 
   &__none {

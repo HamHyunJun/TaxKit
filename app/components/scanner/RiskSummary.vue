@@ -84,8 +84,11 @@ const handleChange = (level: RiskLevel, event: Event): void => {
   &__cards {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: $space-3;
     margin: 0;
+
+    @include card-surface;
+
+    overflow: hidden;
 
     @include respond-to(md) {
       grid-template-columns: repeat(4, 1fr);
@@ -93,11 +96,31 @@ const handleChange = (level: RiskLevel, event: Event): void => {
   }
 
   &__card {
-    @include card-surface;
-
     display: grid;
     gap: $space-1;
     padding: $space-4 $space-5;
+    border-right: 1px solid var(--tk-border);
+    border-bottom: 1px solid var(--tk-border);
+
+    &:nth-child(2n) {
+      border-right: 0;
+    }
+
+    &:nth-last-child(-n + 2) {
+      border-bottom: 0;
+    }
+
+    @include respond-to(md) {
+      border-bottom: 0;
+
+      &:nth-child(2n) {
+        border-right: 1px solid var(--tk-border);
+      }
+
+      &:last-child {
+        border-right: 0;
+      }
+    }
 
     dt {
       color: var(--tk-muted);
@@ -117,16 +140,11 @@ const handleChange = (level: RiskLevel, event: Event): void => {
     }
 
     &--high {
-      border-left: 3px solid var(--tk-danger);
-
       dd {
         color: var(--tk-danger-text);
       }
     }
 
-    &--medium {
-      border-left: 3px solid var(--tk-warn);
-    }
   }
 
   &__unit {

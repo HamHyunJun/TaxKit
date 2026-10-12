@@ -5,7 +5,7 @@
         class="app-footer__icon"
         aria-hidden="true"
       />
-      새로고침하면 모든 데이터가 사라집니다 · 처리 기록은 저장되지 않습니다
+      새로고침하면 모든 데이터가 사라집니다. 처리 기록은 저장되지 않습니다
     </p>
   </footer>
 </template>

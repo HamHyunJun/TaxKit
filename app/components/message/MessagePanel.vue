@@ -4,7 +4,6 @@
     aria-labelledby="message-title"
   >
     <PageHeader
-      eyebrow="STEP 3"
       title="독촉 메시지"
       description="증빙이 누락된 거래처별로 안내 문구를 만들어요. 거래처마다 건수·합계금액·거래 목록이 자동으로 채워지고, 복사 한 번이면 카카오톡이나 문자에 붙여넣을 수 있어요."
       topic="messagePage"
@@ -158,7 +157,7 @@ const allText = computed<string>(() => allMessages())
 const uploadDetail = computed<string | null>(() => {
   if (source.value.fileName === null) return null
   const base = `${rowCount.value.toLocaleString('ko-KR')}행`
-  return source.value.needsCheck > 0 ? `${base} · 확인 필요 ${source.value.needsCheck.toLocaleString('ko-KR')}건` : base
+  return source.value.needsCheck > 0 ? `${base}, 확인 필요 ${source.value.needsCheck.toLocaleString('ko-KR')}건` : base
 })
 
 const statusMessage = computed<string>(() =>

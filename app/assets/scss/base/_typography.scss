@@ -16,10 +16,7 @@ body {
   line-height: 1.6;
   letter-spacing: $tracking-snug;
   color: var(--tk-text);
-  background:
-    radial-gradient(70rem 26rem at 50% -12rem, #{tint($color-emerald-500, 0.09)}, transparent 70%),
-    var(--tk-surface);
-  background-repeat: no-repeat;
+  background: var(--tk-surface);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -33,7 +30,7 @@ h3 {
 }
 
 ::selection {
-  background: #{tint($color-emerald-500, 0.28)};
+  background: #{tint($color-ledger-500, 0.28)};
 }
 
 // 얇은 스크롤바 (표·목록의 내부 스크롤)

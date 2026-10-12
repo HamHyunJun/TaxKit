@@ -97,10 +97,10 @@ onBeforeUnmount(() => {
     align-items: center;
     gap: $space-2;
     padding: $space-1 $space-3 $space-1 $space-1;
-    border: 1px solid #{tint($color-emerald-500, 0.45)};
+    border: 1px solid #{tint($color-ledger-500, 0.45)};
     border-radius: $radius-full;
-    background: #{tint($color-emerald-500, 0.12)};
-    color: $color-emerald-100;
+    background: #{tint($color-ledger-500, 0.12)};
+    color: $color-ledger-100;
     font-size: $font-sm;
     font-weight: 600;
     transition:
@@ -111,8 +111,8 @@ onBeforeUnmount(() => {
     @include focus-ring;
 
     &:hover {
-      border-color: #{tint($color-emerald-500, 0.7)};
-      background: #{tint($color-emerald-500, 0.2)};
+      border-color: #{tint($color-ledger-500, 0.7)};
+      background: #{tint($color-ledger-500, 0.2)};
     }
 
     &:active {
@@ -142,7 +142,7 @@ onBeforeUnmount(() => {
   &__chevron {
     width: 0.875rem;
     height: 0.875rem;
-    color: $color-emerald-500;
+    color: $color-ledger-500;
     transition: transform $duration-medium $ease-out-quint;
 
     &.is-open {

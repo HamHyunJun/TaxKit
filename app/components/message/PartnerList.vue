@@ -49,7 +49,7 @@
           <span class="partner-list__text">
             <span class="partner-list__name">{{ group.name }}</span>
             <span class="partner-list__meta">
-              <span v-if="group.bizNo">{{ formatBizNo(group.bizNo) }} · </span>{{ group.count.toLocaleString('ko-KR') }}건 ·
+              <span v-if="group.bizNo">{{ formatBizNo(group.bizNo) }}, </span>{{ group.count.toLocaleString('ko-KR') }}건,
               <span class="partner-list__total">{{ formatWon(group.total) }}원</span>
             </span>
           </span>

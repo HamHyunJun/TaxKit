@@ -61,7 +61,7 @@
               :key="index"
               :value="index"
             >
-              {{ utils.encode_col(index) }}열 · {{ header || '(빈 헤더)' }}
+              {{ utils.encode_col(index) }}열 {{ header || '(빈 헤더)' }}
             </option>
           </select>
         </div>

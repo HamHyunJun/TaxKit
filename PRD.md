@@ -347,11 +347,11 @@ useState('taxkit:handoff') ─┐
 ### 6.1 공통 레이아웃 (데스크톱 1280px 기준)
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│ <header>  ◆ TaxKit  세무 마감 헬퍼            [🔒 100% 로컬 연산 (데이터 외부 전송 0 byte)] │  ← sticky, Slate-900
+│ <header>  ◆ TaxKit  세무 마감 헬퍼            [🔒 100% 로컬 연산 (데이터 외부 전송 0 byte)] │  ← sticky, 잉크색
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ <nav role="tablist">                                                         │
 │   [ ① 계좌·세금계산서 대사 ]  [ ② 법인카드 스캐너 ]  [ ③ 독촉 메시지 ]         │
-│    ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔ ← Emerald 인디케이터가 활성 탭으로 미끄러지듯 이동      │
+│    ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔ ← 초록 인디케이터가 활성 탭으로 미끄러지듯 이동      │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ <main role="tabpanel">  (탭 전환 시 opacity + translateY 8px 페이드)           │
 │                                                                              │
@@ -419,25 +419,25 @@ useState('taxkit:handoff') ─┐
 ### 6.5 디자인 토큰
 | 토큰 | 값 | 용도 |
 | --- | --- | --- |
-| `--tk-bg` | Slate-900 `#0f172a` | 헤더, 다크 표면 |
-| `--tk-surface` | Slate-50 `#f8fafc` | 본문 배경 |
-| `--tk-card` | `#ffffff` + Slate-200 테두리 | 카드 |
+| `--tk-bg` | 잉크 `#1b2a41` | 헤더, 다크 표면 |
+| `--tk-surface` | 종이 `#fbfbf9` | 본문 배경 (장부 용지) |
+| `--tk-card` | `#ffffff` + `#dadcd4` 테두리, 그림자 없음 | 카드 |
 | `--tk-text` | Slate-800 `#1e293b` | 본문 텍스트 |
 | `--tk-muted` | Slate-500 `#64748b` | 보조 텍스트 |
-| `--tk-accent` | Emerald-500 `#10b981` / hover Emerald-600 `#059669` | 포인트, 활성 탭 표시, 보안 뱃지, 아이콘·장식 |
-| `--tk-accent-text` | Emerald-700 `#047857` | 흰색·연한 틴트 위 초록 글자(4.6:1 이상), **주요 버튼 배경**(흰 글자 5.5:1) |
-| `--tk-danger-text` | Rose-700 `#be123c` | 흰색·연한 틴트 위 빨강 글자 |
+| `--tk-accent` | 장부 초록 `#4a9a74` / hover `#3a7d5c` | 포인트, 활성 탭 표시, 보안 뱃지, 아이콘·장식 |
+| `--tk-accent-text` | 장부 초록 700 `#2f6b4f` | 흰색·연한 틴트 위 초록 글자(4.5:1 이상), **주요 버튼 배경** |
+| `--tk-danger-text` | 도장 빨강 700 `#a82e23` | 흰색·연한 틴트 위 빨강 글자, `.stamp` 도장 |
 | `--tk-muted-strong` | Slate-600 `#475569` | 연한 회색 면(`--tk-surface-strong`) 위 보조 글자·표 헤더 |
 | `--tk-shadow-sm/md/pop` | 옅은 그림자 3단 | 카드 / 호버 카드 / 팝오버·모달 |
-| `--tk-danger` | Rose-600 `#e11d48` | 누락 의심, 고위험 |
-| `--tk-warn` | Amber-500 `#f59e0b` | 검토 필요, 중위험 |
+| `--tk-danger` | 도장 빨강 600 `#c23b2e` | 누락 의심, 고위험 (도장 스타일) |
+| `--tk-warn` | 형광펜 노랑 500 `#e0b72e` | 검토 필요, 중위험 |
 | 폰트 | Pretendard (npm 패키지로 **셀프 호스팅**), 숫자는 `font-variant-numeric: tabular-nums` | |
 | 반경 | 카드 12px, 모달·드롭존 16px, 버튼·입력 8px, 뱃지·칩 999px | |
 
 ### 6.6 인터랙션 (Emil Kowalski 스타일)
 - **탭 인디케이터**: 활성 탭의 `offsetLeft/offsetWidth`를 읽어 하나의 인디케이터 요소를 `transform: translateX() scaleX()`로 이동. `cubic-bezier(0.32, 0.72, 0, 1)`, 280ms.
 - **탭 패널 전환**: `<Transition mode="out-in">` opacity 0→1, translateY 8px→0, 200ms.
-- **드롭존**: dragenter 시 `scale(1.02)` + Emerald 점선 테두리 + 배경 틴트, drop 순간 `scale(0.98)` 후 복귀(150ms), 파싱 완료 시 체크 아이콘 페이드 인.
+- **드롭존**: dragenter 시 `scale(1.02)` + 초록 점선 테두리 + 배경 틴트, drop 순간 `scale(0.98)` 후 복귀(150ms), 파싱 완료 시 체크 아이콘 페이드 인.
 - **복사 버튼**: 누르는 동안 `scale(0.96)`, 성공 시 아이콘 교체 + 스프링 오버슈트(`cubic-bezier(0.34, 1.56, 0.64, 1)`, 350ms).
 - **토스트**: 하단 중앙에서 translateY(16px)→0 + opacity, 2초 후 자동 사라짐, 여러 개면 스택.
 - 애니메이션은 `transform`/`opacity`가 기본이며, 호버·선택 같은 상태 표시에 한해 색상 전환(배경·테두리·글자색·그림자)을 허용한다. 레이아웃 속성은 애니메이션하지 않고, `prefers-reduced-motion: reduce`에서는 즉시 전환한다.
@@ -447,7 +447,7 @@ useState('taxkit:handoff') ─┐
 - 드롭존: 실제 `<input type="file">`에 연결된 `<label>`로 구현해 키보드(Enter/Space)로 파일 선택 가능. 상태 변화는 `aria-live="polite"`로 안내.
 - 테이블: `<table>` + `<caption>` + `<th scope="col">`, 정렬 버튼은 `aria-sort`.
 - 상태 색상에는 항상 텍스트 라벨·아이콘을 함께 표시(색맹 대응). 대비 4.5:1 이상.
-- 포커스 링: Emerald 2px `:focus-visible`.
+- 포커스 링: 초록 2px `:focus-visible`.
 
 ### 6.8 화면 설명과 공통 컨트롤
 - **정보 아이콘(InfoTip):** 제목·설정 항목·표 헤더·주요 버튼 옆의 작은 `i` 아이콘을 누르면(Enter·Space 포함) 말풍선이 열려 **하는 일 / 왜 필요한가요?** 를 알려준다. 바깥 클릭·Esc로 닫고, 화면 아래가 모자라면 위로 뜨며, 스크롤하면 아이콘을 따라간다(아이콘이 화면 밖으로 나가면 닫음). 표의 스크롤 영역에 잘리지 않도록 `body`로 옮겨 `fixed`로 배치한다. 문구는 `utils/helpTexts.ts`(공용)와 `RISK_RULES[].help`(규칙별)에서 관리한다.
