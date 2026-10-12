@@ -39,7 +39,7 @@ let resetTimer: ReturnType<typeof setTimeout> | undefined
 const handleClick = async (): Promise<void> => {
   const ok = await copyText(props.text)
   if (!ok) {
-    showToast('복사하지 못했어요. 브라우저의 클립보드 권한을 확인해 주세요')
+    showToast('복사하지 못했어요. 문구를 직접 선택해 Ctrl+C로 복사해 주세요')
     return
   }
   isCopied.value = true
