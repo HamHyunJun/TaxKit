@@ -30,7 +30,8 @@ export type ColumnMapping<K extends string = string> = Partial<Record<K, number>
 
 export type FieldValue = string | number | Date | null
 
-export type ParsedRecord<K extends string> = Record<K, FieldValue>
+// rowIndex는 원본 엑셀 기준 1-based 행 번호
+export type ParsedRecord<K extends string> = Record<K, FieldValue> & { rowIndex: number }
 
 export type RawSheet = {
   name: string

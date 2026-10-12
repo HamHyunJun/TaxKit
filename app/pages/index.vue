@@ -5,28 +5,41 @@
       id="main"
       class="tabs-page__main"
     >
-      <Transition
-        name="panel"
-        mode="out-in"
+      <div
+        :id="`panel-${activeTab}`"
+        class="tabs-page__panel"
+        role="tabpanel"
+        :aria-labelledby="`tab-${activeTab}`"
       >
-        <div
-          :id="`panel-${activeTab}`"
-          :key="activeTab"
-          class="tabs-page__panel"
-          role="tabpanel"
-          :aria-labelledby="`tab-${activeTab}`"
+        <Transition
+          name="panel"
+          mode="out-in"
         >
-          <ReconcilePanel v-if="activeTab === 'reconcile'" />
-          <ScannerPanel v-else-if="activeTab === 'scanner'" />
-          <MessagePanel v-else />
-        </div>
-      </Transition>
+          <KeepAlive>
+            <component
+              :is="PANELS[activeTab]"
+              :key="activeTab"
+            />
+          </KeepAlive>
+        </Transition>
+      </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
+import MessagePanel from '~/components/message/MessagePanel.vue'
+import ReconcilePanel from '~/components/reconcile/ReconcilePanel.vue'
+import ScannerPanel from '~/components/scanner/ScannerPanel.vue'
 import type { TabId } from '~/types/tab'
+
+// 탭을 오가도 업로드한 데이터가 사라지지 않도록 KeepAlive로 패널 상태를 유지한다
+const PANELS: Record<TabId, Component> = {
+  reconcile: ReconcilePanel,
+  scanner: ScannerPanel,
+  message: MessagePanel,
+}
 
 const route = useRoute()
 const router = useRouter()

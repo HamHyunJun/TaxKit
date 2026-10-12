@@ -132,14 +132,14 @@ const parseSheet = <K extends string>(
   sheet.rows.slice(headerRowIndex + 1).forEach((row, offset) => {
     if (row.every(isEmptyCell)) return
     const rowIndex = headerRowIndex + 2 + offset // 엑셀 1-based 행 번호
-    const record: Partial<ParsedRecord<K>> = {}
+    const values: Partial<Record<K, FieldValue>> = {}
     for (const spec of specs) {
       const column = mapping[spec.key]
       const [value, issue] = normalizeCell(column === undefined ? null : row[column], spec, rowIndex)
-      record[spec.key] = value
+      values[spec.key] = value
       if (issue) issues.push(issue)
     }
-    records.push(record as ParsedRecord<K>)
+    records.push({ ...values, rowIndex } as ParsedRecord<K>)
   })
 
   return { fileName, sheetName: sheet.name, headerRowIndex, rows: records, issues }
