@@ -478,12 +478,12 @@ TaxKit/
 
 ### Phase 1 — 공통 기반 (브랜치 `init` 계속)
 - [x] 레이아웃: `AppHeader`(보안 뱃지 고정), `TabNav`(인디케이터 애니메이션, 키보드 탐색), `AppFooter`
-- [ ] `DropZone` 컴포넌트(드래그 피드백, 키보드 접근, 파일 형식/크기 검증)
-- [ ] `useExcelReader`: xlsx 파싱 → 헤더 자동 탐지 → 별칭 매핑 → 정규화 → `ParsedSheet<T>`
-- [ ] `ColumnMapModal`: 필수 컬럼 누락 시 수동 매핑, 매핑 기억(`localStorage`)
-- [ ] `useExcelWriter`: 다중 시트 `.xlsx` Blob 생성 및 다운로드, 컬럼 너비·숫자 서식
-- [ ] `useToast`, `ToastHost`, `useClipboard`, `CopyButton`
-- [ ] 유틸 단위 테스트: 금액/날짜/사업자번호/상호 정규화
+- [x] `DropZone` 컴포넌트(드래그 피드백, 키보드 접근, 파일 형식/크기 검증)
+- [x] `useExcelReader`: xlsx 파싱 → 헤더 자동 탐지 → 별칭 매핑 → 정규화 → `ParsedSheet<T>`
+- [x] `ColumnMapModal`: 필수 컬럼 누락 시 수동 매핑, 매핑 기억(`localStorage`)
+- [x] `useExcelWriter`: 다중 시트 `.xlsx` Blob 생성 및 다운로드, 컬럼 너비·숫자 서식
+- [x] `useToast`, `ToastHost`, `useClipboard`, `CopyButton`
+- [ ] 유틸 단위 테스트: 금액/날짜/사업자번호/상호 정규화 (테스트 도구 미도입 — 보류. 구현 시 임시 스크립트로 수동 검증함)
 
 ### Phase 2 — Tab 1 대사기 (브랜치 `reconcile`)
 - [ ] 통장·세금계산서 타입 및 별칭 사전
