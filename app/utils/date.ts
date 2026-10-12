@@ -42,3 +42,7 @@ export const parseDate = (raw: unknown): Date | null => {
   if (typeof raw !== 'string') return null
   return parseDateString(raw.normalize('NFKC').trim())
 }
+
+// 로컬 달력 날짜를 1970-01-01 기준 일수로 바꾼다 (시각·DST와 무관하게 날짜 차이를 정수로 계산하기 위함)
+export const toDayNumber = (date: Date): number =>
+  Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / MS_PER_DAY)
