@@ -12,7 +12,7 @@
         @keydown="handleKeydown"
       >
         <button
-          v-for="(tab, index) in TABS"
+          v-for="tab in TABS"
           :id="`tab-${tab.id}`"
           :key="tab.id"
           type="button"
@@ -24,10 +24,11 @@
           :tabindex="tab.id === model ? 0 : -1"
           @click="model = tab.id"
         >
-          <span
-            class="tab-nav__step"
+          <component
+            :is="TAB_ICONS[tab.id]"
+            class="tab-nav__icon"
             aria-hidden="true"
-          >{{ index + 1 }}</span>
+          />
           <span class="tab-nav__label">{{ tab.label }}</span>
         </button>
         <span
@@ -42,7 +43,16 @@
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
+import { CreditCard, MessageSquareText, Scale } from 'lucide-vue-next'
 import type { TabId } from '~/types/tab'
+
+// 세 탭은 순서가 아니라 독립된 도구라서 번호 대신 내용을 나타내는 아이콘을 쓴다
+const TAB_ICONS: Record<TabId, Component> = {
+  reconcile: Scale,
+  scanner: CreditCard,
+  message: MessageSquareText,
+}
 
 const model = defineModel<TabId>({ required: true })
 
@@ -134,8 +144,8 @@ watch(model, updateIndicator, { flush: 'post' })
     letter-spacing: $tracking-snug;
     white-space: nowrap;
     transition:
-      color 160ms $ease-out-quint,
-      transform 120ms $ease-out-quint;
+      color $duration-medium $ease-out-quint,
+      transform $duration-fast $ease-out-quint;
 
     @include focus-ring;
 
@@ -156,29 +166,23 @@ watch(model, updateIndicator, { flush: 'post' })
     }
   }
 
-  &__step {
-    display: inline-grid;
-    place-content: center;
-    width: 1.375rem;
-    height: 1.375rem;
-    border-radius: 50%;
-    background: var(--tk-surface-strong);
-    color: $color-slate-600;
-    font-size: $font-xs;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    transition:
-      background-color 200ms $ease-out-quint,
-      color 200ms $ease-out-quint;
+  &__icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    color: var(--tk-subtle);
+    transition: color $duration-base $ease-out-quint;
 
     @include reduced-motion {
       transition: none;
     }
   }
 
-  &__tab.is-active &__step {
-    background: var(--tk-accent-text);
-    color: $color-white;
+  &__tab:hover &__icon {
+    color: var(--tk-muted-strong);
+  }
+
+  &__tab.is-active &__icon {
+    color: var(--tk-accent-text);
   }
 
   &__indicator {

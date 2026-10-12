@@ -4,7 +4,6 @@
     aria-labelledby="reconcile-title"
   >
     <PageHeader
-      eyebrow="STEP 1"
       title="계좌·세금계산서 대사"
       description="통장 거래내역과 세금계산서를 올리면 금액·날짜·상호로 짝을 찾아 세금계산서가 누락된 것으로 의심되는 건을 알려줘요."
       topic="reconcilePage"
@@ -26,6 +25,16 @@
           <template #info>
             <InfoTip topic="bankFile" />
           </template>
+          <template #footer>
+            <button
+              v-if="canReopenBank"
+              type="button"
+              class="tk-btn tk-btn--ghost tk-btn--sm drop-zone-reopen"
+              @click="reopenMapping('bank')"
+            >
+              컬럼 다시 지정
+            </button>
+          </template>
         </DropZone>
         <DropZone
           title="홈택스 세금계산서 엑셀"
@@ -36,6 +45,16 @@
         >
           <template #info>
             <InfoTip topic="invoiceFile" />
+          </template>
+          <template #footer>
+            <button
+              v-if="canReopenInvoice"
+              type="button"
+              class="tk-btn tk-btn--ghost tk-btn--sm drop-zone-reopen"
+              @click="reopenMapping('invoice')"
+            >
+              컬럼 다시 지정
+            </button>
           </template>
         </DropZone>
       </div>
@@ -67,6 +86,16 @@
           대사 결과
           <InfoTip topic="resultFilters" />
         </h2>
+        <p
+          v-if="isStale"
+          class="reconcile__note"
+        >
+          <Info
+            class="reconcile__note-icon"
+            aria-hidden="true"
+          />
+          옵션이 바뀌었어요. 아래 결과는 이전 옵션 기준이니, 위에서 [대사 실행]을 다시 눌러 주세요.
+        </p>
         <p
           v-if="output.isOurBizNoEstimated && output.ourBizNo"
           class="reconcile__note"
@@ -134,8 +163,8 @@
 
     <ColumnMapModal
       v-if="pending"
-      :key="`${pending.kind}-${pending.fileName}`"
-      :fields="FIELDS_BY_KIND[pending.kind]"
+      :key="pending.fileName"
+      :fields="pending.specs"
       :headers="pending.headers"
       :initial-mapping="pending.mapping"
       @confirm="confirmMapping"
@@ -147,7 +176,7 @@
 <script setup lang="ts">
 import { ArrowRight, Download, Info } from 'lucide-vue-next'
 import type { ReconcileFilter, ReconcileResult } from '~/types/reconcile'
-import type { SourceState } from '~/composables/useReconcile'
+import type { SheetSourceState } from '~/composables/useSheetSource'
 
 const FILTER_CAPTIONS: Record<ReconcileFilter, string> = {
   matched: '일치 건 (검토 필요 포함)',
@@ -160,7 +189,7 @@ const EMPTY_TEXTS: Record<ReconcileFilter, string> = {
   mismatch: '금액이 다른 거래가 없어요.',
 }
 
-const { bank, invoice, pending, options, output, isRunning, canRun, loadFile, confirmMapping, cancelMapping, run } = useReconcile()
+const { bank, invoice, pending, options, output, isRunning, runError, canRun, canReopenBank, canReopenInvoice, loadFile, confirmMapping, cancelMapping, reopenMapping, run } = useReconcile()
 const { downloadWorkbook } = useExcelWriter()
 const { setHandoff } = useHandoff()
 const { showToast } = useToast()
@@ -172,27 +201,41 @@ const statusMessage = ref<string>('')
 
 const shownRows = computed<ReconcileResult[]>(() => (output.value ? filterResults(output.value.results, filter.value) : []))
 const filterCaption = computed<string>(() => FILTER_CAPTIONS[filter.value])
+
+// 대사를 실행한 뒤 옵션을 바꾸면, 결과는 실행 당시 옵션 기준이라는 점을 알린다
+const isStale = computed<boolean>(() => {
+  const used = output.value?.options
+  if (!used) return false
+  const now = options.value
+  return used.dateWindowDays !== now.dateWindowDays
+    || used.amountTolerance !== now.amountTolerance
+    || used.ourBizNo !== now.ourBizNo
+    || (used.excludeKeywords.length > 0) !== (now.excludeKeywords.length > 0)
+})
 const emptyText = computed<string>(() => EMPTY_TEXTS[filter.value])
 
-// "1,204행 · 확인 필요 3건"
-const sourceDetail = (source: SourceState<unknown>): string | null => {
+// "1,204행, 확인 필요 3건"
+const sourceDetail = (source: SheetSourceState<unknown>): string | null => {
   if (source.fileName === null) return null
   const base = `${source.rows.length.toLocaleString('ko-KR')}행`
-  return source.needsCheck > 0 ? `${base} · 확인 필요 ${source.needsCheck.toLocaleString('ko-KR')}건` : base
+  return source.needsCheck > 0 ? `${base}, 확인 필요 ${source.needsCheck.toLocaleString('ko-KR')}건` : base
 }
 
 const handleRun = async (): Promise<void> => {
   statusMessage.value = '대사 계산 중…'
   await run()
   const result = output.value
-  if (!result) return
+  if (!result) {
+    statusMessage.value = runError.value ?? ''
+    return
+  }
   filter.value = 'missing'
   statusMessage.value = `대사 완료: 누락 의심 ${result.summary.MISSING.count}건, 금액 불일치 ${result.summary.AMOUNT_MISMATCH.count}건, 일치 ${result.summary.MATCHED.count + result.summary.REVIEW.count}건`
 }
 
 const handleDownload = (): void => {
   if (!output.value) return
-  downloadWorkbook(`TaxKit_대사결과_${formatDateCompact(new Date())}`, buildReconcileSheets(output.value, options.value))
+  downloadWorkbook(`TaxKit_대사결과_${formatDateCompact(new Date())}`, buildReconcileSheets(output.value))
 }
 
 // 누락 의심 건을 Tab 3 입력으로 넘기고 해당 탭으로 이동한다
@@ -239,7 +282,7 @@ const handleHandoff = async (): Promise<void> => {
     align-items: flex-start;
     gap: $space-2;
     padding: $space-3 $space-4;
-    border: 1px solid #{tint($color-amber-500, 0.35)};
+    border: 1px solid #{tint($color-marker-500, 0.35)};
     border-radius: $radius-lg;
     background: var(--tk-warn-soft);
     color: var(--tk-warn-text);

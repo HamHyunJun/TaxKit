@@ -1,5 +1,6 @@
-import type { ColumnMapping, FieldSpec, FieldValue, ParsedRecord } from '~/types/excel'
+import type { ColumnMapping, FieldSpec, ParsedRecord } from '~/types/excel'
 import type { MissingEvidenceRow } from '~/types/message'
+import { asDate, asNumber, asText } from './cells.ts'
 
 export type MessageFieldKey = 'partnerName' | 'partnerBizNo' | 'date' | 'amount' | 'description' | 'contact'
 
@@ -21,10 +22,6 @@ export const withPartnerFallback = (mapping: ColumnMapping): ColumnMapping =>
 
 export const isMessageMappingComplete = (mapping: ColumnMapping): boolean =>
   MESSAGE_FIELDS.every(field => !field.required || mapping[field.key] !== undefined)
-
-const asNumber = (value: FieldValue): number | null => (typeof value === 'number' ? value : null)
-const asText = (value: FieldValue): string | null => (typeof value === 'string' && value !== '' ? value : null)
-const asDate = (value: FieldValue): Date | null => (value instanceof Date ? value : null)
 
 export const toMissingRows = (records: readonly ParsedRecord<MessageFieldKey>[]): { rows: MissingEvidenceRow[], skipped: number[] } => {
   const rows: MissingEvidenceRow[] = []

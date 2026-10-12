@@ -1,6 +1,7 @@
 import type { BankTransaction } from '~/types/bank'
-import type { ColumnMapping, FieldSpec, FieldValue, ParsedRecord } from '~/types/excel'
+import type { ColumnMapping, FieldSpec, ParsedRecord } from '~/types/excel'
 import type { TaxInvoice } from '~/types/invoice'
+import { asDate, asNumber, asText } from './cells.ts'
 
 export type SourceKind = 'bank' | 'invoice'
 export type BankFieldKey = 'date' | 'description' | 'withdrawal' | 'deposit' | 'amount' | 'direction' | 'balance' | 'memo'
@@ -32,7 +33,7 @@ export const INVOICE_FIELDS: readonly FieldSpec<InvoiceFieldKey>[] = [
   { key: 'totalAmount', label: '합계금액 (없으면 공급가액+세액)', aliases: ['합계금액'], kind: 'amount', required: false },
 ]
 
-export const FIELDS_BY_KIND: Record<SourceKind, readonly FieldSpec[]> = {
+const FIELDS_BY_KIND: Record<SourceKind, readonly FieldSpec[]> = {
   bank: BANK_FIELDS,
   invoice: INVOICE_FIELDS,
 }
@@ -45,10 +46,6 @@ export const isMappingComplete = (kind: SourceKind, mapping: ColumnMapping): boo
 }
 
 type Converted<T> = { rows: T[], skipped: number[] } // skipped: 변환하지 못한 원본 행 번호
-
-const asNumber = (value: FieldValue): number | null => (typeof value === 'number' ? value : null)
-const asText = (value: FieldValue): string | null => (typeof value === 'string' && value !== '' ? value : null)
-const asDate = (value: FieldValue): Date | null => (value instanceof Date ? value : null)
 
 // 입금/출금 열 → 없으면 거래금액 + 구분(또는 부호)으로 방향과 금액을 정한다
 const resolveBankAmount = (record: ParsedRecord<BankFieldKey>): { direction: 'IN' | 'OUT', amount: number } | null => {

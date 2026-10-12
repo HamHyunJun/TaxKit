@@ -1,9 +1,6 @@
 <template>
   <header class="page-header">
     <div class="page-header__text">
-      <p class="page-header__eyebrow">
-        {{ eyebrow }}
-      </p>
       <div class="page-header__title-row">
         <h1
           :id="titleId"
@@ -30,7 +27,6 @@
 import type { HelpTopic } from '~/types/help'
 
 type Props = {
-  eyebrow: string // 예: "STEP 1"
   title: string
   description: string
   topic: HelpTopic
@@ -52,13 +48,6 @@ defineProps<Props>()
     display: grid;
     gap: $space-1;
     max-width: 44rem;
-  }
-
-  &__eyebrow {
-    color: var(--tk-accent-text);
-    font-size: $font-xs;
-    font-weight: 700;
-    letter-spacing: 0.08em;
   }
 
   &__title-row {

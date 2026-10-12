@@ -42,7 +42,7 @@ const cellFormat = (value: FieldValue): string | null => {
   return null
 }
 
-const buildSheet = (data: SheetData): XLSX.WorkSheet => {
+export const buildSheet = (data: SheetData): XLSX.WorkSheet => {
   const body = data.rows.map(row => row.map(value => (value instanceof Date ? toExcelSerial(value) : value)))
   const sheet = XLSX.utils.aoa_to_sheet([[...data.header], ...body])
 
@@ -54,12 +54,12 @@ const buildSheet = (data: SheetData): XLSX.WorkSheet => {
     })
   })
 
-  sheet['!cols'] = data.header.map((header, column) => ({
-    wch: Math.min(
-      MAX_COLUMN_WIDTH,
-      Math.max(displayWidth(header), ...data.rows.map(row => displayWidth(row[column] ?? null))) + 2,
-    ),
-  }))
+  // Math.max(...배열)은 12만 개가 넘으면 호출 스택이 넘치므로 루프로 구한다
+  sheet['!cols'] = data.header.map((header, column) => {
+    let width = displayWidth(header)
+    for (const row of data.rows) width = Math.max(width, displayWidth(row[column] ?? null))
+    return { wch: Math.min(MAX_COLUMN_WIDTH, width + 2) }
+  })
   return sheet
 }
 

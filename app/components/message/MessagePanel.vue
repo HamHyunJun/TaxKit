@@ -4,7 +4,6 @@
     aria-labelledby="message-title"
   >
     <PageHeader
-      eyebrow="STEP 3"
       title="독촉 메시지"
       description="증빙이 누락된 거래처별로 안내 문구를 만들어요. 거래처마다 건수·합계금액·거래 목록이 자동으로 채워지고, 복사 한 번이면 카카오톡이나 문자에 붙여넣을 수 있어요."
       topic="messagePage"
@@ -31,7 +30,7 @@
             value="handoff"
             :disabled="handoffCount === 0"
           >
-          <span>Tab 1에서 전달된 누락 {{ handoffCount.toLocaleString('ko-KR') }}건</span>
+          <span>대사 탭에서 전달된 누락 {{ handoffCount.toLocaleString('ko-KR') }}건</span>
         </label>
         <label class="message__radio">
           <input
@@ -51,7 +50,18 @@
         :detail="uploadDetail"
         :error="source.error"
         @select="loadFile"
-      />
+      >
+        <template #footer>
+          <button
+            v-if="canReopen"
+            type="button"
+            class="tk-btn tk-btn--ghost tk-btn--sm drop-zone-reopen"
+            @click="reopenMapping"
+          >
+            컬럼 다시 지정
+          </button>
+        </template>
+      </DropZone>
     </div>
 
     <TemplateEditor v-model="settings" />
@@ -115,14 +125,14 @@
         {{ mode === 'handoff' ? '전달된 누락 건이 없어요.' : '누락 건 엑셀을 올리면 거래처별 안내 문구가 만들어져요.' }}
       </p>
       <p class="message__empty-desc">
-        Tab 1에서 "누락 건 독촉 메시지로 전달"을 누르거나 엑셀을 올려 주세요.
+        대사 탭에서 "누락 건 독촉 메시지로 전달"을 누르거나 엑셀을 올려 주세요.
       </p>
     </div>
 
     <ColumnMapModal
       v-if="pending"
       :key="pending.fileName"
-      :fields="MESSAGE_FIELDS"
+      :fields="pending.specs"
       :headers="pending.headers"
       :initial-mapping="pending.mapping"
       @confirm="confirmMapping"
@@ -137,7 +147,7 @@ import type { PartnerGroup } from '~/types/message'
 
 const {
   mode, handoffCount, source, pending, settings, search, rowCount, groups, visibleGroups, activeGroup, copiedKeys,
-  select, messageOf, allMessages, markCopied, loadFile, confirmMapping, cancelMapping,
+  select, messageOf, allMessages, markCopied, canReopen, loadFile, confirmMapping, cancelMapping, reopenMapping,
 } = useMessageBuilder()
 const { showToast } = useToast()
 
@@ -147,7 +157,7 @@ const allText = computed<string>(() => allMessages())
 const uploadDetail = computed<string | null>(() => {
   if (source.value.fileName === null) return null
   const base = `${rowCount.value.toLocaleString('ko-KR')}행`
-  return source.value.needsCheck > 0 ? `${base} · 확인 필요 ${source.value.needsCheck.toLocaleString('ko-KR')}건` : base
+  return source.value.needsCheck > 0 ? `${base}, 확인 필요 ${source.value.needsCheck.toLocaleString('ko-KR')}건` : base
 })
 
 const statusMessage = computed<string>(() =>

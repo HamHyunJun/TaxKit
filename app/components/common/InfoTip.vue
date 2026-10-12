@@ -7,7 +7,7 @@
       :class="{ 'is-open': isOpen }"
       :aria-label="`${help.title} 설명 ${isOpen ? '닫기' : '보기'}`"
       :aria-expanded="isOpen"
-      :aria-controls="bubbleId"
+      :aria-controls="isOpen ? bubbleId : undefined"
       @click="toggle"
     >
       <Info
@@ -25,7 +25,9 @@
           :class="`is-${placement}`"
           :style="bubbleStyle"
           role="region"
+          tabindex="-1"
           :aria-label="`${help.title} 설명`"
+          @focusout="handleFocusOut"
         >
           <span
             class="info-tip__arrow"
@@ -101,6 +103,12 @@ const close = (): void => {
   isOpen.value = false
 }
 
+// 말풍선은 body 끝에 있어서, 포커스가 안에 있는 채로 닫히면 읽던 위치를 잃는다. 닫기 전에 버튼으로 돌려준다
+const closeAndRestoreFocus = (): void => {
+  if (bubbleRef.value?.contains(document.activeElement)) buttonRef.value?.focus({ preventScroll: true })
+  close()
+}
+
 // 스크롤·창 크기 변경 중에는 프레임마다 한 번만 위치를 다시 잡는다. 아이콘이 화면 밖으로 나가면 닫는다
 let frame = 0
 const follow = (): void => {
@@ -108,7 +116,7 @@ const follow = (): void => {
   frame = requestAnimationFrame(() => {
     frame = 0
     const rect = buttonRef.value?.getBoundingClientRect()
-    if (!rect || rect.bottom < 0 || rect.top > window.innerHeight) return close()
+    if (!rect || rect.bottom < 0 || rect.top > window.innerHeight) return closeAndRestoreFocus()
     reposition()
   })
 }
@@ -119,6 +127,15 @@ const toggle = async (): Promise<void> => {
   reposition()
   await nextTick() // 말풍선 높이를 잰 뒤 위/아래를 다시 정한다
   reposition()
+  // 화면 낭독기와 키보드 사용자가 열린 설명을 바로 읽을 수 있도록 포커스를 말풍선으로 옮긴다
+  bubbleRef.value?.focus({ preventScroll: true })
+}
+
+// 포커스가 말풍선 밖으로 나가면(Tab 등) 닫는다
+const handleFocusOut = (event: FocusEvent): void => {
+  const next = event.relatedTarget
+  if (next instanceof Node && (bubbleRef.value?.contains(next) || buttonRef.value?.contains(next))) return
+  close()
 }
 
 const handlePointerDown = (event: PointerEvent): void => {
@@ -128,24 +145,37 @@ const handlePointerDown = (event: PointerEvent): void => {
 }
 
 const handleKeydown = (event: KeyboardEvent): void => {
-  if (event.key !== 'Escape' || !isOpen.value) return
-  close()
-  buttonRef.value?.focus()
+  if (!isOpen.value) return
+  if (event.key === 'Escape') {
+    close()
+    buttonRef.value?.focus()
+    return
+  }
+  // Tab은 버튼으로 돌려놓고 기본 동작에 맡겨 버튼 앞뒤 요소로 자연스럽게 이동한다
+  if (event.key === 'Tab' && bubbleRef.value?.contains(document.activeElement)) closeAndRestoreFocus()
 }
 
-onMounted(() => {
+// 전역 리스너는 말풍선이 열려 있는 동안에만 둔다 (아이콘이 수십 개여도 평소에는 비용이 없다)
+const attach = (): void => {
   document.addEventListener('pointerdown', handlePointerDown)
   document.addEventListener('keydown', handleKeydown)
   window.addEventListener('resize', follow)
   window.addEventListener('scroll', follow, { capture: true, passive: true })
-})
-onBeforeUnmount(() => {
+}
+const detach = (): void => {
   document.removeEventListener('pointerdown', handlePointerDown)
   document.removeEventListener('keydown', handleKeydown)
   window.removeEventListener('resize', follow)
   window.removeEventListener('scroll', follow, { capture: true })
   cancelAnimationFrame(frame)
+  frame = 0
+}
+
+watch(isOpen, (open) => {
+  if (open) attach()
+  else detach()
 })
+onBeforeUnmount(detach)
 </script>
 
 <style scoped lang="scss">
@@ -161,9 +191,9 @@ onBeforeUnmount(() => {
     border-radius: $radius-full;
     color: var(--tk-subtle);
     transition:
-      color 120ms $ease-out-quint,
-      background-color 120ms $ease-out-quint,
-      transform 120ms $ease-out-quint;
+      color $duration-fast $ease-out-quint,
+      background-color $duration-fast $ease-out-quint,
+      transform $duration-fast $ease-out-quint;
 
     @include focus-ring;
 
@@ -203,6 +233,15 @@ onBeforeUnmount(() => {
 
     &.is-top {
       transform-origin: bottom center;
+    }
+
+    // 마우스로 열었을 때는 링이 보이지 않고, 키보드로 열었을 때만 보인다
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      box-shadow: var(--tk-shadow-pop), var(--tk-focus-ring);
     }
   }
 
@@ -268,8 +307,8 @@ onBeforeUnmount(() => {
 .tip-enter-active,
 .tip-leave-active {
   transition:
-    opacity 140ms $ease-out-quint,
-    transform 140ms $ease-out-quint;
+    opacity $duration-medium $ease-out-quint,
+    transform $duration-medium $ease-out-quint;
 
   @include reduced-motion {
     transition: none;

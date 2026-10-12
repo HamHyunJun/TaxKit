@@ -1,4 +1,4 @@
-export type BankDirection = 'IN' | 'OUT'
+type BankDirection = 'IN' | 'OUT'
 
 export type BankTransaction = {
   id: string

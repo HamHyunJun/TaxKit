@@ -1,3 +1,4 @@
+import { formatDate } from './format.ts'
 // 대한민국 법정공휴일·대체공휴일 (2025~2027). 임시공휴일은 지정될 때마다 직접 추가한다.
 // 갱신 주기: 연 1회 수동 (PRD 10장). 2028년 이후 날짜는 아직 없으므로 공휴일로 판정되지 않는다.
 const HOLIDAY_LIST: readonly (readonly [string, string])[] = [
@@ -23,6 +24,14 @@ const HOLIDAY_LIST: readonly (readonly [string, string])[] = [
 ]
 
 const HOLIDAYS: ReadonlyMap<string, string> = new Map(HOLIDAY_LIST)
+
+const TABLE_YEARS = HOLIDAY_LIST.map(([date]) => Number(date.slice(0, 4)))
+export const HOLIDAY_FIRST_YEAR: number = Math.min(...TABLE_YEARS)
+export const HOLIDAY_LAST_YEAR: number = Math.max(...TABLE_YEARS)
+
+// 날짜가 공휴일 표가 다루는 연도 안인지. 밖이면 공휴일 여부를 판정할 수 없다
+export const isInHolidayTable = (date: Date): boolean =>
+  date.getFullYear() >= HOLIDAY_FIRST_YEAR && date.getFullYear() <= HOLIDAY_LAST_YEAR
 
 // 공휴일이면 이름을, 아니면 null (날짜는 로컬 달력 기준)
 export const getHolidayName = (date: Date): string | null => HOLIDAYS.get(formatDate(date)) ?? null

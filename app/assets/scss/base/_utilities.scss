@@ -1,5 +1,22 @@
+@use '../abstracts' as *;
+
 // 숫자 컬럼용 유틸: 자릿수 정렬 + 오른쪽 정렬
 .num {
   font-variant-numeric: tabular-nums;
   text-align: right;
+}
+
+// 붉은 도장: 확인이 꼭 필요한 항목(누락 의심, 위험도 높음)에만 쓴다. 색만이 아니라 글자와 이중 테두리로도 구분된다
+.stamp {
+  display: inline-block;
+  padding: 0.0625rem $space-2;
+  border: 2px double var(--tk-danger-text);
+  border-radius: $radius-sm;
+  color: var(--tk-danger-text);
+  font-size: $font-xs;
+  font-weight: 800;
+  letter-spacing: $tracking-wide;
+  line-height: 1.5;
+  white-space: nowrap;
+  transform: rotate(-3deg);
 }

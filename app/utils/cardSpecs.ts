@@ -1,5 +1,8 @@
 import type { CardApproval } from '~/types/card'
-import type { ColumnMapping, FieldSpec, FieldValue, ParsedRecord } from '~/types/excel'
+import type { ColumnMapping, FieldSpec, ParsedRecord } from '~/types/excel'
+import { isHhmmssColumn, parseTimeOfDay } from './date.ts'
+import { normalizeCompanyName } from './companyName.ts'
+import { asDate, asNumber, asText } from './cells.ts'
 
 export type CardFieldKey
   = | 'approvedAt' | 'approvedDate' | 'approvedTime' | 'cardNo' | 'cardHolder'
@@ -24,10 +27,6 @@ export const isCardMappingComplete = (mapping: ColumnMapping): boolean =>
   CARD_FIELDS.every(field => !field.required || mapping[field.key] !== undefined)
   && (mapping['approvedAt'] !== undefined || mapping['approvedDate'] !== undefined)
 
-const asNumber = (value: FieldValue): number | null => (typeof value === 'number' ? value : null)
-const asText = (value: FieldValue): string | null => (typeof value === 'string' && value !== '' ? value : null)
-const asDate = (value: FieldValue): Date | null => (value instanceof Date ? value : null)
-
 const isMidnight = (date: Date): boolean => date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0
 
 // 날짜 부분만 쓰고 시각은 초 단위 값으로 덮어쓴다
@@ -37,9 +36,11 @@ const withTimeOfDay = (date: Date, seconds: number): Date =>
 export const toCardApprovals = (records: readonly ParsedRecord<CardFieldKey>[]): { rows: CardApproval[], skipped: number[] } => {
   const rows: CardApproval[] = []
   const skipped: number[] = []
+  const unreadableTime = new Set<string>() // 시각 열에 값은 있는데 읽지 못한 행
+  const digitsAreHhmmss = isHhmmssColumn(records.map(record => record.approvedTime))
   for (const record of records) {
     const base = asDate(record.approvedAt) ?? asDate(record.approvedDate)
-    const seconds = parseTimeOfDay(record.approvedTime)
+    const seconds = parseTimeOfDay(record.approvedTime, digitsAreHhmmss)
     const cardNo = asText(record.cardNo)
     const merchantName = asText(record.merchantName)
     const rawAmount = asNumber(record.amount)
@@ -48,6 +49,7 @@ export const toCardApprovals = (records: readonly ParsedRecord<CardFieldKey>[]):
       continue
     }
     const approvedAt = seconds === null ? base : withTimeOfDay(base, seconds)
+    if (seconds === null && record.approvedTime !== null) unreadableTime.add(`card-${record.rowIndex}`)
     rows.push({
       id: `card-${record.rowIndex}`,
       rowIndex: record.rowIndex,
@@ -62,9 +64,10 @@ export const toCardApprovals = (records: readonly ParsedRecord<CardFieldKey>[]):
       isCanceled: rawAmount < 0 || /취소|^(y|yes|true|1)$/i.test(asText(record.cancelFlag) ?? ''),
     })
   }
-  // 파일에 시각이 한 건이라도 있으면 시각이 있는 파일로 본다 (자정 승인이 시각 없음으로 오인되지 않게)
+  // 파일에 시각이 한 건이라도 있으면 시각이 있는 파일로 본다 (자정 승인이 시각 없음으로 오인되지 않게).
+  // 단, 시각을 읽지 못한 행은 00:00으로 둔갑시키지 않고 "시각 없음"으로 두어 심야·연속 승인 규칙을 건너뛴다
   const fileHasTime = rows.some(row => row.hasTime)
-  return { rows: rows.map(row => ({ ...row, hasTime: fileHasTime })), skipped }
+  return { rows: rows.map(row => ({ ...row, hasTime: fileHasTime && !unreadableTime.has(row.id) })), skipped }
 }
 
 // 취소 건을 같은 카드·가맹점·금액의 이전 승인과 짝지어 둘 다 제외한다 (승인번호가 둘 다 있으면 같아야 한다)

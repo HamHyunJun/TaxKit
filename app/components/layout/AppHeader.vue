@@ -8,36 +8,21 @@
           aria-hidden="true"
         >
           <rect
+            class="app-header__mark-bg"
             width="32"
             height="32"
-            rx="9"
-            fill="url(#brand-gradient)"
+            rx="7"
           />
           <path
-            d="M16 7.5 24.5 16 16 24.5 7.5 16z"
-            fill="#fff"
-            fill-opacity="0.95"
+            class="app-header__mark-lines"
+            d="M8 10.5h16M8 16h16M8 21.5h8"
           />
-          <path
-            d="M16 12.2 19.8 16 16 19.8 12.2 16z"
-            fill="#047857"
+          <circle
+            class="app-header__mark-stamp"
+            cx="23"
+            cy="22"
+            r="4.5"
           />
-          <defs>
-            <linearGradient
-              id="brand-gradient"
-              x1="4"
-              y1="2"
-              x2="28"
-              y2="30"
-              gradientUnits="userSpaceOnUse"
-            >
-              <stop stop-color="#34d399" />
-              <stop
-                offset="1"
-                stop-color="#047857"
-              />
-            </linearGradient>
-          </defs>
         </svg>
         <span class="app-header__name">TaxKit</span>
         <span
@@ -83,11 +68,28 @@
     gap: 0.625rem;
   }
 
+  &__mark-bg {
+    fill: $color-ledger-700;
+  }
+
+  &__mark-lines {
+    fill: none;
+    stroke: $color-white;
+    stroke-width: 2;
+    stroke-linecap: round;
+    opacity: 0.92;
+  }
+
+  &__mark-stamp {
+    fill: $color-stamp-600;
+    stroke: $color-ledger-700;
+    stroke-width: 1.5;
+  }
+
   &__mark {
     width: 1.875rem;
     height: 1.875rem;
     flex: none;
-    filter: drop-shadow(0 2px 6px #{tint($color-emerald-500, 0.35)});
   }
 
   &__name {

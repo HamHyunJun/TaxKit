@@ -49,12 +49,12 @@
           <span class="partner-list__text">
             <span class="partner-list__name">{{ group.name }}</span>
             <span class="partner-list__meta">
-              <span v-if="group.bizNo">{{ formatBizNo(group.bizNo) }} · </span>{{ group.count.toLocaleString('ko-KR') }}건 ·
+              <span v-if="group.bizNo">{{ formatBizNo(group.bizNo) }}, </span>{{ group.count.toLocaleString('ko-KR') }}건,
               <span class="partner-list__total">{{ formatWon(group.total) }}원</span>
             </span>
           </span>
           <span
-            v-if="copiedKeys.includes(group.key)"
+            v-if="copiedSet.has(group.key)"
             class="partner-list__badge"
           >
             <Check
@@ -78,8 +78,11 @@ type Props = {
   copiedKeys: readonly string[]
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const search = defineModel<string>('search', { required: true })
+
+// 복사한 거래처 확인을 목록 렌더링마다 배열 검색하지 않도록 Set으로 한 번만 만든다
+const copiedSet = computed<ReadonlySet<string>>(() => new Set(props.copiedKeys))
 const emit = defineEmits<{
   select: [key: string]
 }>()
@@ -148,10 +151,10 @@ const emit = defineEmits<{
     background: var(--tk-card);
     text-align: left;
     transition:
-      transform 120ms $ease-out-quint,
-      border-color 160ms $ease-out-quint,
-      background-color 160ms $ease-out-quint,
-      box-shadow 160ms $ease-out-quint;
+      transform $duration-fast $ease-out-quint,
+      border-color $duration-medium $ease-out-quint,
+      background-color $duration-medium $ease-out-quint,
+      box-shadow $duration-medium $ease-out-quint;
 
     @include focus-ring;
 

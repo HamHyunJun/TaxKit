@@ -97,22 +97,22 @@ onBeforeUnmount(() => {
     align-items: center;
     gap: $space-2;
     padding: $space-1 $space-3 $space-1 $space-1;
-    border: 1px solid #{tint($color-emerald-500, 0.45)};
+    border: 1px solid #{tint($color-ledger-500, 0.45)};
     border-radius: $radius-full;
-    background: #{tint($color-emerald-500, 0.12)};
-    color: $color-emerald-100;
+    background: #{tint($color-ledger-500, 0.12)};
+    color: $color-ledger-100;
     font-size: $font-sm;
     font-weight: 600;
     transition:
-      transform 120ms $ease-out-quint,
-      background-color 160ms $ease-out-quint,
-      border-color 160ms $ease-out-quint;
+      transform $duration-fast $ease-out-quint,
+      background-color $duration-medium $ease-out-quint,
+      border-color $duration-medium $ease-out-quint;
 
     @include focus-ring;
 
     &:hover {
-      border-color: #{tint($color-emerald-500, 0.7)};
-      background: #{tint($color-emerald-500, 0.2)};
+      border-color: #{tint($color-ledger-500, 0.7)};
+      background: #{tint($color-ledger-500, 0.2)};
     }
 
     &:active {
@@ -142,8 +142,8 @@ onBeforeUnmount(() => {
   &__chevron {
     width: 0.875rem;
     height: 0.875rem;
-    color: $color-emerald-500;
-    transition: transform 160ms $ease-out-quint;
+    color: $color-ledger-500;
+    transition: transform $duration-medium $ease-out-quint;
 
     &.is-open {
       transform: rotate(180deg);
@@ -196,8 +196,8 @@ onBeforeUnmount(() => {
 .popover-enter-active,
 .popover-leave-active {
   transition:
-    opacity 140ms $ease-out-quint,
-    transform 140ms $ease-out-quint;
+    opacity $duration-medium $ease-out-quint,
+    transform $duration-medium $ease-out-quint;
 
   @include reduced-motion {
     transition: none;

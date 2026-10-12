@@ -238,7 +238,7 @@ const insertVariable = async (name: string): Promise<void> => {
     width: 1rem;
     height: 1rem;
     color: var(--tk-muted);
-    transition: transform 160ms $ease-out-quint;
+    transition: transform $duration-medium $ease-out-quint;
 
     @include reduced-motion {
       transition: none;
@@ -269,12 +269,12 @@ const insertVariable = async (name: string): Promise<void> => {
     color: var(--tk-accent-strong);
     font-size: $font-xs;
     font-weight: 700;
-    transition: transform 120ms $ease-out-quint;
+    transition: transform $duration-fast $ease-out-quint;
 
     @include focus-ring;
 
     &:hover {
-      background: $color-emerald-100;
+      background: $color-ledger-100;
     }
 
     &:active {

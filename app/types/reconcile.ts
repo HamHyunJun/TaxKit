@@ -38,4 +38,5 @@ export type ReconcileOutput = {
   summary: ReconcileSummary
   ourBizNo: string | null // 실제 판별에 쓴 사업자번호
   isOurBizNoEstimated: boolean
+  options: ReconcileOptions // 이 결과를 만들 때 쓴 옵션 (화면의 옵션이 나중에 바뀌어도 이 값을 기록한다)
 }

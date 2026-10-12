@@ -18,10 +18,10 @@
   white-space: nowrap;
   box-shadow: var(--tk-shadow-sm);
   transition:
-    transform 120ms $ease-out-quint,
-    background-color 160ms $ease-out-quint,
-    border-color 160ms $ease-out-quint,
-    box-shadow 160ms $ease-out-quint;
+    transform $duration-fast $ease-out-quint,
+    background-color $duration-medium $ease-out-quint,
+    border-color $duration-medium $ease-out-quint,
+    box-shadow $duration-medium $ease-out-quint;
 
   @include focus-ring;
 

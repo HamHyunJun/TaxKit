@@ -61,7 +61,7 @@
               :key="index"
               :value="index"
             >
-              {{ utils.encode_col(index) }}열 · {{ header || '(빈 헤더)' }}
+              {{ utils.encode_col(index) }}열 {{ header || '(빈 헤더)' }}
             </option>
           </select>
         </div>
@@ -145,12 +145,12 @@ onMounted(() => dialogRef.value?.showModal())
   background: var(--tk-card);
   color: var(--tk-text);
   box-shadow: var(--tk-shadow-pop);
-  animation: column-map-in 220ms $ease-out-quint;
+  animation: column-map-in $duration-base $ease-out-quint;
 
   &::backdrop {
     background: #{tint($color-slate-900, 0.5)};
     backdrop-filter: blur(3px);
-    animation: backdrop-in 220ms $ease-out-quint;
+    animation: backdrop-in $duration-base $ease-out-quint;
   }
 
   &__form {

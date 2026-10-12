@@ -19,7 +19,7 @@
               {{ group.name }}
             </h2>
             <p class="preview__sub">
-              <span v-if="group.bizNo">{{ formatBizNo(group.bizNo) }} · </span>누락 {{ group.count.toLocaleString('ko-KR') }}건 · {{ formatWon(group.total) }}원
+              <span v-if="group.bizNo">{{ formatBizNo(group.bizNo) }}, </span>누락 {{ group.count.toLocaleString('ko-KR') }}건, {{ formatWon(group.total) }}원
             </p>
           </div>
           <CopyButton
@@ -50,7 +50,7 @@
           :class="{ 'is-over': channel === 'sms' && kind === 'OVER' }"
         >
           <template v-if="channel === 'sms'">
-            {{ bytes.toLocaleString('ko-KR') }}byte · {{ kind === 'OVER' ? '2,000byte 초과' : kind }}
+            {{ bytes.toLocaleString('ko-KR') }}byte, {{ kind === 'OVER' ? '2,000byte 초과' : kind }}
           </template>
           <template v-else>
             {{ [...text].length.toLocaleString('ko-KR') }}자
@@ -188,8 +188,8 @@ const kind = computed<'SMS' | 'LMS' | 'OVER'>(() => smsKind(bytes.value))
 .preview-enter-active,
 .preview-leave-active {
   transition:
-    opacity 140ms $ease-out-quint,
-    transform 140ms $ease-out-quint;
+    opacity $duration-medium $ease-out-quint,
+    transform $duration-medium $ease-out-quint;
 
   @include reduced-motion {
     transition: none;

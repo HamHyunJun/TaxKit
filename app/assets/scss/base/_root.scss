@@ -2,33 +2,34 @@
 
 // 런타임 테마 값 (컴포넌트는 HEX 대신 var(--tk-*)를 쓴다)
 :root {
-  --tk-bg: #{$color-slate-900};
-  --tk-surface: #{$color-slate-50};
-  --tk-surface-strong: #{$color-slate-100};
+  --tk-bg: #{$color-ink};
+  --tk-surface: #{$color-paper};
+  --tk-surface-strong: #{$color-paper-200};
   --tk-card: #{$color-white};
-  --tk-border: #{$color-slate-200};
-  --tk-border-strong: #{$color-slate-300};
+  --tk-border: #{$color-paper-300};
+  --tk-border-strong: #{$color-paper-400};
   --tk-text: #{$color-slate-800};
-  --tk-text-strong: #{$color-slate-900};
+  --tk-text-strong: #{$color-ink};
   --tk-muted: #{$color-slate-500};
   // 연한 회색 면(--tk-surface-strong) 위의 보조 글자: --tk-muted는 그 위에서 4.5:1에 못 미친다
   --tk-muted-strong: #{$color-slate-600};
   --tk-subtle: #{$color-slate-400};
 
-  --tk-accent: #{$color-emerald-500};
-  --tk-accent-hover: #{$color-emerald-600};
-  --tk-accent-text: #{$color-emerald-700};
-  --tk-accent-strong: #{$color-emerald-800};
-  --tk-accent-soft: #{$color-emerald-50};
-  --tk-danger: #{$color-rose-600};
-  --tk-danger-text: #{$color-rose-700};
-  --tk-danger-soft: #{$color-rose-50};
-  --tk-warn: #{$color-amber-500};
-  --tk-warn-text: #{$color-amber-800};
-  --tk-warn-soft: #{$color-amber-50};
+  --tk-accent: #{$color-ledger-500};
+  --tk-accent-hover: #{$color-ledger-600};
+  --tk-accent-text: #{$color-ledger-700};
+  --tk-accent-strong: #{$color-ledger-800};
+  --tk-accent-soft: #{$color-ledger-50};
+  --tk-danger: #{$color-stamp-600};
+  --tk-danger-text: #{$color-stamp-700};
+  --tk-danger-soft: #{$color-stamp-50};
+  --tk-warn: #{$color-marker-500};
+  --tk-warn-text: #{$color-marker-800};
+  --tk-warn-soft: #{$color-marker-50};
 
-  --tk-shadow-sm: 0 1px 2px #{tint($color-slate-900, 0.05)};
-  --tk-shadow-md: 0 1px 2px #{tint($color-slate-900, 0.04)}, 0 8px 24px -10px #{tint($color-slate-900, 0.14)};
-  --tk-shadow-pop: 0 4px 8px -2px #{tint($color-slate-900, 0.08)}, 0 20px 44px -12px #{tint($color-slate-900, 0.28)};
-  --tk-focus-ring: 0 0 0 3px #{tint($color-emerald-500, 0.25)};
+  // 장부처럼 평평한 면을 쓰므로 카드에는 그림자를 쓰지 않는다. 떠 있는 요소(팝오버·모달)만 그림자를 쓴다
+  --tk-shadow-sm: 0 1px 1px #{tint($color-ink, 0.06)};
+  --tk-shadow-md: 0 1px 2px #{tint($color-ink, 0.05)}, 0 8px 24px -10px #{tint($color-ink, 0.16)};
+  --tk-shadow-pop: 0 4px 8px -2px #{tint($color-ink, 0.1)}, 0 20px 44px -12px #{tint($color-ink, 0.3)};
+  --tk-focus-ring: 0 0 0 3px #{tint($color-ledger-500, 0.28)};
 }

@@ -14,7 +14,7 @@ export type ParsedSheet<T> = {
   issues: ParseIssue[]
 }
 
-export type FieldKind = 'text' | 'amount' | 'date' | 'bizNo'
+type FieldKind = 'text' | 'amount' | 'date' | 'bizNo'
 
 // 탭별 별칭 사전의 한 항목: 어떤 헤더 이름이 어떤 필드가 되고 어떻게 정규화할지
 export type FieldSpec<K extends string = string> = {
