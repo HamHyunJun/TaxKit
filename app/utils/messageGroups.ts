@@ -1,4 +1,5 @@
 import type { MissingEvidenceRow, PartnerGroup } from '~/types/message'
+import { normalizeCompanyName } from './companyName.ts'
 
 const mostFrequent = (values: readonly string[]): string => {
   const counts = new Map<string, number>()

@@ -30,7 +30,7 @@
       <span class="drop-zone__hint">
         여기에 끌어다 놓거나 <span class="drop-zone__link">파일 선택</span>
       </span>
-      <span class="drop-zone__formats">{{ ACCEPTED_EXTENSIONS.join(' · ') }} · 최대 20MB</span>
+      <span class="drop-zone__formats">{{ ACCEPTED_EXTENSIONS.join(' ') }} · 20MB 넘으면 확인</span>
       <span
         class="drop-zone__status"
         aria-live="polite"
@@ -65,6 +65,9 @@ const emit = defineEmits<{
   select: [file: File]
 }>()
 
+let droppedTimer: ReturnType<typeof setTimeout> | undefined
+onBeforeUnmount(() => clearTimeout(droppedTimer))
+
 const isDragging = ref<boolean>(false)
 const isDropped = ref<boolean>(false)
 const localError = ref<string | null>(null)
@@ -74,6 +77,7 @@ const shownError = computed<string | null>(() => localError.value ?? error)
 
 // 형식을 확인하고, 20MB를 넘으면 계속할지 사용자에게 묻는다
 const validate = (file: File): boolean => {
+  localError.value = null // 이전 파일의 오류가 새 파일에 남지 않게 한다
   const lowerName = file.name.toLowerCase()
   if (!ACCEPTED_EXTENSIONS.some(extension => lowerName.endsWith(extension))) {
     localError.value = `지원하지 않는 형식이에요 (${ACCEPTED_EXTENSIONS.join(', ')})`
@@ -84,7 +88,6 @@ const validate = (file: File): boolean => {
     const proceed = window.confirm(`파일이 ${megabytes}MB예요. 20MB를 넘으면 처리가 느리거나 멈출 수 있어요. 계속할까요?`)
     if (!proceed) return false
   }
-  localError.value = null
   return true
 }
 
@@ -103,7 +106,8 @@ const handleDragLeave = (event: DragEvent): void => {
 const handleDrop = (event: DragEvent): void => {
   isDragging.value = false
   isDropped.value = true
-  setTimeout(() => {
+  clearTimeout(droppedTimer)
+  droppedTimer = setTimeout(() => {
     isDropped.value = false
   }, DROPPED_FEEDBACK_MS)
   handleFiles(event.dataTransfer?.files)

@@ -68,6 +68,16 @@
           <InfoTip topic="resultFilters" />
         </h2>
         <p
+          v-if="isStale"
+          class="reconcile__note"
+        >
+          <Info
+            class="reconcile__note-icon"
+            aria-hidden="true"
+          />
+          옵션이 바뀌었어요. 아래 결과는 이전 옵션 기준이니, 위에서 [대사 실행]을 다시 눌러 주세요.
+        </p>
+        <p
           v-if="output.isOurBizNoEstimated && output.ourBizNo"
           class="reconcile__note"
         >
@@ -160,7 +170,7 @@ const EMPTY_TEXTS: Record<ReconcileFilter, string> = {
   mismatch: '금액이 다른 거래가 없어요.',
 }
 
-const { bank, invoice, pending, options, output, isRunning, canRun, loadFile, confirmMapping, cancelMapping, run } = useReconcile()
+const { bank, invoice, pending, options, output, isRunning, runError, canRun, loadFile, confirmMapping, cancelMapping, run } = useReconcile()
 const { downloadWorkbook } = useExcelWriter()
 const { setHandoff } = useHandoff()
 const { showToast } = useToast()
@@ -172,6 +182,17 @@ const statusMessage = ref<string>('')
 
 const shownRows = computed<ReconcileResult[]>(() => (output.value ? filterResults(output.value.results, filter.value) : []))
 const filterCaption = computed<string>(() => FILTER_CAPTIONS[filter.value])
+
+// 대사를 실행한 뒤 옵션을 바꾸면, 결과는 실행 당시 옵션 기준이라는 점을 알린다
+const isStale = computed<boolean>(() => {
+  const used = output.value?.options
+  if (!used) return false
+  const now = options.value
+  return used.dateWindowDays !== now.dateWindowDays
+    || used.amountTolerance !== now.amountTolerance
+    || used.ourBizNo !== now.ourBizNo
+    || (used.excludeKeywords.length > 0) !== (now.excludeKeywords.length > 0)
+})
 const emptyText = computed<string>(() => EMPTY_TEXTS[filter.value])
 
 // "1,204행 · 확인 필요 3건"
@@ -185,14 +206,17 @@ const handleRun = async (): Promise<void> => {
   statusMessage.value = '대사 계산 중…'
   await run()
   const result = output.value
-  if (!result) return
+  if (!result) {
+    statusMessage.value = runError.value ?? ''
+    return
+  }
   filter.value = 'missing'
   statusMessage.value = `대사 완료: 누락 의심 ${result.summary.MISSING.count}건, 금액 불일치 ${result.summary.AMOUNT_MISMATCH.count}건, 일치 ${result.summary.MATCHED.count + result.summary.REVIEW.count}건`
 }
 
 const handleDownload = (): void => {
   if (!output.value) return
-  downloadWorkbook(`TaxKit_대사결과_${formatDateCompact(new Date())}`, buildReconcileSheets(output.value, options.value))
+  downloadWorkbook(`TaxKit_대사결과_${formatDateCompact(new Date())}`, buildReconcileSheets(output.value))
 }
 
 // 누락 의심 건을 Tab 3 입력으로 넘기고 해당 탭으로 이동한다

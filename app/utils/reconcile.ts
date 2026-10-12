@@ -9,11 +9,17 @@ import type {
   ReconcileSummary,
   ScoreBreakdown,
 } from '~/types/reconcile'
+import { toDayNumber } from './date.ts'
+import { nameSimilarity } from './similarity.ts'
+import { normalizeCompanyName } from './companyName.ts'
+import { formatWon } from './format.ts'
 
 const WEIGHT_AMOUNT = 0.5
 const WEIGHT_DATE = 0.3
 const WEIGHT_NAME = 0.2
 const MATCHED_THRESHOLD = 0.8 // 이상이면 일치, 미만이면 검토 필요
+// 통장 한 건당 점수 순으로 남기는 후보 수. 같은 금액이 수천 건 몰려도 후보 쌍(메모리)이 건수에 비례하게 한다
+const MAX_CANDIDATES_PER_BANK = 16
 const MISMATCH_NAME_THRESHOLD = 0.75 // 금액 불일치로 보려면 상호가 이만큼은 닮아야 한다
 
 export const DEFAULT_EXCLUDE_KEYWORDS: readonly string[] = [
@@ -91,11 +97,12 @@ const scoreCandidate = (
   keys: InvoiceKeys,
   windowDays: number,
   amountScore: number,
+  similarityOf: (a: string, b: string) => number,
 ): Candidate | null => {
   const dayDiff = Math.abs(toDayNumber(bank.date) - toDayNumber(invoice.issueDate))
   if (dayDiff > windowDays) return null
   const date = 1 - dayDiff / (windowDays + 1)
-  const name = nameSimilarity(bankKey, bank.direction === 'OUT' ? keys.supplier : keys.buyer)
+  const name = similarityOf(bankKey, bank.direction === 'OUT' ? keys.supplier : keys.buyer)
   const total = WEIGHT_AMOUNT * amountScore + WEIGHT_DATE * date + WEIGHT_NAME * name
   return { bank, invoice, dayDiff, score: { amount: amountScore, date, name, total } }
 }
@@ -150,16 +157,43 @@ export const runReconcile = (
   const bankKeys = new Map<string, string>(targets.map(bank => [bank.id, normalizeCompanyName(bank.description)]))
   const bankKeyOf = (bank: BankTransaction): string => bankKeys.get(bank.id) ?? ''
 
-  // 1) 금액이 허용오차 안인 후보 중 날짜 윈도우 안의 쌍만 점수화한다
+  // 같은 (통장 상호, 거래처 상호) 조합의 유사도는 한 번만 계산한다
+  const similarityCache = new Map<string, number>()
+  const similarityOf = (a: string, b: string): number => {
+    const key = `${a}\u0000${b}`
+    const cached = similarityCache.get(key)
+    if (cached !== undefined) return cached
+    const value = nameSimilarity(a, b)
+    similarityCache.set(key, value)
+    return value
+  }
+
+  // 1) 금액이 허용오차 안인 후보 중 날짜 윈도우 안의 쌍만 점수화하고, 통장 한 건당 상위 K개만 남긴다
   const candidates: Candidate[] = []
   for (const bank of targets) {
+    const best: Candidate[] = []
+    let worst = 0 // best 안에서 가장 순위가 낮은 후보의 위치
     for (let diff = -tolerance; diff <= tolerance; diff++) {
       for (const invoice of amountBuckets.get(bank.amount + diff) ?? []) {
         if (!isDirectionCompatible(bank, invoice)) continue
-        const candidate = scoreCandidate(bank, bankKeyOf(bank), invoice, keysOf(invoice), window, 1)
-        if (candidate) candidates.push(candidate)
+        const candidate = scoreCandidate(bank, bankKeyOf(bank), invoice, keysOf(invoice), window, 1, similarityOf)
+        if (!candidate) continue
+        if (best.length < MAX_CANDIDATES_PER_BANK) {
+          best.push(candidate)
+        }
+        else if (byScoreDesc(candidate, best[worst] ?? candidate) < 0) {
+          best[worst] = candidate
+        }
+        else {
+          continue
+        }
+        worst = 0
+        best.forEach((item, index) => {
+          if (byScoreDesc(item, best[worst] ?? item) > 0) worst = index
+        })
       }
     }
+    candidates.push(...best)
   }
   candidates.sort(byScoreDesc)
 
@@ -178,6 +212,28 @@ export const runReconcile = (
     })
   }
 
+  // 2-2) 후보를 제한한 탓에 짝을 못 찾은 통장 거래는, 아직 안 쓴 같은 금액 계산서에서 가장 좋은 것을 고른다
+  for (const bank of targets) {
+    if (usedBanks.has(bank.id)) continue
+    let best: Candidate | null = null
+    for (let diff = -tolerance; diff <= tolerance; diff++) {
+      for (const invoice of amountBuckets.get(bank.amount + diff) ?? []) {
+        if (usedInvoices.has(invoice.id) || !isDirectionCompatible(bank, invoice)) continue
+        const candidate = scoreCandidate(bank, bankKeyOf(bank), invoice, keysOf(invoice), window, 1, similarityOf)
+        if (candidate && (!best || byScoreDesc(candidate, best) < 0)) best = candidate
+      }
+    }
+    if (!best) continue
+    usedBanks.add(bank.id)
+    usedInvoices.add(best.invoice.id)
+    results.push({
+      id: `result-${bank.id}`,
+      status: best.score.total >= MATCHED_THRESHOLD ? 'MATCHED' : 'REVIEW',
+      bank, invoice: best.invoice, score: best.score, dayDiff: best.dayDiff, amountDiff: null,
+      reason: `금액 일치 · 날짜 ${best.dayDiff}일 차이 · 상호 유사도 ${percent(best.score.name)}`,
+    })
+  }
+
   // 3) 남은 통장 거래: 날짜·상호는 닮았지만 금액이 다른 계산서가 있으면 금액 불일치, 없으면 누락 의심
   for (const bank of targets) {
     if (usedBanks.has(bank.id)) continue
@@ -186,7 +242,7 @@ export const runReconcile = (
     for (let offset = -window; offset <= window; offset++) {
       for (const invoice of dayBuckets.get(day + offset) ?? []) {
         if (usedInvoices.has(invoice.id) || !isDirectionCompatible(bank, invoice)) continue
-        const candidate = scoreCandidate(bank, bankKeyOf(bank), invoice, keysOf(invoice), window, 0)
+        const candidate = scoreCandidate(bank, bankKeyOf(bank), invoice, keysOf(invoice), window, 0, similarityOf)
         if (candidate && candidate.score.name >= MISMATCH_NAME_THRESHOLD && (!best || byScoreDesc(candidate, best) < 0)) best = candidate
       }
     }
@@ -223,7 +279,13 @@ export const runReconcile = (
   }
 
   results.sort((a, b) => (resultDate(a)?.getTime() ?? 0) - (resultDate(b)?.getTime() ?? 0))
-  return { results, summary: summarize(results), ourBizNo, isOurBizNoEstimated: options.ourBizNo === null && ourBizNo !== null }
+  return {
+    results,
+    summary: summarize(results),
+    ourBizNo,
+    isOurBizNoEstimated: options.ourBizNo === null && ourBizNo !== null,
+    options: { ...options, excludeKeywords: [...options.excludeKeywords] },
+  }
 }
 
 // 필터 탭별 결과: 일치(검토 필요 포함) / 누락 의심 / 금액 불일치

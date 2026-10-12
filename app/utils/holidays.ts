@@ -1,3 +1,4 @@
+import { formatDate } from './format.ts'
 // 대한민국 법정공휴일·대체공휴일 (2025~2027). 임시공휴일은 지정될 때마다 직접 추가한다.
 // 갱신 주기: 연 1회 수동 (PRD 10장). 2028년 이후 날짜는 아직 없으므로 공휴일로 판정되지 않는다.
 const HOLIDAY_LIST: readonly (readonly [string, string])[] = [

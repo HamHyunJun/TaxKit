@@ -6,7 +6,7 @@
   "packageManager": "pnpm@10.12.1",
   "description": "세무 마감 업무 자동화 헬퍼 — 100% 브라우저 로컬 연산 엑셀 처리 도구",
   "engines": {
-    "node": ">=20.19.0",
+    "node": ">=22.18.0",
     "pnpm": ">=10.0.0"
   },
   "scripts": {
@@ -17,7 +17,8 @@
     "typecheck": "nuxt typecheck",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "test": "node --test \"test/unit/**/*.test.ts\""
   },
   "dependencies": {
     "lucide-vue-next": "^0.545.0",

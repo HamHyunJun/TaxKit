@@ -1,5 +1,7 @@
 import type { SheetData } from '~/composables/useExcelWriter'
-import type { MatchStatus, ReconcileOptions, ReconcileOutput, ReconcileResult } from '~/types/reconcile'
+import type { MatchStatus, ReconcileOutput, ReconcileResult } from '~/types/reconcile'
+import { formatBizNo } from './bizNo.ts'
+import { directionLabel } from './format.ts'
 
 const STATUS_LABELS: Record<MatchStatus, string> = {
   MATCHED: '일치',
@@ -34,7 +36,8 @@ const sheetOf = (name: string, header: string[], results: readonly ReconcileResu
 })
 
 // 결과 엑셀의 시트 구성 (PRD 5.1 + 금액 불일치 시트)
-export const buildReconcileSheets = (output: ReconcileOutput, options: ReconcileOptions): SheetData[] => {
+export const buildReconcileSheets = (output: ReconcileOutput): SheetData[] => {
+  const { options } = output
   const of = (status: MatchStatus): ReconcileResult[] => output.results.filter(result => result.status === status)
   const bankHeader = ['거래일', '구분', '금액', '적요']
   const total = output.results.length

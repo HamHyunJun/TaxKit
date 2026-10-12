@@ -1,4 +1,5 @@
 import type { MessageChannel, MessageSettings, PartnerGroup } from '~/types/message'
+import { formatDate, formatWon } from './format.ts'
 
 export const TEMPLATE_VARIABLES: readonly string[] = ['거래처명', '건수', '합계금액', '기간', '목록', '회신기한', '사무소명', '담당자']
 

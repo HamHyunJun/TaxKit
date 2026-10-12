@@ -47,13 +47,24 @@ export const parseDate = (raw: unknown): Date | null => {
 export const toDayNumber = (date: Date): number =>
   Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / MS_PER_DAY)
 
-// 시각 → 하루 중 초. "23:42", "23:42:10", "234210", 엑셀 시간(0.9875)을 지원한다
+const toSeconds = (h: number, m: number, s: number): number | null =>
+  h < 24 && m < 60 && s < 60 ? h * 3600 + m * 60 + s : null
+
+// 시각 → 하루 중 초. "23:42", "23:42:10", 숫자 HHMMSS(엑셀이 앞의 0을 지운 90510=09:05:10 포함), 엑셀 시간(0.9875)을 지원한다
 export const parseTimeOfDay = (raw: unknown): number | null => {
   const text = typeof raw === 'number' ? String(raw) : typeof raw === 'string' ? raw.normalize('NFKC').trim() : ''
-  const clock = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(text) ?? /^(\d{2})(\d{2})(\d{2})?$/.exec(text)
-  if (clock) {
-    const [h, m, sec] = [Number(clock[1]), Number(clock[2]), Number(clock[3] ?? 0)]
-    return h < 24 && m < 60 && sec < 60 ? h * 3600 + m * 60 + sec : null
+  const clock = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(text)
+  if (clock) return toSeconds(Number(clock[1]), Number(clock[2]), Number(clock[3] ?? 0))
+
+  if (/^\d{3,6}$/.test(text)) {
+    // shortcut: 3~4자리는 HHMM으로 먼저 본다. 4자리인데 시가 24 이상이면(3015=00:30:15) HHMMSS로 본다 (1430은 14:30으로 읽는다)
+    if (text.length <= 4) {
+      const hhmm = text.padStart(4, '0')
+      const result = toSeconds(Number(hhmm.slice(0, 2)), Number(hhmm.slice(2)), 0)
+      if (result !== null || text.length === 3) return result
+    }
+    const hhmmss = text.padStart(6, '0')
+    return toSeconds(Number(hhmmss.slice(0, 2)), Number(hhmmss.slice(2, 4)), Number(hhmmss.slice(4)))
   }
   if (/^\d*\.\d+$/.test(text)) return Math.round(Number(text) * 86_400) % 86_400
   return null

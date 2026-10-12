@@ -29,6 +29,7 @@ type UseReconcileReturn = {
   options: Ref<ReconcileOptions>
   output: Readonly<Ref<ReconcileOutput | null>>
   isRunning: Readonly<Ref<boolean>>
+  runError: Readonly<Ref<string | null>>
   canRun: ComputedRef<boolean>
   loadFile: (kind: SourceKind, file: File) => Promise<void>
   confirmMapping: (mapping: ColumnMapping) => void
@@ -53,6 +54,7 @@ export const useReconcile = (): UseReconcileReturn => {
   const options = ref<ReconcileOptions>({ ...DEFAULT_RECONCILE_OPTIONS, excludeKeywords: [...DEFAULT_RECONCILE_OPTIONS.excludeKeywords] })
   const output = shallowRef<ReconcileOutput | null>(null)
   const isRunning = ref<boolean>(false)
+  const runError = ref<string | null>(null)
 
   const canRun = computed<boolean>(() => bank.value.rows.length > 0 && invoice.value.rows.length > 0 && !isRunning.value)
 
@@ -124,11 +126,20 @@ export const useReconcile = (): UseReconcileReturn => {
   const run = async (): Promise<void> => {
     if (!canRun.value) return
     isRunning.value = true
-    // 계산이 화면을 막기 전에 "계산 중" 상태가 먼저 그려지도록 한 틱 양보한다
-    await new Promise<void>(resolve => setTimeout(resolve, 0))
-    output.value = runReconcile(bank.value.rows, invoice.value.rows, options.value)
-    isRunning.value = false
+    runError.value = null
+    try {
+      // 계산이 화면을 막기 전에 "계산 중" 상태가 먼저 그려지도록 한 틱 양보한다
+      await new Promise<void>(resolve => setTimeout(resolve, 0))
+      output.value = runReconcile(bank.value.rows, invoice.value.rows, options.value)
+    }
+    catch {
+      output.value = null
+      runError.value = '대사 중 오류가 났어요. 컬럼 매핑과 값을 확인한 뒤 다시 실행해 주세요.'
+    }
+    finally {
+      isRunning.value = false
+    }
   }
 
-  return { bank, invoice, pending, options, output, isRunning, canRun, loadFile, confirmMapping, cancelMapping, run }
+  return { bank, invoice, pending, options, output, isRunning, runError, canRun, loadFile, confirmMapping, cancelMapping, run }
 }

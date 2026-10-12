@@ -1,5 +1,6 @@
 import type { SheetData } from '~/composables/useExcelWriter'
 import type { RiskCounts, RiskFinding, RiskTag } from '~/types/risk'
+import { tagName } from './riskRules.ts'
 
 export type RiskReportMeta = {
   fileName: string
