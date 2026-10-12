@@ -4,13 +4,31 @@
 :root {
   --tk-bg: #{$color-slate-900};
   --tk-surface: #{$color-slate-50};
+  --tk-surface-strong: #{$color-slate-100};
   --tk-card: #{$color-white};
   --tk-border: #{$color-slate-200};
+  --tk-border-strong: #{$color-slate-300};
   --tk-text: #{$color-slate-800};
+  --tk-text-strong: #{$color-slate-900};
   --tk-muted: #{$color-slate-500};
+  // 연한 회색 면(--tk-surface-strong) 위의 보조 글자: --tk-muted는 그 위에서 4.5:1에 못 미친다
+  --tk-muted-strong: #{$color-slate-600};
+  --tk-subtle: #{$color-slate-400};
+
   --tk-accent: #{$color-emerald-500};
   --tk-accent-hover: #{$color-emerald-600};
   --tk-accent-text: #{$color-emerald-700};
+  --tk-accent-strong: #{$color-emerald-800};
+  --tk-accent-soft: #{$color-emerald-50};
   --tk-danger: #{$color-rose-600};
+  --tk-danger-text: #{$color-rose-700};
+  --tk-danger-soft: #{$color-rose-50};
   --tk-warn: #{$color-amber-500};
+  --tk-warn-text: #{$color-amber-800};
+  --tk-warn-soft: #{$color-amber-50};
+
+  --tk-shadow-sm: 0 1px 2px #{tint($color-slate-900, 0.05)};
+  --tk-shadow-md: 0 1px 2px #{tint($color-slate-900, 0.04)}, 0 8px 24px -10px #{tint($color-slate-900, 0.14)};
+  --tk-shadow-pop: 0 4px 8px -2px #{tint($color-slate-900, 0.08)}, 0 20px 44px -12px #{tint($color-slate-900, 0.28)};
+  --tk-focus-ring: 0 0 0 3px #{tint($color-emerald-500, 0.25)};
 }
