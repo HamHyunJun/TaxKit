@@ -31,7 +31,7 @@
             value="handoff"
             :disabled="handoffCount === 0"
           >
-          <span>Tab 1에서 전달된 누락 {{ handoffCount.toLocaleString('ko-KR') }}건</span>
+          <span>대사 탭에서 전달된 누락 {{ handoffCount.toLocaleString('ko-KR') }}건</span>
         </label>
         <label class="message__radio">
           <input
@@ -126,7 +126,7 @@
         {{ mode === 'handoff' ? '전달된 누락 건이 없어요.' : '누락 건 엑셀을 올리면 거래처별 안내 문구가 만들어져요.' }}
       </p>
       <p class="message__empty-desc">
-        Tab 1에서 "누락 건 독촉 메시지로 전달"을 누르거나 엑셀을 올려 주세요.
+        대사 탭에서 "누락 건 독촉 메시지로 전달"을 누르거나 엑셀을 올려 주세요.
       </p>
     </div>
 

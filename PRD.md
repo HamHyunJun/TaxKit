@@ -440,7 +440,7 @@ useState('taxkit:handoff') ─┐
 - **드롭존**: dragenter 시 `scale(1.02)` + Emerald 점선 테두리 + 배경 틴트, drop 순간 `scale(0.98)` 후 복귀(150ms), 파싱 완료 시 체크 아이콘 페이드 인.
 - **복사 버튼**: 누르는 동안 `scale(0.96)`, 성공 시 아이콘 교체 + 스프링 오버슈트(`cubic-bezier(0.34, 1.56, 0.64, 1)`, 350ms).
 - **토스트**: 하단 중앙에서 translateY(16px)→0 + opacity, 2초 후 자동 사라짐, 여러 개면 스택.
-- 모든 애니메이션은 `transform`/`opacity`만 사용하고, `prefers-reduced-motion: reduce`에서는 즉시 전환한다.
+- 애니메이션은 `transform`/`opacity`가 기본이며, 호버·선택 같은 상태 표시에 한해 색상 전환(배경·테두리·글자색·그림자)을 허용한다. 레이아웃 속성은 애니메이션하지 않고, `prefers-reduced-motion: reduce`에서는 즉시 전환한다.
 
 ### 6.7 접근성 (WAI-ARIA)
 - 탭: `role="tablist"` / `role="tab"` + `aria-selected` + `aria-controls`, `role="tabpanel"` + `aria-labelledby`. 좌우 화살표·Home·End 키 이동, 로빙 tabindex.

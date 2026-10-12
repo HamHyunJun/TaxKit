@@ -91,10 +91,10 @@ const items = computed<FilterItem[]>(() => [
     padding: $space-4 $space-5;
     text-align: left;
     transition:
-      transform 120ms $ease-out-quint,
-      border-color 160ms $ease-out-quint,
-      background-color 160ms $ease-out-quint,
-      box-shadow 160ms $ease-out-quint;
+      transform $duration-fast $ease-out-quint,
+      border-color $duration-medium $ease-out-quint,
+      background-color $duration-medium $ease-out-quint,
+      box-shadow $duration-medium $ease-out-quint;
 
     @include focus-ring;
 

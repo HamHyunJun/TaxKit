@@ -191,7 +191,7 @@ app/assets/scss/
 - 간격은 4px 기반 스케일 변수(`$space-1` = 4px, `$space-2` = 8px …)만 쓴다. 매직 넘버 금지.
 - 중첩은 3단계까지만 허용한다. `!important`는 쓰지 않는다. 자식 컴포넌트 스타일 덮어쓰기는 `:deep()`으로 최소화한다.
 - 상단 헤더의 `🔒 100% 로컬 연산 (데이터 외부 전송 0 byte)` 보안 뱃지는 모든 화면에서 고정 노출한다(`position: sticky`).
-- 모션: `transform`, `opacity`만 애니메이션한다. 이징은 `$ease-out-quint: cubic-bezier(0.32, 0.72, 0, 1)`, `$spring: cubic-bezier(0.34, 1.56, 0.64, 1)`, 지속시간은 `$duration-fast`(120ms)~`$duration-slow`(350ms). `@include reduced-motion { ... }`으로 `prefers-reduced-motion: reduce`에서 애니메이션을 끈다.
+- 모션: `transform`, `opacity`가 기본이다. 호버·선택·포커스 같은 상태 표시에 한해 색상 전환(`color`, `background-color`, `border-color`, `box-shadow`)도 쓸 수 있고, 레이아웃 속성(`width`, `height`, `top`, `left`, `margin`)은 애니메이션하지 않는다. 지속시간·이징은 토큰만 쓴다(`$duration-*`, `$ease-out-quint`). 이징은 `$ease-out-quint: cubic-bezier(0.32, 0.72, 0, 1)`, `$spring: cubic-bezier(0.34, 1.56, 0.64, 1)`, 지속시간은 `$duration-fast`(120ms)~`$duration-slow`(350ms). `@include reduced-motion { ... }`으로 `prefers-reduced-motion: reduce`에서 애니메이션을 끈다.
 - 숫자 컬럼은 `font-variant-numeric: tabular-nums`, 오른쪽 정렬.
 
 ## 10. 접근성 규칙

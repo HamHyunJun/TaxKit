@@ -1,9 +1,11 @@
-// 모션 토큰: transform·opacity만 애니메이션한다
+// 모션 토큰: transform·opacity가 기본이고, 호버·선택 같은 상태 표시에 한해 색상 전환(color·background-color·border-color·box-shadow)을 쓴다.
+// 레이아웃 속성(width·height·top·left·margin)은 애니메이션하지 않는다
 
 $ease-out-quint: cubic-bezier(0.32, 0.72, 0, 1);
 $spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
 $duration-fast: 120ms;
+$duration-medium: 160ms;
 $duration-base: 200ms;
 $duration-indicator: 280ms;
 $duration-slow: 350ms;

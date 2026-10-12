@@ -188,8 +188,8 @@ const kind = computed<'SMS' | 'LMS' | 'OVER'>(() => smsKind(bytes.value))
 .preview-enter-active,
 .preview-leave-active {
   transition:
-    opacity 140ms $ease-out-quint,
-    transform 140ms $ease-out-quint;
+    opacity $duration-medium $ease-out-quint,
+    transform $duration-medium $ease-out-quint;
 
   @include reduced-motion {
     transition: none;

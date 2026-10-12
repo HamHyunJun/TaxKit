@@ -17,8 +17,8 @@ textarea {
   letter-spacing: $tracking-snug;
   box-shadow: var(--tk-shadow-sm);
   transition:
-    border-color 120ms $ease-out-quint,
-    box-shadow 120ms $ease-out-quint;
+    border-color $duration-fast $ease-out-quint,
+    box-shadow $duration-fast $ease-out-quint;
 
   &::placeholder {
     color: var(--tk-subtle);
@@ -89,9 +89,9 @@ textarea {
   background-color: var(--tk-card);
   cursor: pointer;
   transition:
-    background-color 120ms $ease-out-quint,
-    border-color 120ms $ease-out-quint,
-    transform 120ms $ease-out-quint;
+    background-color $duration-fast $ease-out-quint,
+    border-color $duration-fast $ease-out-quint,
+    transform $duration-fast $ease-out-quint;
 
   &:hover:not(:disabled) {
     border-color: var(--tk-accent-text);
@@ -140,7 +140,7 @@ textarea {
     border-radius: 50%;
     background: $color-white;
     transform: scale(0);
-    transition: transform 160ms $spring;
+    transition: transform $duration-medium $spring;
   }
 
   &:checked::before {
@@ -180,7 +180,7 @@ input[type='range'] {
     border-radius: 50%;
     background: $color-white;
     box-shadow: var(--tk-shadow-md);
-    transition: transform 120ms $ease-out-quint;
+    transition: transform $duration-fast $ease-out-quint;
   }
 
   &:active::-webkit-slider-thumb {
@@ -276,9 +276,9 @@ fieldset {
     font-weight: 600;
     white-space: nowrap;
     transition:
-      background-color 160ms $ease-out-quint,
-      color 160ms $ease-out-quint,
-      box-shadow 160ms $ease-out-quint;
+      background-color $duration-medium $ease-out-quint,
+      color $duration-medium $ease-out-quint,
+      box-shadow $duration-medium $ease-out-quint;
   }
 
   label:hover input:not(:checked, :disabled) + span {
@@ -329,10 +329,10 @@ fieldset {
     font-size: $font-sm;
     font-weight: 600;
     transition:
-      background-color 160ms $ease-out-quint,
-      border-color 160ms $ease-out-quint,
-      color 160ms $ease-out-quint,
-      transform 120ms $ease-out-quint;
+      background-color $duration-medium $ease-out-quint,
+      border-color $duration-medium $ease-out-quint,
+      color $duration-medium $ease-out-quint,
+      transform $duration-fast $ease-out-quint;
 
     &::before {
       content: '';
@@ -340,7 +340,7 @@ fieldset {
       height: 0.5rem;
       border-radius: 50%;
       background: var(--tk-border-strong);
-      transition: background-color 160ms $ease-out-quint;
+      transition: background-color $duration-medium $ease-out-quint;
     }
   }
 

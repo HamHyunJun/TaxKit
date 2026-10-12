@@ -134,8 +134,8 @@ watch(model, updateIndicator, { flush: 'post' })
     letter-spacing: $tracking-snug;
     white-space: nowrap;
     transition:
-      color 160ms $ease-out-quint,
-      transform 120ms $ease-out-quint;
+      color $duration-medium $ease-out-quint,
+      transform $duration-fast $ease-out-quint;
 
     @include focus-ring;
 
@@ -168,8 +168,8 @@ watch(model, updateIndicator, { flush: 'post' })
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     transition:
-      background-color 200ms $ease-out-quint,
-      color 200ms $ease-out-quint;
+      background-color $duration-base $ease-out-quint,
+      color $duration-base $ease-out-quint;
 
     @include reduced-motion {
       transition: none;

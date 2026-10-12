@@ -179,9 +179,9 @@ onBeforeUnmount(detach)
     border-radius: $radius-full;
     color: var(--tk-subtle);
     transition:
-      color 120ms $ease-out-quint,
-      background-color 120ms $ease-out-quint,
-      transform 120ms $ease-out-quint;
+      color $duration-fast $ease-out-quint,
+      background-color $duration-fast $ease-out-quint,
+      transform $duration-fast $ease-out-quint;
 
     @include focus-ring;
 
@@ -295,8 +295,8 @@ onBeforeUnmount(detach)
 .tip-enter-active,
 .tip-leave-active {
   transition:
-    opacity 140ms $ease-out-quint,
-    transform 140ms $ease-out-quint;
+    opacity $duration-medium $ease-out-quint,
+    transform $duration-medium $ease-out-quint;
 
   @include reduced-motion {
     transition: none;

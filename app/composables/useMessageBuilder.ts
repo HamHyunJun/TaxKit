@@ -3,7 +3,7 @@ import type { MessageChannel, MessageSettings, MissingEvidenceRow, PartnerGroup 
 import type { MessageFieldKey } from '~/utils/messageSpecs'
 import type { PendingMapping, SheetSourceState } from '~/composables/useSheetSource'
 
-export type MessageSourceMode = 'handoff' | 'upload'
+type MessageSourceMode = 'handoff' | 'upload'
 
 type UseMessageBuilderReturn = {
   mode: Ref<MessageSourceMode>

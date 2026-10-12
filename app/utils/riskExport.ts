@@ -2,7 +2,7 @@ import type { SheetData } from '~/composables/useExcelWriter'
 import type { RiskCounts, RiskFinding, RiskTag } from '~/types/risk'
 import { tagName } from './riskRules.ts'
 
-export type RiskReportMeta = {
+type RiskReportMeta = {
   fileName: string
   enabledTags: readonly RiskTag[]
   offsetCount: number // 상계된 취소 건수

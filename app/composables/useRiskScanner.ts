@@ -4,7 +4,7 @@ import type { RiskCounts, RiskFinding, RiskLevel, RiskSort, RiskTag } from '~/ty
 import type { CardFieldKey } from '~/utils/cardSpecs'
 import type { PendingMapping } from '~/composables/useSheetSource'
 
-export type ScannerSource = {
+type ScannerSource = {
   fileName: string | null
   needsCheck: number // 값을 해석하지 못해 확인이 필요한 행 수
   offsetCount: number // 짝을 찾아 상계한 취소 건수

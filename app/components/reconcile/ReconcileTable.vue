@@ -152,18 +152,11 @@
         </tbody>
       </table>
     </div>
-    <div
-      v-if="hiddenCount > 0"
-      class="table__more"
-    >
-      <button
-        type="button"
-        class="tk-btn tk-btn--sm table__more-button"
-        @click="visibleCount += PAGE_SIZE"
-      >
-        {{ Math.min(PAGE_SIZE, hiddenCount).toLocaleString('ko-KR') }}건 더 보기 (남은 {{ hiddenCount.toLocaleString('ko-KR') }}건)
-      </button>
-    </div>
+    <ShowMore
+      :hidden-count="hiddenCount"
+      :next-count="nextCount"
+      @more="showMore"
+    />
   </div>
 </template>
 
@@ -178,20 +171,12 @@ type Props = {
   emptyText: string
 }
 
-const PAGE_SIZE = 200
-
 const { rows } = defineProps<Props>()
 
-const visibleCount = ref<number>(PAGE_SIZE)
-const visibleRows = computed<readonly ReconcileResult[]>(() => rows.slice(0, visibleCount.value))
+// 긴 결과는 200건씩 보여주고, 필터나 결과가 바뀌면 처음부터 다시 보여준다
+const { visible: visibleRows, hiddenCount, nextCount, showMore } = usePagedList(() => rows)
 // 짝지어진 계산서가 있는 행이 하나도 없으면(예: 누락 의심) 계산서·점수 열을 숨겨 본문을 넓게 쓴다
 const showMatch = computed<boolean>(() => rows.some(row => row.invoice !== null))
-const hiddenCount = computed<number>(() => Math.max(0, rows.length - visibleCount.value))
-
-// 필터나 결과가 바뀌면 처음 200건부터 다시 보여준다
-watch(() => rows, () => {
-  visibleCount.value = PAGE_SIZE
-})
 
 const STATUS_ICONS: Record<MatchStatus, Component> = {
   MATCHED: CircleCheck,
@@ -403,12 +388,6 @@ const statusIcon = (status: MatchStatus): Component => STATUS_ICONS[status]
     height: 100%;
     border-radius: $radius-full;
     background: var(--tk-accent-hover);
-  }
-
-  &__more {
-    padding: $space-3;
-    border-top: 1px solid var(--tk-border);
-    text-align: center;
   }
 }
 </style>

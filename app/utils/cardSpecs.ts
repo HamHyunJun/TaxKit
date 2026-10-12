@@ -1,7 +1,8 @@
 import type { CardApproval } from '~/types/card'
-import type { ColumnMapping, FieldSpec, FieldValue, ParsedRecord } from '~/types/excel'
+import type { ColumnMapping, FieldSpec, ParsedRecord } from '~/types/excel'
 import { parseTimeOfDay } from './date.ts'
 import { normalizeCompanyName } from './companyName.ts'
+import { asDate, asNumber, asText } from './cells.ts'
 
 export type CardFieldKey
   = | 'approvedAt' | 'approvedDate' | 'approvedTime' | 'cardNo' | 'cardHolder'
@@ -25,10 +26,6 @@ export const CARD_FIELDS: readonly FieldSpec<CardFieldKey>[] = [
 export const isCardMappingComplete = (mapping: ColumnMapping): boolean =>
   CARD_FIELDS.every(field => !field.required || mapping[field.key] !== undefined)
   && (mapping['approvedAt'] !== undefined || mapping['approvedDate'] !== undefined)
-
-const asNumber = (value: FieldValue): number | null => (typeof value === 'number' ? value : null)
-const asText = (value: FieldValue): string | null => (typeof value === 'string' && value !== '' ? value : null)
-const asDate = (value: FieldValue): Date | null => (value instanceof Date ? value : null)
 
 const isMidnight = (date: Date): boolean => date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0
 

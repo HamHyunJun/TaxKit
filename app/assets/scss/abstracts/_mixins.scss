@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use 'sass:map';
+@use 'motion';
 @use 'tokens';
 
 // 색상에 투명도를 입히는 함수 (컴포넌트에서는 sass:color를 직접 쓰지 않는다)
@@ -59,7 +60,7 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    padding-block: 0.625rem;
+    padding-block: tokens.$space-2-5;
     background: var(--tk-surface-strong);
     border-bottom-color: var(--tk-border-strong);
     color: var(--tk-muted-strong);
@@ -70,7 +71,7 @@
   }
 
   tbody tr {
-    transition: background-color 120ms cubic-bezier(0.32, 0.72, 0, 1);
+    transition: background-color motion.$duration-fast motion.$ease-out-quint;
 
     &:hover {
       background: var(--tk-accent-soft);
@@ -86,7 +87,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  @include motion.reduced-motion {
     tbody tr {
       transition: none;
     }

@@ -157,10 +157,10 @@ const handleChange = (event: Event): void => {
   text-align: center;
   cursor: pointer;
   transition:
-    transform 200ms $ease-out-quint,
-    background-color 200ms $ease-out-quint,
-    border-color 200ms $ease-out-quint,
-    box-shadow 200ms $ease-out-quint;
+    transform $duration-base $ease-out-quint,
+    background-color $duration-base $ease-out-quint,
+    border-color $duration-base $ease-out-quint,
+    box-shadow $duration-base $ease-out-quint;
 
   &:focus-within {
     outline: 2px solid var(--tk-accent);
@@ -208,8 +208,8 @@ const handleChange = (event: Event): void => {
     background: var(--tk-surface-strong);
     color: $color-slate-600;
     transition:
-      background-color 200ms $ease-out-quint,
-      color 200ms $ease-out-quint;
+      background-color $duration-base $ease-out-quint,
+      color $duration-base $ease-out-quint;
   }
 
   &:hover &__badge,

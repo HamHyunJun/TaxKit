@@ -130,18 +130,11 @@
         </tbody>
       </table>
     </div>
-    <div
-      v-if="hiddenCount > 0"
-      class="risk-table__more"
-    >
-      <button
-        type="button"
-        class="tk-btn tk-btn--sm risk-table__more-button"
-        @click="visibleCount += PAGE_SIZE"
-      >
-        {{ Math.min(PAGE_SIZE, hiddenCount).toLocaleString('ko-KR') }}건 더 보기 (남은 {{ hiddenCount.toLocaleString('ko-KR') }}건)
-      </button>
-    </div>
+    <ShowMore
+      :hidden-count="hiddenCount"
+      :next-count="nextCount"
+      @more="showMore"
+    />
   </div>
 </template>
 
@@ -154,20 +147,12 @@ type Props = {
   emptyText: string
 }
 
-const PAGE_SIZE = 200
-
 const { findings } = defineProps<Props>()
 // 소명 내용은 승인 id → 입력값으로 메모리에만 보관한다 (화면을 떠나면 사라진다)
 const explanations = defineModel<Record<string, string>>('explanations', { required: true })
 
-const visibleCount = ref<number>(PAGE_SIZE)
-const visibleFindings = computed<readonly RiskFinding[]>(() => findings.slice(0, visibleCount.value))
-const hiddenCount = computed<number>(() => Math.max(0, findings.length - visibleCount.value))
-
-// 필터나 정렬이 바뀌면 처음 200건부터 다시 보여준다
-watch(() => findings, () => {
-  visibleCount.value = PAGE_SIZE
-})
+// 긴 결과는 200건씩 보여주고, 필터나 정렬이 바뀌면 처음부터 다시 보여준다
+const { visible: visibleFindings, hiddenCount, nextCount, showMore } = usePagedList(() => findings)
 
 const handleInput = (id: string, event: Event): void => {
   const input = event.target
@@ -377,12 +362,6 @@ const handleInput = (id: string, event: Event): void => {
   &__input {
     min-height: 2.25rem;
     padding-block: $space-1-5;
-  }
-
-  &__more {
-    padding: $space-3;
-    border-top: 1px solid var(--tk-border);
-    text-align: center;
   }
 }
 </style>

@@ -104,9 +104,9 @@ onBeforeUnmount(() => {
     font-size: $font-sm;
     font-weight: 600;
     transition:
-      transform 120ms $ease-out-quint,
-      background-color 160ms $ease-out-quint,
-      border-color 160ms $ease-out-quint;
+      transform $duration-fast $ease-out-quint,
+      background-color $duration-medium $ease-out-quint,
+      border-color $duration-medium $ease-out-quint;
 
     @include focus-ring;
 
@@ -143,7 +143,7 @@ onBeforeUnmount(() => {
     width: 0.875rem;
     height: 0.875rem;
     color: $color-emerald-500;
-    transition: transform 160ms $ease-out-quint;
+    transition: transform $duration-medium $ease-out-quint;
 
     &.is-open {
       transform: rotate(180deg);
@@ -196,8 +196,8 @@ onBeforeUnmount(() => {
 .popover-enter-active,
 .popover-leave-active {
   transition:
-    opacity 140ms $ease-out-quint,
-    transform 140ms $ease-out-quint;
+    opacity $duration-medium $ease-out-quint,
+    transform $duration-medium $ease-out-quint;
 
   @include reduced-motion {
     transition: none;

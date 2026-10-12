@@ -8,19 +8,18 @@
           aria-hidden="true"
         >
           <rect
+            class="app-header__mark-bg"
             width="32"
             height="32"
             rx="9"
-            fill="url(#brand-gradient)"
           />
           <path
+            class="app-header__mark-outer"
             d="M16 7.5 24.5 16 16 24.5 7.5 16z"
-            fill="#fff"
-            fill-opacity="0.95"
           />
           <path
+            class="app-header__mark-inner"
             d="M16 12.2 19.8 16 16 19.8 12.2 16z"
-            fill="#047857"
           />
           <defs>
             <linearGradient
@@ -31,10 +30,10 @@
               y2="30"
               gradientUnits="userSpaceOnUse"
             >
-              <stop stop-color="#34d399" />
+              <stop class="app-header__stop-from" />
               <stop
+                class="app-header__stop-to"
                 offset="1"
-                stop-color="#047857"
               />
             </linearGradient>
           </defs>
@@ -81,6 +80,27 @@
     display: flex;
     align-items: center;
     gap: 0.625rem;
+  }
+
+  &__mark-bg {
+    fill: url('#brand-gradient');
+  }
+
+  &__mark-outer {
+    fill: $color-white;
+    fill-opacity: 0.95;
+  }
+
+  &__mark-inner {
+    fill: $color-emerald-700;
+  }
+
+  &__stop-from {
+    stop-color: $color-emerald-500;
+  }
+
+  &__stop-to {
+    stop-color: $color-emerald-700;
   }
 
   &__mark {
