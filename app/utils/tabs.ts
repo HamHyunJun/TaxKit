@@ -1,9 +1,9 @@
 import type { TabId, TabItem } from '~/types/tab'
 
 export const TABS: readonly TabItem[] = [
-  { id: 'reconcile', label: '① 계좌·세금계산서 대사' },
-  { id: 'scanner', label: '② 법인카드 스캐너' },
-  { id: 'message', label: '③ 독촉 메시지' },
+  { id: 'reconcile', label: '계좌·세금계산서 대사' },
+  { id: 'scanner', label: '법인카드 스캐너' },
+  { id: 'message', label: '독촉 메시지' },
 ]
 
 export const DEFAULT_TAB: TabId = 'reconcile'

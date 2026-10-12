@@ -1,8 +1,8 @@
 <template>
   <button
     type="button"
-    class="copy-button"
-    :class="{ 'is-copied': isCopied }"
+    class="tk-btn copy-button"
+    :class="{ 'is-copied': isCopied, 'tk-btn--primary': prominent, 'tk-btn--sm': !prominent }"
     :aria-label="`${label} ${isCopied ? '복사됨' : '복사'}`"
     @click="handleClick"
   >
@@ -21,6 +21,7 @@ import { Check, Copy } from 'lucide-vue-next'
 type Props = {
   label: string
   text: string
+  prominent?: boolean // 미리보기 옆처럼 주 동작일 때 크고 진하게
 }
 
 const COPIED_RESET_MS = 2000
@@ -55,37 +56,23 @@ onBeforeUnmount(() => clearTimeout(resetTimer))
 
 <style scoped lang="scss">
 .copy-button {
-  display: inline-flex;
-  align-items: center;
-  gap: $space-1-5;
-  padding: $space-1-5 $space-3;
-  border: 1px solid var(--tk-border);
-  border-radius: $radius-md;
-  background: var(--tk-card);
-  font-size: $font-sm;
-  font-weight: 500;
-  color: var(--tk-text);
-  transition: transform $duration-fast $ease-out-quint;
-
-  @include focus-ring;
-
-  &:active {
-    transform: scale(0.96);
+  &__icon {
+    width: 0.9375rem;
+    height: 0.9375rem;
   }
 
-  &__icon {
-    width: 1rem;
-    height: 1rem;
+  &.is-copied,
+  &.is-copied:hover:not(:disabled) {
+    border-color: var(--tk-accent);
+    background: var(--tk-accent-soft);
+    color: var(--tk-accent-strong);
   }
 
   &.is-copied &__icon {
-    color: var(--tk-accent-hover);
     animation: spring-pop $duration-slow $spring;
   }
 
   @include reduced-motion {
-    transition: none;
-
     &.is-copied &__icon {
       animation: none;
     }

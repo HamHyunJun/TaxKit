@@ -2,11 +2,48 @@
   <header class="app-header">
     <div class="app-header__inner">
       <p class="app-header__brand">
-        <span
-          class="app-header__logo"
+        <svg
+          class="app-header__mark"
+          viewBox="0 0 32 32"
           aria-hidden="true"
-        >◆</span>
+        >
+          <rect
+            width="32"
+            height="32"
+            rx="9"
+            fill="url(#brand-gradient)"
+          />
+          <path
+            d="M16 7.5 24.5 16 16 24.5 7.5 16z"
+            fill="#fff"
+            fill-opacity="0.95"
+          />
+          <path
+            d="M16 12.2 19.8 16 16 19.8 12.2 16z"
+            fill="#047857"
+          />
+          <defs>
+            <linearGradient
+              id="brand-gradient"
+              x1="4"
+              y1="2"
+              x2="28"
+              y2="30"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stop-color="#34d399" />
+              <stop
+                offset="1"
+                stop-color="#047857"
+              />
+            </linearGradient>
+          </defs>
+        </svg>
         <span class="app-header__name">TaxKit</span>
+        <span
+          class="app-header__divider"
+          aria-hidden="true"
+        />
         <span class="app-header__tagline">세무 마감 헬퍼</span>
       </p>
       <SecurityBadge />
@@ -19,7 +56,10 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--tk-bg);
+  background:
+    linear-gradient(180deg, #{tint($color-white, 0.04)}, transparent),
+    var(--tk-bg);
+  border-bottom: 1px solid #{tint($color-white, 0.08)};
   color: $color-white;
 
   &__inner {
@@ -39,22 +79,33 @@
 
   &__brand {
     display: flex;
-    align-items: baseline;
-    gap: $space-2;
+    align-items: center;
+    gap: 0.625rem;
   }
 
-  &__logo {
-    color: var(--tk-accent);
+  &__mark {
+    width: 1.875rem;
+    height: 1.875rem;
+    flex: none;
+    filter: drop-shadow(0 2px 6px #{tint($color-emerald-500, 0.35)});
   }
 
   &__name {
     font-size: $font-lg;
     font-weight: 700;
+    letter-spacing: $tracking-tight;
+  }
+
+  &__divider {
+    width: 1px;
+    height: 1rem;
+    background: #{tint($color-white, 0.22)};
   }
 
   &__tagline {
+    color: $color-slate-300;
     font-size: $font-sm;
-    color: $color-slate-200;
+    font-weight: 500;
   }
 }
 </style>

@@ -14,10 +14,12 @@
         :key="toast.id"
         class="toast-host__item"
       >
-        <Check
-          class="toast-host__icon"
-          aria-hidden="true"
-        />
+        <span class="toast-host__check">
+          <Check
+            class="toast-host__icon"
+            aria-hidden="true"
+          />
+        </span>
         <span>{{ toast.message }}</span>
       </li>
     </TransitionGroup>
@@ -35,7 +37,7 @@ const { toasts } = useToast()
   position: fixed;
   bottom: $space-6;
   left: 50%;
-  z-index: 200;
+  z-index: 400;
   transform: translateX(-50%);
   pointer-events: none;
 
@@ -50,19 +52,32 @@ const { toasts } = useToast()
   &__item {
     display: inline-flex;
     align-items: center;
-    gap: $space-2;
-    padding: $space-2 $space-4;
+    gap: $space-3;
+    max-width: calc(100vw - #{$space-8});
+    padding: $space-2 $space-5 $space-2 $space-2;
+    border: 1px solid #{tint($color-white, 0.1)};
     border-radius: $radius-full;
     background: var(--tk-bg);
     color: $color-white;
     font-size: $font-sm;
-    box-shadow: 0 8px 24px tint($color-slate-900, 0.24);
+    font-weight: 500;
+    box-shadow: var(--tk-shadow-pop);
+  }
+
+  &__check {
+    display: inline-grid;
+    flex: none;
+    place-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--tk-accent);
+    color: var(--tk-bg);
   }
 
   &__icon {
-    width: 1rem;
-    height: 1rem;
-    color: var(--tk-accent);
+    width: 0.875rem;
+    height: 0.875rem;
   }
 }
 
@@ -85,6 +100,6 @@ const { toasts } = useToast()
 .toast-enter-from,
 .toast-leave-to {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(16px) scale(0.96);
 }
 </style>
