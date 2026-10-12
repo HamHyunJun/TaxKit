@@ -102,7 +102,9 @@ export const useSheetSource = <K extends string, Row>(config: SheetSourceConfig<
     pending.value = null
     const adjusted = adjust(mapping)
     if (!config.isComplete(adjusted)) {
-      fail(config.incompleteMessage)
+      // 다시 지정 중이었다면 이미 불러온 데이터는 지우지 않고 안내만 띄운다
+      if (target.reopened) state.value = { ...state.value, error: config.incompleteMessage }
+      else fail(config.incompleteMessage)
       return
     }
     saveMapping(target.signature, mapping)

@@ -4,7 +4,7 @@ import { parseAmount } from '../../app/utils/amount.ts'
 import { formatBizNo, normalizeBizNo } from '../../app/utils/bizNo.ts'
 import { smsByteLength, smsKind } from '../../app/utils/byteLength.ts'
 import { normalizeCompanyName } from '../../app/utils/companyName.ts'
-import { parseDate, parseTimeOfDay } from '../../app/utils/date.ts'
+import { isHhmmssColumn, parseDate, parseTimeOfDay } from '../../app/utils/date.ts'
 import { nameSimilarity } from '../../app/utils/similarity.ts'
 
 const clock = (seconds: number | null): string | null =>
@@ -32,6 +32,14 @@ test('날짜: 시리얼·문자열·8자리 숫자를 읽고 없는 날짜는 �
   assert.equal(ymd(parseDate(46268)), '2026-9-3') // 엑셀 시리얼
   assert.equal(parseDate('2026-02-31'), null)
   assert.equal(parseDate('hello'), null)
+})
+
+test('시각: HHMMSS 열이면 자정 직후(1530=00:15:30)와 0(자정)도 읽는다', () => {
+  const column = [1530, 235530, 0]
+  assert.equal(isHhmmssColumn(column), true)
+  assert.equal(clock(parseTimeOfDay(1530, true)), '00:15:30')
+  assert.equal(clock(parseTimeOfDay(0, true)), '00:00:00')
+  assert.equal(isHhmmssColumn(['1430', '0930']), false) // 4자리뿐이면 HHMM으로 본다
 })
 
 test('시각: 숫자 HHMMSS는 엑셀이 앞의 0을 지운 값도 읽는다 (아침 결제가 00:00으로 둔갑하던 버그)', () => {

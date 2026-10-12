@@ -1,6 +1,6 @@
 import type { CardApproval } from '~/types/card'
 import type { ColumnMapping, FieldSpec, ParsedRecord } from '~/types/excel'
-import { parseTimeOfDay } from './date.ts'
+import { isHhmmssColumn, parseTimeOfDay } from './date.ts'
 import { normalizeCompanyName } from './companyName.ts'
 import { asDate, asNumber, asText } from './cells.ts'
 
@@ -37,9 +37,10 @@ export const toCardApprovals = (records: readonly ParsedRecord<CardFieldKey>[]):
   const rows: CardApproval[] = []
   const skipped: number[] = []
   const unreadableTime = new Set<string>() // 시각 열에 값은 있는데 읽지 못한 행
+  const digitsAreHhmmss = isHhmmssColumn(records.map(record => record.approvedTime))
   for (const record of records) {
     const base = asDate(record.approvedAt) ?? asDate(record.approvedDate)
-    const seconds = parseTimeOfDay(record.approvedTime)
+    const seconds = parseTimeOfDay(record.approvedTime, digitsAreHhmmss)
     const cardNo = asText(record.cardNo)
     const merchantName = asText(record.merchantName)
     const rawAmount = asNumber(record.amount)

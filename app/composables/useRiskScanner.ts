@@ -48,8 +48,8 @@ export const useRiskScanner = (): UseRiskScannerReturn => {
   const offset = computed(() => offsetCancellations(card.state.value.rows))
   const approvals = computed<CardApproval[]>(() => offset.value.active)
 
-  // 파일이 바뀌면 이전 파일에 입력한 소명 내용은 버린다
-  watch(card.state, () => {
+  // 다른 파일을 불러오면 이전 파일에 입력한 소명 내용은 버린다 (같은 파일의 컬럼 다시 지정은 행 id가 그대로라 유지한다)
+  watch(() => card.state.value.fileName, () => {
     explanations.value = {}
   })
 

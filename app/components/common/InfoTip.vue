@@ -103,6 +103,12 @@ const close = (): void => {
   isOpen.value = false
 }
 
+// 말풍선은 body 끝에 있어서, 포커스가 안에 있는 채로 닫히면 읽던 위치를 잃는다. 닫기 전에 버튼으로 돌려준다
+const closeAndRestoreFocus = (): void => {
+  if (bubbleRef.value?.contains(document.activeElement)) buttonRef.value?.focus({ preventScroll: true })
+  close()
+}
+
 // 스크롤·창 크기 변경 중에는 프레임마다 한 번만 위치를 다시 잡는다. 아이콘이 화면 밖으로 나가면 닫는다
 let frame = 0
 const follow = (): void => {
@@ -110,7 +116,7 @@ const follow = (): void => {
   frame = requestAnimationFrame(() => {
     frame = 0
     const rect = buttonRef.value?.getBoundingClientRect()
-    if (!rect || rect.bottom < 0 || rect.top > window.innerHeight) return close()
+    if (!rect || rect.bottom < 0 || rect.top > window.innerHeight) return closeAndRestoreFocus()
     reposition()
   })
 }
@@ -139,9 +145,14 @@ const handlePointerDown = (event: PointerEvent): void => {
 }
 
 const handleKeydown = (event: KeyboardEvent): void => {
-  if (event.key !== 'Escape' || !isOpen.value) return
-  close()
-  buttonRef.value?.focus()
+  if (!isOpen.value) return
+  if (event.key === 'Escape') {
+    close()
+    buttonRef.value?.focus()
+    return
+  }
+  // Tab은 버튼으로 돌려놓고 기본 동작에 맡겨 버튼 앞뒤 요소로 자연스럽게 이동한다
+  if (event.key === 'Tab' && bubbleRef.value?.contains(document.activeElement)) closeAndRestoreFocus()
 }
 
 // 전역 리스너는 말풍선이 열려 있는 동안에만 둔다 (아이콘이 수십 개여도 평소에는 비용이 없다)
@@ -157,6 +168,7 @@ const detach = (): void => {
   window.removeEventListener('resize', follow)
   window.removeEventListener('scroll', follow, { capture: true })
   cancelAnimationFrame(frame)
+  frame = 0
 }
 
 watch(isOpen, (open) => {
