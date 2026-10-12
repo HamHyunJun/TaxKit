@@ -18,17 +18,16 @@ const contentSecurityPolicy: string = [
 ].join('; ')
 
 export default defineNuxtConfig({
-  compatibilityDate: '2026-10-01',
+
+  modules: ['@nuxt/eslint'],
 
   // 순수 클라이언트 렌더링: nuxi generate 시 정적 SPA 산출물 생성 (Vercel 정적 배포)
   ssr: false,
 
+  // 폴더 접두사 없이 컴포넌트를 쓴다 (components/layout/AppHeader.vue → <AppHeader />)
+  components: [{ path: '~/components', pathPrefix: false }],
+
   devtools: { enabled: true },
-
-  modules: ['@nuxt/eslint'],
-
-  // 셀프 호스팅 Pretendard 폰트 + 전역 SCSS 진입점 (외부 폰트 CDN 사용 금지, Tailwind 미사용)
-  css: ['pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css', '~/assets/scss/main.scss'],
 
   app: {
     head: {
@@ -41,24 +40,20 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#0f172a' },
         // 리퍼러로 어떤 정보도 외부에 흘리지 않는다
         { name: 'referrer', content: 'no-referrer' },
-        ...(isProduction ? [{ 'http-equiv': 'Content-Security-Policy', content: contentSecurityPolicy }] : []),
+        ...(isProduction ? [{ 'http-equiv': 'Content-Security-Policy', 'content': contentSecurityPolicy }] : []),
       ],
       link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     },
   },
 
-  // Nuxt 내장 텔레메트리·외부 통신 기능 비활성화
-  telemetry: false,
+  // 셀프 호스팅 Pretendard 폰트 + 전역 SCSS 진입점 (외부 폰트 CDN 사용 금지, Tailwind 미사용)
+  css: ['pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css', '~/assets/scss/main.scss'],
 
   experimental: {
     // 빌드 매니페스트를 런타임에 fetch하지 않도록 끈다 (네트워크 요청 최소화)
     appManifest: false,
   },
-
-  typescript: {
-    strict: true,
-    typeCheck: false, // 타입 검사는 npm run typecheck로 별도 실행
-  },
+  compatibilityDate: '2026-10-01',
 
   vite: {
     css: {
@@ -73,6 +68,14 @@ export default defineNuxtConfig({
       include: ['xlsx', 'lucide-vue-next'],
     },
   },
+
+  typescript: {
+    strict: true,
+    typeCheck: false, // 타입 검사는 npm run typecheck로 별도 실행
+  },
+
+  // Nuxt 내장 텔레메트리·외부 통신 기능 비활성화
+  telemetry: false,
 
   eslint: {
     config: {
