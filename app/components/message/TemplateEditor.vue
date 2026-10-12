@@ -3,42 +3,56 @@
     class="editor"
     aria-labelledby="editor-title"
   >
-    <h2
-      id="editor-title"
-      class="editor__title"
-    >
-      문구 설정
-    </h2>
+    <div class="editor__head">
+      <h2
+        id="editor-title"
+        class="tk-section-title"
+      >
+        문구 설정
+        <InfoTip topic="templateEdit" />
+      </h2>
+      <p class="tk-hint">
+        비워 둔 항목은 예시 문구(○○세무회계 등)로 보여줘요.
+      </p>
+    </div>
 
     <div class="editor__grid">
-      <fieldset class="editor__channel">
-        <legend class="editor__label">
-          채널
-        </legend>
-        <label
-          v-for="(label, channel) in CHANNEL_LABELS"
-          :key="channel"
-          class="editor__radio"
+      <div class="editor__field">
+        <div class="editor__label-row">
+          <span
+            id="editor-channel-label"
+            class="tk-label"
+          >채널</span>
+          <InfoTip topic="messageChannel" />
+        </div>
+        <div
+          class="segmented"
+          role="radiogroup"
+          aria-labelledby="editor-channel-label"
         >
-          <input
-            type="radio"
-            name="message-channel"
-            :value="channel"
-            :checked="settings.channel === channel"
-            @change="update({ channel })"
+          <label
+            v-for="(label, channel) in CHANNEL_LABELS"
+            :key="channel"
           >
-          <span>{{ label }}</span>
-        </label>
-      </fieldset>
+            <input
+              type="radio"
+              name="message-channel"
+              :value="channel"
+              :checked="settings.channel === channel"
+              @change="update({ channel })"
+            >
+            <span>{{ label }}</span>
+          </label>
+        </div>
+      </div>
 
       <div class="editor__field">
         <label
           for="editor-office"
-          class="editor__label"
+          class="tk-label"
         >사무소명</label>
         <input
           id="editor-office"
-          class="editor__input"
           type="text"
           autocomplete="off"
           placeholder="○○세무회계"
@@ -49,11 +63,10 @@
       <div class="editor__field">
         <label
           for="editor-manager"
-          class="editor__label"
+          class="tk-label"
         >담당자</label>
         <input
           id="editor-manager"
-          class="editor__input"
           type="text"
           autocomplete="off"
           placeholder="김OO"
@@ -62,13 +75,15 @@
         >
       </div>
       <div class="editor__field">
-        <label
-          for="editor-due"
-          class="editor__label"
-        >회신기한</label>
+        <div class="editor__label-row">
+          <label
+            for="editor-due"
+            class="tk-label"
+          >회신기한</label>
+          <InfoTip topic="dueDate" />
+        </div>
         <input
           id="editor-due"
-          class="editor__input"
           type="date"
           :value="settings.dueDate"
           @input="handleText('dueDate', $event)"
@@ -78,46 +93,52 @@
 
     <details class="editor__template">
       <summary class="editor__summary">
+        <ChevronRight
+          class="editor__chevron"
+          aria-hidden="true"
+        />
         {{ CHANNEL_LABELS[settings.channel] }} 템플릿 편집
       </summary>
-      <div
-        class="editor__chips"
-        role="group"
-        aria-label="변수 삽입"
-      >
-        <button
-          v-for="name in TEMPLATE_VARIABLES"
-          :key="name"
-          type="button"
-          class="editor__chip"
-          @click="insertVariable(name)"
+      <div class="editor__body">
+        <div
+          class="editor__chips"
+          role="group"
+          aria-label="변수 삽입"
         >
-          {{ variableToken(name) }}
+          <button
+            v-for="name in TEMPLATE_VARIABLES"
+            :key="name"
+            type="button"
+            class="editor__chip"
+            @click="insertVariable(name)"
+          >
+            {{ variableToken(name) }}
+          </button>
+        </div>
+        <label
+          for="editor-template"
+          class="tk-label"
+        >템플릿 본문</label>
+        <textarea
+          id="editor-template"
+          ref="textareaRef"
+          v-model="template"
+          rows="9"
+        />
+        <button
+          type="button"
+          class="tk-btn tk-btn--ghost tk-btn--sm editor__reset"
+          @click="template = DEFAULT_TEMPLATES[settings.channel]"
+        >
+          기본 문구로 되돌리기
         </button>
       </div>
-      <label
-        for="editor-template"
-        class="editor__label"
-      >템플릿 본문</label>
-      <textarea
-        id="editor-template"
-        ref="textareaRef"
-        v-model="template"
-        class="editor__textarea"
-        rows="9"
-      />
-      <button
-        type="button"
-        class="editor__reset"
-        @click="template = DEFAULT_TEMPLATES[settings.channel]"
-      >
-        기본 문구로 되돌리기
-      </button>
     </details>
   </section>
 </template>
 
 <script setup lang="ts">
+import { ChevronRight } from 'lucide-vue-next'
 import type { MessageSettings } from '~/types/message'
 
 const settings = defineModel<MessageSettings>({ required: true })
@@ -158,105 +179,103 @@ const insertVariable = async (name: string): Promise<void> => {
   @include card-surface;
 
   display: grid;
-  gap: $space-4;
-  padding: $space-5;
+  gap: $space-5;
+  padding: $space-6;
 
-  &__title {
-    font-size: $font-base;
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: $space-2;
   }
 
   &__grid {
     display: grid;
-    gap: $space-4;
+    gap: $space-5;
 
     @include respond-to(md) {
       grid-template-columns: auto 1fr 1fr 1fr;
     }
   }
 
-  &__channel {
-    display: flex;
-    flex-wrap: wrap;
-    align-content: start;
-    gap: $space-1-5 $space-4;
-    padding: 0;
-    border: 0;
-
-    .editor__label {
-      width: 100%;
-      padding: 0;
-    }
-  }
-
-  &__radio {
-    display: inline-flex;
-    align-items: center;
-    gap: $space-2;
-    font-size: $font-sm;
-    cursor: pointer;
-
-    input {
-      accent-color: var(--tk-accent);
-    }
-  }
-
   &__field {
     display: grid;
     align-content: start;
-    gap: $space-1-5;
+    gap: $space-2;
   }
 
-  &__label {
+  &__label-row {
+    display: flex;
+    align-items: center;
+    gap: $space-1;
+    min-height: 1.5rem;
+  }
+
+  &__template {
+    border-top: 1px solid var(--tk-border);
+    padding-top: $space-4;
+  }
+
+  &__summary {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    color: var(--tk-text-strong);
     font-size: $font-sm;
     font-weight: 600;
-  }
-
-  &__input,
-  &__textarea {
-    padding: $space-2 $space-3;
-    border: 1px solid var(--tk-border);
-    border-radius: $radius-md;
-    background: var(--tk-card);
-    font: inherit;
-    transition: border-color $duration-fast $ease-out-quint;
+    list-style: none;
+    cursor: pointer;
 
     @include focus-ring;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  &__chevron {
+    width: 1rem;
+    height: 1rem;
+    color: var(--tk-muted);
+    transition: transform 160ms $ease-out-quint;
 
     @include reduced-motion {
       transition: none;
     }
   }
 
-  &__template {
-    display: grid;
-    gap: $space-3;
+  &__template[open] &__chevron {
+    transform: rotate(90deg);
   }
 
-  &__summary {
-    font-size: $font-sm;
-    font-weight: 600;
-    cursor: pointer;
-
-    @include focus-ring;
+  &__body {
+    display: grid;
+    gap: $space-3;
+    margin-top: $space-4;
   }
 
   &__chips {
     display: flex;
     flex-wrap: wrap;
     gap: $space-2;
-    margin-top: $space-3;
   }
 
   &__chip {
     padding: $space-1 $space-3;
-    border: 1px solid var(--tk-border);
+    border: 1px solid var(--tk-accent);
     border-radius: $radius-full;
-    background: var(--tk-surface);
+    background: var(--tk-accent-soft);
+    color: var(--tk-accent-strong);
     font-size: $font-xs;
-    font-weight: 600;
-    transition: transform $duration-fast $ease-out-quint;
+    font-weight: 700;
+    transition: transform 120ms $ease-out-quint;
 
     @include focus-ring;
+
+    &:hover {
+      background: $color-emerald-100;
+    }
 
     &:active {
       transform: scale(0.94);
@@ -267,19 +286,8 @@ const insertVariable = async (name: string): Promise<void> => {
     }
   }
 
-  &__textarea {
-    width: 100%;
-    line-height: 1.6;
-    resize: vertical;
-  }
-
   &__reset {
-    width: fit-content;
-    color: var(--tk-muted);
-    font-size: $font-sm;
-    text-decoration: underline;
-
-    @include focus-ring;
+    justify-self: start;
   }
 }
 </style>

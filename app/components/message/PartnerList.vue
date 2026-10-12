@@ -5,14 +5,20 @@
         for="partner-search"
         class="partner-list__label"
       >거래처 검색</label>
-      <input
-        id="partner-search"
-        v-model="search"
-        class="partner-list__input"
-        type="search"
-        autocomplete="off"
-        placeholder="상호 또는 사업자번호"
-      >
+      <div class="partner-list__field">
+        <Search
+          class="partner-list__search-icon"
+          aria-hidden="true"
+        />
+        <input
+          id="partner-search"
+          v-model="search"
+          class="partner-list__input"
+          type="search"
+          autocomplete="off"
+          placeholder="상호 또는 사업자번호"
+        >
+      </div>
     </div>
 
     <p
@@ -36,7 +42,17 @@
           :aria-current="group.key === activeKey ? 'true' : undefined"
           @click="emit('select', group.key)"
         >
-          <span class="partner-list__name">{{ group.name }}</span>
+          <span
+            class="partner-list__avatar"
+            aria-hidden="true"
+          >{{ group.name.replace(/[^\p{L}\p{N}]/gu, '').slice(0, 1) }}</span>
+          <span class="partner-list__text">
+            <span class="partner-list__name">{{ group.name }}</span>
+            <span class="partner-list__meta">
+              <span v-if="group.bizNo">{{ formatBizNo(group.bizNo) }} · </span>{{ group.count.toLocaleString('ko-KR') }}건 ·
+              <span class="partner-list__total">{{ formatWon(group.total) }}원</span>
+            </span>
+          </span>
           <span
             v-if="copiedKeys.includes(group.key)"
             class="partner-list__badge"
@@ -46,10 +62,6 @@
               aria-hidden="true"
             />복사됨
           </span>
-          <span class="partner-list__meta">
-            <span v-if="group.bizNo">{{ formatBizNo(group.bizNo) }} · </span>{{ group.count.toLocaleString('ko-KR') }}건 ·
-            <span class="num">{{ formatWon(group.total) }}원</span>
-          </span>
         </button>
       </li>
     </ul>
@@ -57,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { Check } from 'lucide-vue-next'
+import { Check, Search } from 'lucide-vue-next'
 import type { PartnerGroup } from '~/types/message'
 
 type Props = {
@@ -80,26 +92,36 @@ const emit = defineEmits<{
 
   &__search {
     display: grid;
-    gap: $space-1;
+    gap: $space-1-5;
   }
 
   &__label {
+    color: var(--tk-text-strong);
     font-size: $font-sm;
     font-weight: 600;
   }
 
-  &__input {
-    padding: $space-2 $space-3;
-    border: 1px solid var(--tk-border);
-    border-radius: $radius-md;
-    background: var(--tk-card);
-    font: inherit;
+  &__field {
+    position: relative;
+  }
 
-    @include focus-ring;
+  &__search-icon {
+    position: absolute;
+    top: 50%;
+    left: $space-3;
+    width: 1rem;
+    height: 1rem;
+    color: var(--tk-subtle);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  &__input {
+    padding-left: 2.25rem;
   }
 
   &__empty {
-    padding: $space-6 $space-2;
+    padding: $space-8 $space-2;
     color: var(--tk-muted);
     font-size: $font-sm;
     text-align: center;
@@ -109,39 +131,43 @@ const emit = defineEmits<{
     display: grid;
     gap: $space-2;
     max-height: 32rem;
-    padding: 0;
+    margin: 0;
+    padding: 0 $space-1 0 0;
     overflow-y: auto;
     list-style: none;
   }
 
   &__item {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: $space-1 $space-2;
+    display: flex;
+    align-items: center;
+    gap: $space-3;
     width: 100%;
     padding: $space-3;
     border: 1px solid var(--tk-border);
-    border-radius: $radius-md;
+    border-radius: $radius-lg;
     background: var(--tk-card);
     text-align: left;
     transition:
-      transform $duration-fast $ease-out-quint,
-      border-color $duration-fast $ease-out-quint,
-      box-shadow $duration-fast $ease-out-quint;
+      transform 120ms $ease-out-quint,
+      border-color 160ms $ease-out-quint,
+      background-color 160ms $ease-out-quint,
+      box-shadow 160ms $ease-out-quint;
 
     @include focus-ring;
 
     &:hover {
-      border-color: var(--tk-muted);
+      border-color: var(--tk-subtle);
+      box-shadow: var(--tk-shadow-sm);
     }
 
     &:active {
-      transform: scale(0.98);
+      transform: scale(0.985);
     }
 
     &.is-active {
-      border-color: var(--tk-accent);
-      box-shadow: 0 0 0 1px var(--tk-accent);
+      border-color: var(--tk-accent-text);
+      background: var(--tk-accent-soft);
+      box-shadow: 0 0 0 1px var(--tk-accent-text);
     }
 
     @include reduced-motion {
@@ -149,37 +175,68 @@ const emit = defineEmits<{
     }
   }
 
+  &__avatar {
+    display: inline-grid;
+    flex: none;
+    place-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--tk-surface-strong);
+    color: $color-slate-600;
+    font-size: $font-sm;
+    font-weight: 700;
+  }
+
+  &__item.is-active &__avatar {
+    background: var(--tk-accent-text);
+    color: $color-white;
+  }
+
+  &__text {
+    display: grid;
+    flex: 1;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
   &__name {
+    color: var(--tk-text-strong);
     font-weight: 600;
-    word-break: break-all;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+  }
+
+  &__meta {
+    color: var(--tk-muted);
+    font-size: $font-xs;
+  }
+
+  &__total {
+    font-variant-numeric: tabular-nums;
   }
 
   &__badge {
     display: inline-flex;
+    flex: none;
     align-items: center;
     gap: $space-1;
-    padding: 0 $space-2;
+    padding: 0.125rem $space-2;
     border-radius: $radius-full;
-    background: tint($color-emerald-500, 0.14);
-    color: $color-emerald-700;
+    background: var(--tk-accent-soft);
+    color: var(--tk-accent-text);
     font-size: $font-xs;
-    font-weight: 600;
+    font-weight: 700;
     white-space: nowrap;
+  }
+
+  &__item.is-active &__badge {
+    background: $color-white;
   }
 
   &__badge-icon {
     width: 0.75rem;
     height: 0.75rem;
-  }
-
-  &__meta {
-    grid-column: 1 / -1;
-    color: var(--tk-muted);
-    font-size: $font-xs;
-
-    .num {
-      text-align: left;
-    }
   }
 }
 </style>
