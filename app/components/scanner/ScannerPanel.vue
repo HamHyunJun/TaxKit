@@ -3,25 +3,30 @@
     class="scanner"
     aria-labelledby="scanner-title"
   >
-    <header class="scanner__head">
-      <h1
-        id="scanner-title"
-        class="scanner__title"
-      >
-        법인카드 스캐너
-      </h1>
-      <p class="scanner__desc">
-        카드사 승인내역을 올리면 심야·주말·공휴일·사적 의심 업종·분할 결제를 찾아 소명이 필요한 건을 알려줘요.
-      </p>
-    </header>
-
-    <DropZone
-      title="법인카드 승인내역 엑셀을 놓으세요"
-      :file-name="source.fileName"
-      :detail="sourceDetail"
-      :error="source.error"
-      @select="loadFile"
+    <PageHeader
+      eyebrow="STEP 2"
+      title="법인카드 스캐너"
+      description="카드사 승인내역을 올리면 심야·주말·공휴일 사용, 사적 의심 업종, 연속 분할 결제를 찾아 소명이 필요한 건을 모아줘요."
+      topic="scannerPage"
+      title-id="scanner-title"
     />
+
+    <div class="scanner__block">
+      <h2 class="tk-section-title">
+        파일 올리기
+      </h2>
+      <DropZone
+        title="법인카드 승인내역 엑셀"
+        :file-name="source.fileName"
+        :detail="sourceDetail"
+        :error="source.error"
+        @select="loadFile"
+      >
+        <template #info>
+          <InfoTip topic="cardFile" />
+        </template>
+      </DropZone>
+    </div>
 
     <p
       class="scanner__status"
@@ -32,43 +37,58 @@
     </p>
 
     <template v-if="source.fileName && !source.error">
-      <RuleToggles v-model:enabled="enabledTags" />
-      <RiskSummary
-        v-model:levels="levels"
-        :counts="counts"
-      />
-
-      <div class="scanner__toolbar">
-        <label class="scanner__sort">
-          <span>정렬</span>
-          <select
-            v-model="sort"
-            class="scanner__select"
-          >
-            <option value="score">리스크 점수 높은 순</option>
-            <option value="date">승인일시 순</option>
-            <option value="amount">금액 높은 순</option>
-          </select>
-        </label>
-        <button
-          type="button"
-          class="scanner__download"
-          :disabled="shown.length === 0"
-          @click="handleDownload"
-        >
-          <Download
-            class="scanner__download-icon"
-            aria-hidden="true"
-          />
-          <span>소명 대상 엑셀 다운로드 ({{ shown.length.toLocaleString('ko-KR') }}건)</span>
-        </button>
+      <div class="scanner__block">
+        <h2 class="tk-section-title">
+          검사 규칙
+          <InfoTip topic="ruleSet" />
+        </h2>
+        <RuleToggles v-model:enabled="enabledTags" />
       </div>
 
-      <RiskTable
-        v-model:explanations="explanations"
-        :findings="shown"
-        :empty-text="emptyText"
-      />
+      <div class="scanner__block">
+        <h2 class="tk-section-title">
+          검사 결과
+        </h2>
+        <RiskSummary
+          v-model:levels="levels"
+          :counts="counts"
+        />
+
+        <div class="scanner__toolbar">
+          <label class="scanner__sort">
+            <span class="tk-label">정렬</span>
+            <select
+              v-model="sort"
+              class="scanner__select"
+            >
+              <option value="score">리스크 점수 높은 순</option>
+              <option value="date">승인일시 순</option>
+              <option value="amount">금액 높은 순</option>
+            </select>
+          </label>
+          <span class="scanner__action">
+            <button
+              type="button"
+              class="tk-btn tk-btn--primary scanner__download"
+              :disabled="shown.length === 0"
+              @click="handleDownload"
+            >
+              <Download
+                class="tk-btn__icon"
+                aria-hidden="true"
+              />
+              <span>소명 대상 엑셀 다운로드 ({{ shown.length.toLocaleString('ko-KR') }}건)</span>
+            </button>
+            <InfoTip topic="downloadReport" />
+          </span>
+        </div>
+
+        <RiskTable
+          v-model:explanations="explanations"
+          :findings="shown"
+          :empty-text="emptyText"
+        />
+      </div>
     </template>
 
     <ColumnMapModal
@@ -125,26 +145,20 @@ const handleDownload = (): void => {
 <style scoped lang="scss">
 .scanner {
   display: grid;
-  gap: $space-5;
+  gap: $space-8;
 
-  &__head {
+  &__block {
     display: grid;
-    gap: $space-1;
-  }
-
-  &__title {
-    font-size: $font-xl;
-  }
-
-  &__desc {
-    color: var(--tk-muted);
-    font-size: $font-sm;
+    gap: $space-4;
   }
 
   &__status {
-    min-height: 1.5em;
     color: var(--tk-muted);
     font-size: $font-sm;
+
+    &:empty {
+      display: none;
+    }
   }
 
   &__toolbar {
@@ -158,59 +172,18 @@ const handleDownload = (): void => {
   &__sort {
     display: inline-flex;
     align-items: center;
-    gap: $space-2;
-    font-size: $font-sm;
-    font-weight: 600;
+    gap: $space-3;
   }
 
   &__select {
-    padding: $space-1-5 $space-3;
-    border: 1px solid var(--tk-border);
-    border-radius: $radius-md;
-    background: var(--tk-card);
-    font: inherit;
-    font-weight: 400;
-
-    @include focus-ring;
+    width: auto;
+    min-width: 13rem;
   }
 
-  &__download {
+  &__action {
     display: inline-flex;
     align-items: center;
-    gap: $space-2;
-    padding: $space-2 $space-4;
-    border: 1px solid var(--tk-accent);
-    border-radius: $radius-md;
-    background: var(--tk-accent);
-    color: var(--tk-bg);
-    font-weight: 700;
-    transition:
-      transform $duration-fast $ease-out-quint,
-      background-color $duration-fast $ease-out-quint;
-
-    @include focus-ring;
-
-    &:hover:not(:disabled) {
-      background: var(--tk-accent-hover);
-    }
-
-    &:active:not(:disabled) {
-      transform: scale(0.96);
-    }
-
-    &:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-
-    @include reduced-motion {
-      transition: none;
-    }
-  }
-
-  &__download-icon {
-    width: 1rem;
-    height: 1rem;
+    gap: $space-1;
   }
 }
 </style>

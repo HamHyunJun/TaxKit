@@ -3,58 +3,57 @@
     <dl class="risk-summary__cards">
       <div class="risk-summary__card">
         <dt>전체 승인</dt>
-        <dd class="num">
-          {{ counts.total.toLocaleString('ko-KR') }}건
-        </dd>
+        <dd>{{ counts.total.toLocaleString('ko-KR') }}<span class="risk-summary__unit">건</span></dd>
       </div>
       <div class="risk-summary__card">
         <dt>소명 대상</dt>
-        <dd class="num">
-          {{ counts.flagged.toLocaleString('ko-KR') }}건
-        </dd>
+        <dd>{{ counts.flagged.toLocaleString('ko-KR') }}<span class="risk-summary__unit">건</span></dd>
       </div>
       <div class="risk-summary__card risk-summary__card--high">
         <dt>High</dt>
-        <dd class="num">
-          {{ counts.high.toLocaleString('ko-KR') }}건
-        </dd>
+        <dd>{{ counts.high.toLocaleString('ko-KR') }}<span class="risk-summary__unit">건</span></dd>
       </div>
       <div class="risk-summary__card risk-summary__card--medium">
         <dt>Medium</dt>
-        <dd class="num">
-          {{ counts.medium.toLocaleString('ko-KR') }}건
-        </dd>
+        <dd>{{ counts.medium.toLocaleString('ko-KR') }}<span class="risk-summary__unit">건</span></dd>
       </div>
     </dl>
 
-    <fieldset class="risk-summary__filters">
-      <legend class="risk-summary__legend">
-        위험도 필터
-      </legend>
-      <label
-        v-for="level in LEVELS"
-        :key="level"
-        class="risk-summary__check"
-      >
-        <input
-          type="checkbox"
-          :value="level"
-          :checked="levels.includes(level)"
-          @change="handleChange(level, $event)"
+    <div class="risk-summary__filters">
+      <fieldset class="risk-summary__group">
+        <legend class="risk-summary__legend">
+          위험도 필터
+        </legend>
+        <span
+          class="risk-summary__label tk-label"
+          aria-hidden="true"
+        >위험도</span>
+        <label
+          v-for="level in LEVELS"
+          :key="level"
+          class="chip-toggle risk-summary__check"
         >
-        <span>{{ levelLabel(level) }} 표시</span>
-      </label>
-    </fieldset>
+          <input
+            type="checkbox"
+            :value="level"
+            :checked="levels.includes(level)"
+            @change="handleChange(level, $event)"
+          >
+          <span>{{ levelLabel(level) }} 표시</span>
+        </label>
+        <InfoTip topic="riskLevel" />
+      </fieldset>
 
-    <p class="risk-summary__tags">
-      <span
-        v-for="rule in RISK_RULES"
-        :key="rule.tag"
-        class="risk-summary__tag"
-      >
-        {{ rule.name }} <span class="num">{{ counts.byTag[rule.tag].toLocaleString('ko-KR') }}</span>
-      </span>
-    </p>
+      <p class="risk-summary__tags">
+        <span
+          v-for="rule in RISK_RULES"
+          :key="rule.tag"
+          class="risk-summary__tag"
+        >
+          {{ rule.name }} <strong class="risk-summary__tag-count">{{ counts.byTag[rule.tag].toLocaleString('ko-KR') }}</strong>
+        </span>
+      </p>
+    </div>
   </div>
 </template>
 
@@ -80,12 +79,13 @@ const handleChange = (level: RiskLevel, event: Event): void => {
 <style scoped lang="scss">
 .risk-summary {
   display: grid;
-  gap: $space-3;
+  gap: $space-4;
 
   &__cards {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: $space-3;
+    margin: 0;
 
     @include respond-to(md) {
       grid-template-columns: repeat(4, 1fr);
@@ -97,52 +97,66 @@ const handleChange = (level: RiskLevel, event: Event): void => {
 
     display: grid;
     gap: $space-1;
-    padding: $space-3 $space-4;
-    font-size: $font-sm;
+    padding: $space-4 $space-5;
 
     dt {
       color: var(--tk-muted);
+      font-size: $font-sm;
       font-weight: 600;
     }
 
     dd {
       margin: 0;
-      font-size: $font-xl;
+      color: var(--tk-text-strong);
+      font-size: $font-2xl;
       font-weight: 700;
+      letter-spacing: $tracking-tight;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.25;
       text-align: left;
     }
 
-    &--high dd {
-      color: var(--tk-danger);
+    &--high {
+      border-left: 3px solid var(--tk-danger);
+
+      dd {
+        color: var(--tk-danger-text);
+      }
     }
 
-    &--medium dd {
-      color: $color-slate-800;
+    &--medium {
+      border-left: 3px solid var(--tk-warn);
     }
+  }
+
+  &__unit {
+    margin-left: 0.125rem;
+    color: var(--tk-muted);
+    font-size: $font-sm;
+    font-weight: 500;
   }
 
   &__filters {
     display: flex;
     flex-wrap: wrap;
-    gap: $space-2 $space-5;
-    padding: 0;
-    border: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-3 $space-6;
+  }
+
+  &__group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $space-2;
   }
 
   &__legend {
     @include visually-hidden;
   }
 
-  &__check {
-    display: inline-flex;
-    align-items: center;
-    gap: $space-2;
-    font-size: $font-sm;
-    cursor: pointer;
-
-    input {
-      accent-color: var(--tk-accent);
-    }
+  &__label {
+    margin-right: $space-1;
   }
 
   &__tags {
@@ -152,11 +166,18 @@ const handleChange = (level: RiskLevel, event: Event): void => {
   }
 
   &__tag {
-    padding: 0 $space-3;
+    padding: 0.1875rem $space-3;
     border-radius: $radius-full;
-    background: tint($color-slate-500, 0.12);
+    background: var(--tk-surface-strong);
+    color: $color-slate-600;
     font-size: $font-xs;
     font-weight: 600;
+  }
+
+  &__tag-count {
+    margin-left: 0.125rem;
+    color: var(--tk-text-strong);
+    font-variant-numeric: tabular-nums;
   }
 }
 </style>
