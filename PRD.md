@@ -150,6 +150,7 @@ export type ParseIssue = {
   reason: 'EMPTY_REQUIRED' | 'INVALID_DATE' | 'INVALID_NUMBER' | 'UNKNOWN'
 }
 
+// 정규화된 행(ParsedRecord)은 필드 값에 더해 원본 행 번호 rowIndex(1-based)를 가진다
 export type ParsedSheet<T> = {
   fileName: string
   sheetName: string
@@ -183,7 +184,7 @@ export type ParsedSheet<T> = {
 | 요소 | 가중치 | 계산 |
 | --- | --- | --- |
 | 금액 | 0.5 | `|통장금액 - 합계금액| ≤ 허용오차(기본 0원)`이면 1, 아니면 후보 제외 (옵션: 허용오차 1~1,000원 설정 가능) |
-| 날짜 | 0.3 | `diff = |거래일 - 작성일|`(일). `diff ≤ N`이면 `1 - diff / (N + 1)`, 초과면 후보 제외. N 기본 7, 슬라이더 0~31 |
+| 날짜 | 0.3 | `diff = |거래일 - 작성일|`(일). `diff ≤ N`이면 `1 - diff / (N + 1)`, 초과면 후보 제외. N 기본 5, 슬라이더 0~31 |
 | 상호 | 0.2 | 통장 적요 정규화 키 vs 거래처 상호 정규화 키의 유사도. **포함 관계면 1**, 아니면 문자 bigram Dice 계수와 Jaro-Winkler 중 큰 값 |
 
 - 성능: 세금계산서를 `금액 → TaxInvoice[]` 맵으로 버킷팅해 후보 비교를 O(n) 수준으로 줄인다.
@@ -192,12 +193,14 @@ export type ParsedSheet<T> = {
   - `MATCHED` (≥ 0.8): 일치 — 기본 접힘
   - `REVIEW` (0.5 ~ 0.8): 검토 필요 — 노란색
   - `MISSING` (후보 없음 또는 < 0.5): **세금계산서 미발행/누락 의심** — 붉은색 강조, 기본 상단 정렬
+  - `AMOUNT_MISMATCH`: 짝이 없는 통장 거래 중 날짜 윈도우 안에서 상호 유사도 0.75 이상인 미배정 계산서가 있으나 금액이 다른 건 — 노란색. 통장금액 − 합계금액(차액)을 근거에 표시
   - `INVOICE_ONLY`: 계산서만 존재 — 회색
+  - `EXCLUDED`: 자동 제외(아래 제외 규칙) — 회색
 - 제외 규칙(옵션 체크박스, 기본 켜짐): 적요에 `이자`, `수수료`, `급여`, `국세`, `지방세`, `4대보험`, `국민연금`, `건강보험`, `카드대금`, `대체`가 포함된 통장 거래는 대사 대상에서 제외하고 "자동 제외" 탭에 모은다.
 
 #### 결과 타입
 ```ts
-export type MatchStatus = 'MATCHED' | 'REVIEW' | 'MISSING' | 'INVOICE_ONLY'
+export type MatchStatus = 'MATCHED' | 'REVIEW' | 'MISSING' | 'AMOUNT_MISMATCH' | 'INVOICE_ONLY' | 'EXCLUDED'
 
 export type ScoreBreakdown = {
   amount: number // 0 | 1
@@ -213,28 +216,34 @@ export type ReconcileResult = {
   invoice: TaxInvoice | null
   score: ScoreBreakdown | null
   dayDiff: number | null
+  amountDiff: number | null // 통장금액 - 계산서 합계금액 (AMOUNT_MISMATCH에서만)
+  reason: string // 판정 근거 문장
 }
 
 export type ReconcileOptions = {
-  dateWindowDays: number // 기본 7
+  dateWindowDays: number // 기본 5
   amountTolerance: number // 기본 0
   ourBizNo: string | null
   excludeKeywords: string[]
 }
 ```
 
+- 결과 화면 필터 탭 3개: **일치 건**(MATCHED+REVIEW) / **세금계산서 누락 의심 건**(MISSING) / **금액 불일치 건**(AMOUNT_MISMATCH). 계산서만 존재·자동 제외는 요약 문구에 건수만 보이고 엑셀 시트로 확인한다.
+- 사업자번호를 입력하지 않으면 계산서에 가장 많이 등장하는 번호를 우리 회사로 추정하고 "(추정)"으로 표시한다. 판별 불가(kind=null) 계산서는 입금·출금 양쪽과 매칭을 허용한다.
+
 #### 엑셀 다운로드 (`TaxKit_대사결과_YYYYMMDD.xlsx`)
 | 시트 | 내용 |
 | --- | --- |
 | 요약 | 전체/일치/검토/누락/계산서만 건수와 금액 합계, 사용 옵션 |
 | 누락의심 | 거래일, 입출금, 금액, 적요, 추정 거래처, 사유 |
+| 금액불일치 | 통장 정보 + 계산서 정보 + 차액 + 사유 |
 | 검토필요 | 통장 정보 + 계산서 정보 + 점수 구성 |
 | 일치 | 통장 정보 + 계산서 승인번호 |
 | 계산서만존재 | 작성일, 거래처, 사업자번호, 합계금액 |
 
 #### Tab 3 전달
 - "누락 건 독촉 메시지 만들기" 버튼 클릭 → 선택된(기본: 전체) `MISSING` 행을 `MissingEvidenceRow[]`로 변환해 `useState('taxkit:handoff')`에 담고 Tab 3으로 이동한다.
-- 거래처명은 통장 적요를 그대로 쓰되 사용자가 Tab 3에서 수정할 수 있다.
+- 현재 구현은 선택 없이 `MISSING` 전체를 전달한다(행 선택은 보류). 거래처명은 통장 적요를 그대로 쓰되 사용자가 Tab 3에서 수정할 수 있다.
 
 ### 5.2 [Tab 2] 법인카드 이상징후 스캐너 (Risk Linter)
 
@@ -486,14 +495,14 @@ TaxKit/
 - [ ] 유틸 단위 테스트: 금액/날짜/사업자번호/상호 정규화 (테스트 도구 미도입 — 보류. 구현 시 임시 스크립트로 수동 검증함)
 
 ### Phase 2 — Tab 1 대사기 (브랜치 `reconcile`)
-- [ ] 통장·세금계산서 타입 및 별칭 사전
-- [ ] 매출/매입 판별 로직(우리 회사 사업자번호)
-- [ ] 금액 버킷 후보 생성 + 스코어링 + 탐욕 1:1 배정
-- [ ] 자동 제외 키워드 처리
-- [ ] 요약 칩, 결과 테이블(상태 필터·정렬·점수 근거 툴팁)
-- [ ] 결과 엑셀 5개 시트 다운로드
-- [ ] `useHandoff`로 Tab 3 전달
-- [ ] 1만×1만 행 성능 확인(3초 이내)
+- [x] 통장·세금계산서 타입 및 별칭 사전
+- [x] 매출/매입 판별 로직(우리 회사 사업자번호)
+- [x] 금액 버킷 후보 생성 + 스코어링 + 탐욕 1:1 배정 (+ 금액 불일치 판정)
+- [x] 자동 제외 키워드 처리
+- [x] 요약 칩, 결과 테이블(상태 필터, 점수·근거 컬럼 표시. 정렬은 날짜순 고정, 200건씩 더 보기)
+- [x] 결과 엑셀 6개 시트 다운로드 (금액불일치 시트 추가)
+- [x] `useHandoff`로 Tab 3 전달
+- [x] 1만×1만 행 성능 확인(3초 이내) — 대사 엔진만 Node에서 측정(약 50ms, 단순 케이스). 브라우저 파싱 포함 시간은 미측정
 
 ### Phase 3 — Tab 2 법인카드 스캐너 (브랜치 `scanner`)
 - [ ] 카드 승인 타입 및 별칭 사전, 취소 건 상계
