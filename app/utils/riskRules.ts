@@ -4,15 +4,15 @@ import type { RiskContext, RiskCounts, RiskFinding, RiskHit, RiskLevel, RiskRule
 const LATE_NIGHT_START_HOUR = 23
 const LATE_NIGHT_END_HOUR = 6 // 06:00 이전까지 (05:59 포함)
 const SPLIT_WINDOW_MS = 60 * 60 * 1000
-export const SPLIT_LIMIT = 500_000 // 건별 한도 (같은 날 합계가 이를 넘는데 건별로는 못 미치면 분할 의심)
+const SPLIT_LIMIT = 500_000 // 건별 한도 (같은 날 합계가 이를 넘는데 건별로는 못 미치면 분할 의심)
 const ROUND_MIN_AMOUNT = 100_000
 const ROUND_UNIT = 10_000
 const HIGH_LEVEL_SCORE = 3
 
-export const SEVERITY_WEIGHT: Record<Severity, number> = { HIGH: 3, MEDIUM: 2, LOW: 1 }
+const SEVERITY_WEIGHT: Record<Severity, number> = { HIGH: 3, MEDIUM: 2, LOW: 1 }
 
 // 사적 사용 의심 업종 키워드 (PRD 5.2 + 뷰티). 가맹점명·업종에서 찾는다
-export const PRIVATE_KEYWORDS: readonly string[] = [
+const PRIVATE_KEYWORDS: readonly string[] = [
   '골프', '컨트리클럽', 'CC', '스크린골프', '백화점', '면세점', '병원', '의원', '치과', '피부과', '성형', '한의원', '약국',
   '유흥주점', '단란주점', '노래', '룸', '마사지', '스파', '사우나', '상품권', '귀금속', '명품', '뷰티',
 ]
@@ -158,7 +158,7 @@ export const RISK_RULES: readonly RiskRule[] = [
 
 export const DEFAULT_ENABLED_TAGS: readonly RiskTag[] = RISK_RULES.filter(rule => rule.defaultEnabled).map(rule => rule.tag)
 
-export const levelOf = (score: number): RiskLevel => (score >= HIGH_LEVEL_SCORE ? 'HIGH' : 'MEDIUM')
+const levelOf = (score: number): RiskLevel => (score >= HIGH_LEVEL_SCORE ? 'HIGH' : 'MEDIUM')
 
 // 켜진 규칙을 모든 승인 건에 적용해 소명 대상(태그가 1개 이상인 건)만 돌려준다
 export const scanApprovals = (approvals: readonly CardApproval[], enabledTags: ReadonlySet<RiskTag>): RiskFinding[] => {

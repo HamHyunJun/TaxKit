@@ -2,7 +2,6 @@
   <div
     ref="rootRef"
     class="security-badge"
-    @keydown.esc="close"
   >
     <button
       ref="buttonRef"
@@ -49,21 +48,32 @@ const isOpen = ref<boolean>(false)
 const rootRef = ref<HTMLElement | null>(null)
 const buttonRef = ref<HTMLButtonElement | null>(null)
 
-// Esc로 닫으면 포커스를 버튼으로 되돌린다
+// 닫을 때 포커스를 버튼으로 되돌린다
 const close = (): void => {
   isOpen.value = false
   buttonRef.value?.focus()
 }
 
-// 팝오버 바깥을 누르면 닫는다
 const handleOutsidePointerDown = (event: PointerEvent): void => {
   if (!isOpen.value) return
   if (event.target instanceof Node && rootRef.value?.contains(event.target)) return
   isOpen.value = false
 }
 
-onMounted(() => document.addEventListener('pointerdown', handleOutsidePointerDown))
-onBeforeUnmount(() => document.removeEventListener('pointerdown', handleOutsidePointerDown))
+// 팝오버 바깥을 누르거나 어디서든 Esc를 누르면 닫는다
+// (Safari는 버튼 클릭에 포커스를 주지 않아 요소 단위 keydown만으로는 Esc가 먹지 않는다)
+const handleEscape = (event: KeyboardEvent): void => {
+  if (event.key === 'Escape' && isOpen.value) close()
+}
+
+onMounted(() => {
+  document.addEventListener('pointerdown', handleOutsidePointerDown)
+  document.addEventListener('keydown', handleEscape)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', handleOutsidePointerDown)
+  document.removeEventListener('keydown', handleEscape)
+})
 </script>
 
 <style scoped lang="scss">
@@ -77,7 +87,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', handleOutsideP
     padding: $space-1-5 $space-3;
     border: 1px solid var(--tk-accent);
     border-radius: $radius-full;
-    background: rgb(16 185 129 / 12%);
+    background: tint($color-emerald-500, 0.12);
     color: $color-emerald-500;
     font-size: $font-sm;
     font-weight: 600;
@@ -88,7 +98,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', handleOutsideP
     @include focus-ring;
 
     &:hover {
-      background: rgb(16 185 129 / 22%);
+      background: tint($color-emerald-500, 0.22);
     }
 
     &:active {
@@ -118,7 +128,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', handleOutsideP
     padding: $space-4;
     color: var(--tk-text);
     font-size: $font-sm;
-    box-shadow: 0 8px 24px rgb(15 23 42 / 18%);
+    box-shadow: 0 8px 24px tint($color-slate-900, 0.18);
     transform-origin: top right;
   }
 

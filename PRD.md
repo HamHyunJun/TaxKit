@@ -457,32 +457,31 @@ useState('taxkit:handoff') ─┐
 TaxKit/
 ├─ app/
 │  ├─ app.vue
-│  ├─ pages/index.vue                 # 탭 컨테이너 (쿼리 ?tab=)
+│  ├─ pages/index.vue                 # 탭 컨테이너 (쿼리 ?tab=, 패널 KeepAlive)
 │  ├─ components/
 │  │  ├─ layout/  AppHeader.vue, SecurityBadge.vue, TabNav.vue, AppFooter.vue
-│  │  ├─ common/  DropZone.vue, DataTable.vue, CopyButton.vue, ToastHost.vue, ColumnMapModal.vue
+│  │  ├─ common/  DropZone.vue, ColumnMapModal.vue, CopyButton.vue, ToastHost.vue
 │  │  ├─ reconcile/ ReconcilePanel.vue, ReconcileOptions.vue, ReconcileSummary.vue, ReconcileTable.vue
 │  │  ├─ scanner/   ScannerPanel.vue, RuleToggles.vue, RiskSummary.vue, RiskTable.vue
-│  │  └─ message/   MessagePanel.vue, TemplateEditor.vue, PartnerCard.vue
+│  │  └─ message/   MessagePanel.vue, TemplateEditor.vue, PartnerList.vue, MessagePreview.vue
 │  ├─ composables/
 │  │  ├─ useExcelReader.ts  useExcelWriter.ts  useColumnMapping.ts
 │  │  ├─ useReconcile.ts    useRiskScanner.ts  useMessageBuilder.ts
 │  │  ├─ useHandoff.ts      useToast.ts        useClipboard.ts
-│  ├─ utils/   amount.ts, date.ts, bizNo.ts, companyName.ts, similarity.ts, holidays.ts, byteLength.ts
-│  ├─ types/   excel.ts, bank.ts, invoice.ts, card.ts, reconcile.ts, risk.ts, message.ts
+│  ├─ utils/   amount.ts, date.ts, bizNo.ts, companyName.ts, format.ts, excelLimits.ts, tabs.ts,
+│  │           similarity.ts, reconcile.ts, reconcileSpecs.ts, reconcileExport.ts,
+│  │           holidays.ts, riskRules.ts, cardSpecs.ts, riskExport.ts,
+│  │           messageGroups.ts, messageTemplate.ts, messageSpecs.ts, byteLength.ts
+│  ├─ types/   excel.ts, bank.ts, invoice.ts, reconcile.ts, card.ts, risk.ts, message.ts, tab.ts, toast.ts
 │  └─ assets/
 │     └─ scss/
-│        ├─ main.scss                 # 전역 진입점 (reset, :root CSS 변수, base, 유틸 클래스)
+│        ├─ main.scss                 # 전역 진입점
 │        ├─ abstracts/                # CSS를 출력하지 않는 변수·믹스인·함수 (모든 SFC에 자동 주입)
-│        │  ├─ _index.scss            # @forward 모음
-│        │  ├─ _tokens.scss           # 색상·간격·반경·폰트 크기 SCSS 변수
-│        │  ├─ _motion.scss           # 이징·지속시간·키프레임 믹스인
-│        │  └─ _mixins.scss           # 반응형 브레이크포인트, focus-ring, visually-hidden 등
-│        └─ base/ _reset.scss, _root.scss, _typography.scss, _utilities.scss
+│        │  └─ _index.scss, _tokens.scss, _motion.scss, _mixins.scss
+│        └─ base/ _reset.scss, _root.scss, _typography.scss, _utilities.scss, _keyframes.scss
 ├─ public/favicon.svg
-├─ test/fixtures/                     # 익명화된 샘플 엑셀
-├─ nuxt.config.ts
-├─ package.json
+├─ nuxt.config.ts, eslint.config.mjs, tsconfig.json, package.json, pnpm-lock.yaml
+├─ AGENTS.md
 ├─ PRD.md
 └─ CLAUDE.md
 ```
@@ -530,11 +529,11 @@ TaxKit/
 - [x] 템플릿·사무소 정보 `localStorage` 저장
 
 ### Phase 5 — 마무리 및 배포 (브랜치 `release`)
-- [ ] 접근성 점검(키보드만으로 3개 탭 전체 흐름 완료, 스크린리더 안내 확인)
-- [ ] `prefers-reduced-motion` 대응 확인
-- [ ] 운영 CSP 적용 후 네트워크 탭에서 외부 요청 0건 확인
+- [ ] 접근성 점검(키보드만으로 3개 탭 전체 흐름 완료, 스크린리더 안내 확인) — 탭 화살표·Home·End 이동과 팝오버 Esc는 Chrome에서 측정함. 파일 업로드 이후 키보드 흐름과 스크린리더 확인은 남음
+- [x] `prefers-reduced-motion` 대응 확인 (Chrome 에뮬레이션으로 탭 인디케이터·뱃지 transition 해제 측정)
+- [x] 운영 CSP 적용 후 네트워크 탭에서 외부 요청 0건 확인 (정적 빌드 기준, 세 탭 업로드·대사·전달·복사·다운로드 흐름 전체에서 외부 요청 0건·콘솔 오류 0건)
 - [ ] Lighthouse 접근성·성능 90점 이상
-- [ ] `nuxi generate` → Vercel 정적 배포
+- [ ] `nuxi generate` → Vercel 정적 배포 (`pnpm generate`는 통과, 배포는 남음)
 
 ## 10. 열린 질문
 - 은행별 엑셀 양식 샘플(국민·신한·우리·하나·기업·농협) 확보 필요 — 별칭 사전 보강용.
