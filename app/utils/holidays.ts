@@ -25,5 +25,13 @@ const HOLIDAY_LIST: readonly (readonly [string, string])[] = [
 
 const HOLIDAYS: ReadonlyMap<string, string> = new Map(HOLIDAY_LIST)
 
+const TABLE_YEARS = HOLIDAY_LIST.map(([date]) => Number(date.slice(0, 4)))
+export const HOLIDAY_FIRST_YEAR: number = Math.min(...TABLE_YEARS)
+export const HOLIDAY_LAST_YEAR: number = Math.max(...TABLE_YEARS)
+
+// 날짜가 공휴일 표가 다루는 연도 안인지. 밖이면 공휴일 여부를 판정할 수 없다
+export const isInHolidayTable = (date: Date): boolean =>
+  date.getFullYear() >= HOLIDAY_FIRST_YEAR && date.getFullYear() <= HOLIDAY_LAST_YEAR
+
 // 공휴일이면 이름을, 아니면 null (날짜는 로컬 달력 기준)
 export const getHolidayName = (date: Date): string | null => HOLIDAYS.get(formatDate(date)) ?? null

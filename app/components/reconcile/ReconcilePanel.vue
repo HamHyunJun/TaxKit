@@ -26,6 +26,16 @@
           <template #info>
             <InfoTip topic="bankFile" />
           </template>
+          <template #footer>
+            <button
+              v-if="canReopenBank"
+              type="button"
+              class="tk-btn tk-btn--ghost tk-btn--sm drop-zone-reopen"
+              @click="reopenMapping('bank')"
+            >
+              컬럼 다시 지정
+            </button>
+          </template>
         </DropZone>
         <DropZone
           title="홈택스 세금계산서 엑셀"
@@ -36,6 +46,16 @@
         >
           <template #info>
             <InfoTip topic="invoiceFile" />
+          </template>
+          <template #footer>
+            <button
+              v-if="canReopenInvoice"
+              type="button"
+              class="tk-btn tk-btn--ghost tk-btn--sm drop-zone-reopen"
+              @click="reopenMapping('invoice')"
+            >
+              컬럼 다시 지정
+            </button>
           </template>
         </DropZone>
       </div>
@@ -144,8 +164,8 @@
 
     <ColumnMapModal
       v-if="pending"
-      :key="`${pending.kind}-${pending.fileName}`"
-      :fields="FIELDS_BY_KIND[pending.kind]"
+      :key="pending.fileName"
+      :fields="pending.specs"
       :headers="pending.headers"
       :initial-mapping="pending.mapping"
       @confirm="confirmMapping"
@@ -157,7 +177,7 @@
 <script setup lang="ts">
 import { ArrowRight, Download, Info } from 'lucide-vue-next'
 import type { ReconcileFilter, ReconcileResult } from '~/types/reconcile'
-import type { SourceState } from '~/composables/useReconcile'
+import type { SheetSourceState } from '~/composables/useSheetSource'
 
 const FILTER_CAPTIONS: Record<ReconcileFilter, string> = {
   matched: '일치 건 (검토 필요 포함)',
@@ -170,7 +190,7 @@ const EMPTY_TEXTS: Record<ReconcileFilter, string> = {
   mismatch: '금액이 다른 거래가 없어요.',
 }
 
-const { bank, invoice, pending, options, output, isRunning, runError, canRun, loadFile, confirmMapping, cancelMapping, run } = useReconcile()
+const { bank, invoice, pending, options, output, isRunning, runError, canRun, canReopenBank, canReopenInvoice, loadFile, confirmMapping, cancelMapping, reopenMapping, run } = useReconcile()
 const { downloadWorkbook } = useExcelWriter()
 const { setHandoff } = useHandoff()
 const { showToast } = useToast()
@@ -196,7 +216,7 @@ const isStale = computed<boolean>(() => {
 const emptyText = computed<string>(() => EMPTY_TEXTS[filter.value])
 
 // "1,204행 · 확인 필요 3건"
-const sourceDetail = (source: SourceState<unknown>): string | null => {
+const sourceDetail = (source: SheetSourceState<unknown>): string | null => {
   if (source.fileName === null) return null
   const base = `${source.rows.length.toLocaleString('ko-KR')}행`
   return source.needsCheck > 0 ? `${base} · 확인 필요 ${source.needsCheck.toLocaleString('ko-KR')}건` : base

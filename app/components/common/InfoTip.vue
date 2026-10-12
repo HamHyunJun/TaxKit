@@ -7,7 +7,7 @@
       :class="{ 'is-open': isOpen }"
       :aria-label="`${help.title} 설명 ${isOpen ? '닫기' : '보기'}`"
       :aria-expanded="isOpen"
-      :aria-controls="bubbleId"
+      :aria-controls="isOpen ? bubbleId : undefined"
       @click="toggle"
     >
       <Info
@@ -25,7 +25,9 @@
           :class="`is-${placement}`"
           :style="bubbleStyle"
           role="region"
+          tabindex="-1"
           :aria-label="`${help.title} 설명`"
+          @focusout="handleFocusOut"
         >
           <span
             class="info-tip__arrow"
@@ -119,6 +121,15 @@ const toggle = async (): Promise<void> => {
   reposition()
   await nextTick() // 말풍선 높이를 잰 뒤 위/아래를 다시 정한다
   reposition()
+  // 화면 낭독기와 키보드 사용자가 열린 설명을 바로 읽을 수 있도록 포커스를 말풍선으로 옮긴다
+  bubbleRef.value?.focus({ preventScroll: true })
+}
+
+// 포커스가 말풍선 밖으로 나가면(Tab 등) 닫는다
+const handleFocusOut = (event: FocusEvent): void => {
+  const next = event.relatedTarget
+  if (next instanceof Node && (bubbleRef.value?.contains(next) || buttonRef.value?.contains(next))) return
+  close()
 }
 
 const handlePointerDown = (event: PointerEvent): void => {
@@ -133,19 +144,26 @@ const handleKeydown = (event: KeyboardEvent): void => {
   buttonRef.value?.focus()
 }
 
-onMounted(() => {
+// 전역 리스너는 말풍선이 열려 있는 동안에만 둔다 (아이콘이 수십 개여도 평소에는 비용이 없다)
+const attach = (): void => {
   document.addEventListener('pointerdown', handlePointerDown)
   document.addEventListener('keydown', handleKeydown)
   window.addEventListener('resize', follow)
   window.addEventListener('scroll', follow, { capture: true, passive: true })
-})
-onBeforeUnmount(() => {
+}
+const detach = (): void => {
   document.removeEventListener('pointerdown', handlePointerDown)
   document.removeEventListener('keydown', handleKeydown)
   window.removeEventListener('resize', follow)
   window.removeEventListener('scroll', follow, { capture: true })
   cancelAnimationFrame(frame)
+}
+
+watch(isOpen, (open) => {
+  if (open) attach()
+  else detach()
 })
+onBeforeUnmount(detach)
 </script>
 
 <style scoped lang="scss">
@@ -203,6 +221,15 @@ onBeforeUnmount(() => {
 
     &.is-top {
       transform-origin: bottom center;
+    }
+
+    // 마우스로 열었을 때는 링이 보이지 않고, 키보드로 열었을 때만 보인다
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      box-shadow: var(--tk-shadow-pop), var(--tk-focus-ring);
     }
   }
 

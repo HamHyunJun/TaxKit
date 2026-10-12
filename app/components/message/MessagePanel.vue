@@ -51,7 +51,18 @@
         :detail="uploadDetail"
         :error="source.error"
         @select="loadFile"
-      />
+      >
+        <template #footer>
+          <button
+            v-if="canReopen"
+            type="button"
+            class="tk-btn tk-btn--ghost tk-btn--sm drop-zone-reopen"
+            @click="reopenMapping"
+          >
+            컬럼 다시 지정
+          </button>
+        </template>
+      </DropZone>
     </div>
 
     <TemplateEditor v-model="settings" />
@@ -122,7 +133,7 @@
     <ColumnMapModal
       v-if="pending"
       :key="pending.fileName"
-      :fields="MESSAGE_FIELDS"
+      :fields="pending.specs"
       :headers="pending.headers"
       :initial-mapping="pending.mapping"
       @confirm="confirmMapping"
@@ -137,7 +148,7 @@ import type { PartnerGroup } from '~/types/message'
 
 const {
   mode, handoffCount, source, pending, settings, search, rowCount, groups, visibleGroups, activeGroup, copiedKeys,
-  select, messageOf, allMessages, markCopied, loadFile, confirmMapping, cancelMapping,
+  select, messageOf, allMessages, markCopied, canReopen, loadFile, confirmMapping, cancelMapping, reopenMapping,
 } = useMessageBuilder()
 const { showToast } = useToast()
 

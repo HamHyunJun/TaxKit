@@ -1,30 +1,16 @@
-import type { ColumnMapping, ParseIssue, RawSheet } from '~/types/excel'
+import type { ColumnMapping } from '~/types/excel'
 import type { MessageChannel, MessageSettings, MissingEvidenceRow, PartnerGroup } from '~/types/message'
 import type { MessageFieldKey } from '~/utils/messageSpecs'
+import type { PendingMapping, SheetSourceState } from '~/composables/useSheetSource'
 
 export type MessageSourceMode = 'handoff' | 'upload'
-
-export type MessageSource = {
-  fileName: string | null
-  needsCheck: number // 값을 해석하지 못해 확인이 필요한 행 수
-  error: string | null
-}
-
-// 필수 열을 자동으로 찾지 못해 사용자의 컬럼 매핑을 기다리는 파일
-export type MessagePending = {
-  fileName: string
-  sheet: RawSheet
-  headerRowIndex: number
-  headers: string[]
-  mapping: ColumnMapping
-  signature: string
-}
 
 type UseMessageBuilderReturn = {
   mode: Ref<MessageSourceMode>
   handoffCount: ComputedRef<number>
-  source: Readonly<Ref<MessageSource>>
-  pending: Readonly<Ref<MessagePending | null>>
+  source: Readonly<Ref<SheetSourceState<MissingEvidenceRow>>>
+  pending: Readonly<Ref<PendingMapping | null>>
+  canReopen: ComputedRef<boolean>
   settings: Ref<MessageSettings>
   search: Ref<string>
   rowCount: ComputedRef<number>
@@ -39,6 +25,7 @@ type UseMessageBuilderReturn = {
   loadFile: (file: File) => Promise<void>
   confirmMapping: (mapping: ColumnMapping) => void
   cancelMapping: () => void
+  reopenMapping: () => void
 }
 
 const STORAGE_KEY = 'taxkit:message-settings'
@@ -81,14 +68,17 @@ const saveStored = (settings: MessageSettings): void => {
   }
 }
 
-const countNeedsCheck = (issues: readonly ParseIssue[], skipped: readonly number[]): number =>
-  new Set([...issues.map(issue => issue.rowIndex), ...skipped]).size
-
 // Tab 3 상태: Tab 1에서 넘어온 누락 건 또는 직접 올린 엑셀 → 거래처별 그룹 → 템플릿 치환. 모두 브라우저 메모리 안에서만 처리한다
 export const useMessageBuilder = (): UseMessageBuilderReturn => {
   const { rows: handoffRows } = useHandoff()
-  const { readWorkbook, pickDefaultSheet, detectColumns, parseSheet } = useExcelReader()
-  const { getSignature, loadMapping, saveMapping } = useColumnMapping()
+  const upload = useSheetSource<MessageFieldKey, MissingEvidenceRow>({
+    specs: MESSAGE_FIELDS,
+    adjustMapping: withPartnerFallback,
+    isComplete: isMessageMappingComplete,
+    incompleteMessage: '거래처명, 거래일자, 금액 열을 지정해 주세요',
+    emptyMessage: '메시지를 만들 수 있는 행이 없어요. 컬럼 매핑을 확인해 주세요',
+    toRows: toMissingRows,
+  })
 
   const stored = loadStored()
   const settings = ref<MessageSettings>({
@@ -107,9 +97,7 @@ export const useMessageBuilder = (): UseMessageBuilderReturn => {
     if (count > 0) mode.value = 'handoff'
   })
 
-  const source = ref<MessageSource>({ fileName: null, needsCheck: 0, error: null })
-  const pending = ref<MessagePending | null>(null)
-  const uploadedRows = shallowRef<MissingEvidenceRow[]>([])
+  const uploadedRows = computed<MissingEvidenceRow[]>(() => upload.state.value.rows)
   const search = ref<string>('')
   const selectedKey = ref<string | null>(null)
   const copiedKeys = ref<string[]>([])
@@ -124,9 +112,14 @@ export const useMessageBuilder = (): UseMessageBuilderReturn => {
   )
 
   // 소스가 바뀌면 복사 표시와 선택을 처음 상태로 되돌린다
-  watch([mode, handoffRows], () => {
+  watch([mode, handoffRows, upload.state], () => {
     copiedKeys.value = []
     selectedKey.value = null
+  })
+
+  // 파일을 올리면 그 파일을 소스로 쓴다
+  watch(upload.state, (state) => {
+    if (state.fileName) mode.value = 'upload'
   })
 
   const messageOf = (group: PartnerGroup): string => {
@@ -141,66 +134,9 @@ export const useMessageBuilder = (): UseMessageBuilderReturn => {
     copiedKeys.value = [...new Set([...copiedKeys.value, ...keys])]
   }
 
-  const fail = (message: string): void => {
-    source.value = { fileName: null, needsCheck: 0, error: message }
-    uploadedRows.value = []
-  }
-
-  const finalize = (target: MessagePending): void => {
-    const parsed = parseSheet(target.sheet, target.fileName, target.headerRowIndex, target.mapping as ColumnMapping<MessageFieldKey>, MESSAGE_FIELDS)
-    const converted = toMissingRows(parsed.rows)
-    uploadedRows.value = converted.rows
-    copiedKeys.value = []
-    selectedKey.value = null
-    source.value = {
-      fileName: target.fileName,
-      needsCheck: countNeedsCheck(parsed.issues, converted.skipped),
-      error: converted.rows.length === 0 ? '메시지를 만들 수 있는 행이 없어요. 컬럼 매핑을 확인해 주세요' : null,
-    }
-    mode.value = 'upload'
-  }
-
-  const loadFile = async (file: File): Promise<void> => {
-    try {
-      const workbook = await readWorkbook(file)
-      const sheet = pickDefaultSheet(workbook)
-      if (!sheet) {
-        fail('데이터가 있는 시트를 찾지 못했어요')
-        return
-      }
-      const detection = detectColumns(sheet.rows, MESSAGE_FIELDS)
-      const signature = getSignature(detection.headers)
-      // 같은 양식에서 사용자가 지정해 둔 매핑이 있으면 그것을 우선한다
-      const mapping = withPartnerFallback(loadMapping(signature, MESSAGE_FIELDS.map(field => field.key)) ?? detection.mapping)
-      const target: MessagePending = { fileName: file.name, sheet, headerRowIndex: detection.headerRowIndex, headers: detection.headers, mapping, signature }
-      if (isMessageMappingComplete(mapping)) finalize(target)
-      else pending.value = target
-    }
-    catch (error) {
-      fail(error instanceof Error ? error.message : '파일을 처리하지 못했어요')
-    }
-  }
-
-  const confirmMapping = (mapping: ColumnMapping): void => {
-    const target = pending.value
-    if (!target) return
-    pending.value = null
-    if (!isMessageMappingComplete(mapping)) {
-      fail('거래처명, 거래일자, 금액 열을 지정해 주세요')
-      return
-    }
-    saveMapping(target.signature, mapping)
-    finalize({ ...target, mapping })
-  }
-
-  const cancelMapping = (): void => {
-    if (!pending.value) return
-    pending.value = null
-    fail('컬럼 매핑이 취소되어 파일을 불러오지 않았어요')
-  }
-
   return {
-    mode, handoffCount, source, pending, settings, search, rowCount, groups, visibleGroups, activeGroup, copiedKeys,
-    select, messageOf, allMessages, markCopied, loadFile, confirmMapping, cancelMapping,
+    mode, handoffCount, source: upload.state, pending: upload.pending, canReopen: upload.canReopen, settings, search, rowCount, groups, visibleGroups,
+    activeGroup, copiedKeys, select, messageOf, allMessages, markCopied,
+    loadFile: upload.loadFile, confirmMapping: upload.confirmMapping, cancelMapping: upload.cancelMapping, reopenMapping: upload.reopenMapping,
   }
 }

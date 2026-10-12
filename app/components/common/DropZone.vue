@@ -45,6 +45,12 @@
     >
       <slot name="info" />
     </div>
+    <div
+      v-if="$slots.footer"
+      class="drop-zone-wrap__footer"
+    >
+      <slot name="footer" />
+    </div>
   </div>
 </template>
 
@@ -129,6 +135,11 @@ const handleChange = (event: Event): void => {
     position: absolute;
     top: $space-3;
     right: $space-3;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
   }
 }
 
