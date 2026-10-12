@@ -45,7 +45,7 @@ const emptySummary = (): ReconcileSummary => ({
   EXCLUDED: { count: 0, amount: 0 },
 })
 
-export const summarize = (results: readonly ReconcileResult[]): ReconcileSummary => {
+const summarize = (results: readonly ReconcileResult[]): ReconcileSummary => {
   const summary = emptySummary()
   for (const result of results) {
     const entry = summary[result.status]
@@ -56,7 +56,7 @@ export const summarize = (results: readonly ReconcileResult[]): ReconcileSummary
 }
 
 // 사업자번호가 가장 많이 등장하는 쪽을 우리 회사로 추정한다 (다수결)
-export const inferOurBizNo = (invoices: readonly TaxInvoice[]): string | null => {
+const inferOurBizNo = (invoices: readonly TaxInvoice[]): string | null => {
   if (invoices.length < 2) return null
   const counts = new Map<string, number>()
   for (const invoice of invoices) {

@@ -5,7 +5,7 @@ const bigrams = (text: string): string[] => {
 }
 
 // 문자 bigram Dice 계수 (0~1)
-export const diceCoefficient = (a: string, b: string): number => {
+const diceCoefficient = (a: string, b: string): number => {
   if (a === b) return a.length > 0 ? 1 : 0
   const gramsA = bigrams(a)
   const gramsB = bigrams(b)
@@ -55,7 +55,7 @@ const jaro = (a: string, b: string): number => {
 }
 
 // Jaro-Winkler 유사도 (공통 접두사 최대 4자에 가산점)
-export const jaroWinkler = (a: string, b: string): number => {
+const jaroWinkler = (a: string, b: string): number => {
   const base = jaro(a, b)
   let prefix = 0
   while (prefix < Math.min(4, a.length, b.length) && a[prefix] === b[prefix]) prefix += 1
