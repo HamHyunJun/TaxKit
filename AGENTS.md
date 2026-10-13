@@ -42,7 +42,7 @@
 
 ### Testing Requirements
 - 커밋 전 `pnpm typecheck && pnpm lint` 통과. 배포 전 `pnpm generate`(정적 빌드)도 확인한다.
-- 테스트 러너는 도입하지 않았다(Ponytail). 로직을 바꿨다면 저장소 밖 임시 스크립트로 순수 함수를 직접 실행해 검증한다.
+- 외부 테스트 러너는 도입하지 않고 Node 내장 `node --test`를 쓴다(`pnpm test`, `test/unit/*.test.ts`). 로직을 바꾸면 테스트를 추가·갱신한다. composable은 Nuxt 자동 import 대신 `vue`의 `ref`/`computed`를 전역에 걸어 테스트한다(`test/unit/sheetSource.test.ts` 참고).
 - 화면 동작은 정적 빌드(`.output/public`)를 로컬 서버로 띄우고 Chrome 원격 디버깅으로 클릭·키보드·네트워크를 측정해 확인할 수 있다. 외부 요청 0건과 콘솔 오류 0건을 함께 본다.
 - 테스트 픽스처는 익명화 샘플만 사용하고 실제 고객 엑셀은 커밋하지 않는다(`.gitignore`가 `*.xlsx`·`*.csv`를 막는다).
 - 완료한 항목은 `PRD.md` 체크리스트에서 `[x]`로 갱신한다.
