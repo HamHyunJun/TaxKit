@@ -27,11 +27,13 @@ import { ShieldCheck } from 'lucide-vue-next'
     display: inline-flex;
     align-items: center;
     gap: $space-2;
+    max-width: 100%;
   }
 
   &__icon {
     width: 1rem;
     height: 1rem;
+    flex-shrink: 0;
     color: var(--tk-accent-hover);
   }
 }
