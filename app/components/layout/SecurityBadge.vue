@@ -159,7 +159,7 @@ onBeforeUnmount(() => {
 
     position: absolute;
     top: calc(100% + #{$space-3});
-    right: 0;
+    left: 0;
     z-index: 60;
     display: grid;
     gap: $space-3;
@@ -169,8 +169,14 @@ onBeforeUnmount(() => {
     font-size: $font-sm;
     line-height: 1.65;
     box-shadow: var(--tk-shadow-pop);
-    transform-origin: top right;
+    transform-origin: top left;
     word-break: keep-all;
+
+    @include respond-to(sm) {
+      right: 0;
+      left: auto;
+      transform-origin: top right;
+    }
   }
 
   &__title {
