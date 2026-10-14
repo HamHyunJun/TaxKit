@@ -129,6 +129,7 @@ onBeforeUnmount(() => {
     place-content: center;
     width: 1.5rem;
     height: 1.5rem;
+    flex-shrink: 0;
     border-radius: 50%;
     background: var(--tk-accent);
     color: var(--tk-bg);

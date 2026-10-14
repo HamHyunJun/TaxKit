@@ -64,6 +64,7 @@
 
   &__brand {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.625rem;
   }
