@@ -164,7 +164,7 @@ const items = computed<FilterItem[]>(() => [
 
   &__body {
     display: grid;
-    gap: 0.125rem;
+    gap: $space-0-5;
     min-width: 0;
   }
 

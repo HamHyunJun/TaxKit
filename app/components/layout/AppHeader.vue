@@ -66,7 +66,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.625rem;
+    gap: $space-2-5;
   }
 
   &__mark-bg {

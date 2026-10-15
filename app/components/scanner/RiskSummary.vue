@@ -148,7 +148,7 @@ const handleChange = (level: RiskLevel, event: Event): void => {
   }
 
   &__unit {
-    margin-left: 0.125rem;
+    margin-left: $space-0-5;
     color: var(--tk-muted);
     font-size: $font-sm;
     font-weight: 500;
@@ -193,7 +193,7 @@ const handleChange = (level: RiskLevel, event: Event): void => {
   }
 
   &__tag-count {
-    margin-left: 0.125rem;
+    margin-left: $space-0-5;
     color: var(--tk-text-strong);
     font-variant-numeric: tabular-nums;
   }

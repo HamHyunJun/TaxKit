@@ -249,7 +249,7 @@ onBeforeUnmount(detach)
     position: absolute;
     width: 0.75rem;
     height: 0.75rem;
-    margin-left: -0.375rem;
+    margin-left: -$space-1-5;
     border: 1px solid var(--tk-border);
     background: var(--tk-card);
   }
