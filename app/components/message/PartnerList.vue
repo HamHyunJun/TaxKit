@@ -199,7 +199,7 @@ const emit = defineEmits<{
   &__text {
     display: grid;
     flex: 1;
-    gap: 0.125rem;
+    gap: $space-0-5;
     min-width: 0;
   }
 
@@ -224,7 +224,7 @@ const emit = defineEmits<{
     flex: none;
     align-items: center;
     gap: $space-1;
-    padding: 0.125rem $space-2;
+    padding: $space-0-5 $space-2;
     border-radius: $radius-full;
     background: var(--tk-accent-soft);
     color: var(--tk-accent-text);

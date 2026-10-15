@@ -212,7 +212,7 @@ const handleInput = (id: string, event: Event): void => {
   &__scroll {
     max-height: 40rem;
     overflow: auto;
-    scroll-padding-block: 3rem;
+    scroll-padding-block: $space-12;
 
     @include focus-ring;
   }
@@ -261,7 +261,7 @@ const handleInput = (id: string, event: Event): void => {
     display: inline-flex;
     align-items: center;
     gap: $space-1;
-    padding: 0.1875rem 0.625rem;
+    padding: 0.1875rem $space-2-5;
     border-radius: $radius-full;
     font-size: $font-xs;
     font-weight: 700;
@@ -315,7 +315,7 @@ const handleInput = (id: string, event: Event): void => {
   }
 
   &__sub {
-    margin-top: 0.125rem;
+    margin-top: $space-0-5;
     color: var(--tk-muted);
     font-size: $font-xs;
     line-height: 1.5;
@@ -331,7 +331,7 @@ const handleInput = (id: string, event: Event): void => {
   }
 
   &__won {
-    margin-left: 0.125rem;
+    margin-left: $space-0-5;
     color: var(--tk-muted);
     font-size: $font-xs;
   }
@@ -352,7 +352,7 @@ const handleInput = (id: string, event: Event): void => {
 
   &__chip {
     flex: none;
-    padding: 0.125rem $space-2;
+    padding: $space-0-5 $space-2;
     border-radius: $radius-sm;
     background: var(--tk-surface-strong);
     color: $color-slate-700;

@@ -255,7 +255,7 @@ const statusIcon = (status: MatchStatus): Component => STATUS_ICONS[status]
   &__scroll {
     max-height: 36rem;
     overflow: auto;
-    scroll-padding-block: 3rem;
+    scroll-padding-block: $space-12;
 
     @include focus-ring;
   }
@@ -306,7 +306,7 @@ const statusIcon = (status: MatchStatus): Component => STATUS_ICONS[status]
 
   &__dir {
     display: inline-block;
-    margin-top: 0.125rem;
+    margin-top: $space-0-5;
     padding: 0 $space-2;
     border-radius: $radius-full;
     font-size: $font-xs;
@@ -332,7 +332,7 @@ const statusIcon = (status: MatchStatus): Component => STATUS_ICONS[status]
   }
 
   &__won {
-    margin-left: 0.125rem;
+    margin-left: $space-0-5;
     color: var(--tk-muted);
     font-size: $font-xs;
   }
@@ -346,7 +346,7 @@ const statusIcon = (status: MatchStatus): Component => STATUS_ICONS[status]
 
   &__reason {
     display: -webkit-box;
-    margin-top: 0.125rem;
+    margin-top: $space-0-5;
     overflow: hidden;
     color: var(--tk-muted);
     font-size: $font-xs;
@@ -368,7 +368,7 @@ const statusIcon = (status: MatchStatus): Component => STATUS_ICONS[status]
     display: inline-flex;
     align-items: center;
     gap: $space-1;
-    padding: 0.1875rem 0.625rem;
+    padding: 0.1875rem $space-2-5;
     border-radius: $radius-full;
     font-size: $font-xs;
     font-weight: 700;

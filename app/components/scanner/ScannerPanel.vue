@@ -201,7 +201,7 @@ const handleDownload = (): void => {
     flex: none;
     width: 1.125rem;
     height: 1.125rem;
-    margin-top: 0.125rem;
+    margin-top: $space-0-5;
   }
 
   &__toolbar {
